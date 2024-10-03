@@ -15,6 +15,8 @@ namespace Models
 
 		public DbSet<Payroll> Payrolls { get; set; }
 
+		public DbSet<OrderItem> OrderItems { get; set; }
+
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			var connectionString = new ConfigurationBuilder()
@@ -62,7 +64,11 @@ namespace Models
 			#endregion
 
 			#region OrderItem
-
+			modelBuilder.Entity<OrderItem>()
+						.HasOne(oi => oi.Creator)
+						.WithMany(u => u.OrderItems)
+						.HasForeignKey(oi => oi.CreatedBy)
+						.OnDelete(DeleteBehavior.Restrict);
 			#endregion
 
 			#region Bill

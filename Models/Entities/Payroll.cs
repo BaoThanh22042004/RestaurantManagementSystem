@@ -38,6 +38,7 @@ namespace Models.Entities
 
 		public DateOnly? PaymentDate { get; set; }
 
+		// Navigation properties
 		public User Creator { get; set; } = null!;
 		public User Employee { get; set; } = null!;
 
