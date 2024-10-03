@@ -55,7 +55,9 @@ namespace Models
             #endregion
 
             #region Storage
-
+            modelBuilder.Entity<Storage>()
+                        .HasIndex(s => s.ItemName)
+                        .IsUnique();
             #endregion
 
             #region StorageLog
