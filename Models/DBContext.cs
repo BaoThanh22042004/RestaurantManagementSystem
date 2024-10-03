@@ -17,6 +17,12 @@ namespace Models
 
 		public DbSet<OrderItem> OrderItems { get; set; }
 
+		public DbSet<Shift> Shifts { get; set; }
+
+		public DbSet<Schedule> Schedules {  get; set; }
+
+		public DbSet<Attendance> Attendances { get; set; }
+
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			var connectionString = new ConfigurationBuilder()
@@ -69,26 +75,36 @@ namespace Models
 						.WithMany(u => u.OrderItems)
 						.HasForeignKey(oi => oi.CreatedBy)
 						.OnDelete(DeleteBehavior.Restrict);
-			#endregion
+            #endregion
 
-			#region Bill
+            #region Bill
 
-			#endregion
+            #endregion
 
-			#region Shift
+            #region Shift
 
-			#endregion
+            #endregion
 
-			#region Schedule
+            #region Schedule
+            modelBuilder.Entity<Schedule>()
+                       .HasOne(s => s.Shift)
+                       .WithMany(sch => sch.Schedules)
+                       .HasForeignKey(s => s.ShiftId)
+                       .IsRequired();
 
-			#endregion
+            modelBuilder.Entity<Attendance>()
+                                .HasOne(a => a.Schedule)
+                                .WithOne(s => s.Attendance)
+                                .HasForeignKey<Attendance>(a => a.ScheId)
+                                .IsRequired();
+            #endregion
 
-			#region Attendance
+            #region Attendance
 
-			#endregion
+            #endregion
 
-			#region Payroll
-			modelBuilder.Entity<Payroll>()
+            #region Payroll
+            modelBuilder.Entity<Payroll>()
 						.HasOne(p => p.Creator)
 						.WithMany(u => u.CreatedPayrolls)
 						.HasForeignKey(p => p.CreatedBy)
