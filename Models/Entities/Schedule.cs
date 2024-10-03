@@ -23,5 +23,6 @@ namespace Models.Entities
         // Navigation property
         public Shift Shift { get; set; } = null!;
         public Attendance? Attendance { get; set; }
+        public User Employee { get; set; } = null!;
     }
 }

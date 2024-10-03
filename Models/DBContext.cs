@@ -87,20 +87,24 @@ namespace Models
 
             #region Schedule
             modelBuilder.Entity<Schedule>()
-                       .HasOne(s => s.Shift)
-                       .WithMany(sch => sch.Schedules)
-                       .HasForeignKey(s => s.ShiftId)
+                       .HasOne(sch => sch.Shift)
+                       .WithMany(s => s.Schedules)
+                       .HasForeignKey(sch => sch.ShiftId)
                        .IsRequired();
+        
+            modelBuilder.Entity<Schedule>()
+                      .HasOne(sch => sch.Employee)
+                      .WithMany(u => u.Schedules)
+                      .HasForeignKey(sch => sch.EmpId)
+                      .IsRequired();
+            #endregion
 
+            #region Attendance
             modelBuilder.Entity<Attendance>()
                                 .HasOne(a => a.Schedule)
                                 .WithOne(s => s.Attendance)
                                 .HasForeignKey<Attendance>(a => a.ScheId)
                                 .IsRequired();
-            #endregion
-
-            #region Attendance
-
             #endregion
 
             #region Payroll

@@ -45,7 +45,7 @@ namespace Models.Entities
 		// Navigation properties
 		public ICollection<Payroll> CreatedPayrolls { get; set; } = new List<Payroll>();
 		public ICollection<Payroll> Payrolls { get; set; } = new List<Payroll>();
-
-		public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 	}
 }
