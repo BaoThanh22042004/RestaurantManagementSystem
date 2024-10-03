@@ -47,5 +47,6 @@ namespace Models.Entities
 		public ICollection<Payroll> Payrolls { get; set; } = new List<Payroll>();
         public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-	}
+        public ICollection<StorageLog> StorageLogs { get; set; } = new List<StorageLog>();
+    }
 }

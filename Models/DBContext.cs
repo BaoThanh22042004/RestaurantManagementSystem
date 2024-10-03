@@ -23,6 +23,11 @@ namespace Models
 
 		public DbSet<Attendance> Attendances { get; set; }
 
+		public DbSet<StorageLog> StorageLogs { get; set; }
+
+		public DbSet<Storage> Storages { get; set; }
+
+
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			var connectionString = new ConfigurationBuilder()
@@ -39,38 +44,48 @@ namespace Models
 			modelBuilder.Entity<User>()
 						.HasIndex(u => u.Username)
 						.IsUnique();
-			#endregion
+            #endregion
 
-			#region DishCategory
+            #region DishCategory
 
-			#endregion
+            #endregion
 
-			#region Dish
+            #region Dish
 
-			#endregion
+            #endregion
 
-			#region Storage
+            #region Storage
 
-			#endregion
+            #endregion
 
-			#region StorageLog
+            #region StorageLog
+            modelBuilder.Entity<StorageLog>()
+                       .HasOne(sl => sl.Storage)
+                       .WithMany(s => s.StorageLogs)
+                       .HasForeignKey(sl => sl.ItemId)
+                       .IsRequired();
 
-			#endregion
+            modelBuilder.Entity<StorageLog>()
+                       .HasOne(sl => sl.User)
+                       .WithMany(s => s.StorageLogs)
+                       .HasForeignKey(sl => sl.CreatedBy)
+                       .IsRequired();
+            #endregion
 
-			#region Reservation
+            #region Reservation
 
-			#endregion
+            #endregion
 
-			#region Table
+            #region Table
 
-			#endregion
+            #endregion
 
-			#region Order
+            #region Order
 
-			#endregion
+            #endregion
 
-			#region OrderItem
-			modelBuilder.Entity<OrderItem>()
+            #region OrderItem
+            modelBuilder.Entity<OrderItem>()
 						.HasOne(oi => oi.Creator)
 						.WithMany(u => u.OrderItems)
 						.HasForeignKey(oi => oi.CreatedBy)
