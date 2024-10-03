@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -30,8 +31,10 @@ namespace Models.Entities
 
 		public required short Year { get; set; }
 
+		[Precision(6, 2)]
 		public required decimal WorkingHours { get; set; }
 
+		[Precision(10, 2)]
 		public required decimal Salary { get; set; }
 
 		public required PayrollStatus Status { get; set; }

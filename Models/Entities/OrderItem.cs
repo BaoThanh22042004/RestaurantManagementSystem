@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Models.Entities
 {
-    public enum OrderItemStatus
+	public enum OrderItemStatus
 	{
 		Pending,
 		Preparing,
@@ -18,26 +18,26 @@ namespace Models.Entities
 	}
 
 	public class OrderItem
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long OrItemId { get; set; }
+	{
+		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public long OrItemId { get; set; }
 
-        public required long OrderId { get; set; }
+		public required long OrderId { get; set; }
 
-        public required long DishId { get; set; }
+		public required int DishId { get; set; }
 
-        public required int CreatedBy { get; set; }
+		public required int CreatedBy { get; set; }
 
-        public required short Quantity { get; set; }
+		public required short Quantity { get; set; }
 
-        [Precision(10, 2)]
-        public required decimal Price { get; set; }
+		[Precision(10, 2)]
+		public required decimal Price { get; set; }
 
-        public required OrderItemStatus Status { get; set; }
+		public required OrderItemStatus Status { get; set; }
 
 		[Column(TypeName = "text")]
-        public string? Notes { get; set; }
+		public string? Notes { get; set; }
 
 		// Navigation properties
 		public User Creator { get; set; } = null!;

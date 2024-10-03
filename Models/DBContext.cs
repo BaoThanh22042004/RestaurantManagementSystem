@@ -44,52 +44,52 @@ namespace Models
 			modelBuilder.Entity<User>()
 						.HasIndex(u => u.Username)
 						.IsUnique();
-            #endregion
+			#endregion
 
-            #region DishCategory
+			#region DishCategory
 
-            #endregion
+			#endregion
 
-            #region Dish
+			#region Dish
 
-            #endregion
+			#endregion
 
-            #region Storage
-            modelBuilder.Entity<Storage>()
-                        .HasIndex(s => s.ItemName)
-                        .IsUnique();
-            #endregion
+			#region Storage
+			modelBuilder.Entity<Storage>()
+						.HasIndex(s => s.ItemName)
+						.IsUnique();
+			#endregion
 
-            #region StorageLog
-            modelBuilder.Entity<StorageLog>()
-                       .HasOne(sl => sl.Storage)
-                       .WithMany(s => s.StorageLogs)
-                       .HasForeignKey(sl => sl.ItemId)
-                       .IsRequired();
+			#region StorageLog
+			modelBuilder.Entity<StorageLog>()
+						.HasOne(sl => sl.StorageItem)
+						.WithMany(s => s.StorageLogs)
+						.HasForeignKey(sl => sl.ItemId)
+						.IsRequired();
 
-            modelBuilder.Entity<StorageLog>()
-                       .HasOne(sl => sl.User)
-                       .WithMany(s => s.StorageLogs)
-                       .HasForeignKey(sl => sl.CreatedBy)
-                       .IsRequired();
-            #endregion
+			modelBuilder.Entity<StorageLog>()
+						.HasOne(sl => sl.Creator)
+						.WithMany(u => u.StorageLogs)
+						.HasForeignKey(sl => sl.CreatedBy)
+						.IsRequired();
+			#endregion
 
-            #region Reservation
+			#region Reservation
 
-            #endregion
+			#endregion
 
-            #region Table
+			#region Table
 
-            #endregion
+			#endregion
 
-            #region Order
+			#region Order
 
-            #endregion
+			#endregion
 
-            #region OrderItem
-            modelBuilder.Entity<OrderItem>()
+			#region OrderItem
+			modelBuilder.Entity<OrderItem>()
 						.HasOne(oi => oi.Creator)
-						.WithMany(u => u.OrderItems)
+						.WithMany(u => u.CreatedOrderItems)
 						.HasForeignKey(oi => oi.CreatedBy)
 						.OnDelete(DeleteBehavior.Restrict);
 			#endregion
