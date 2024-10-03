@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Models.Entities
 {
-    public enum Role
+	public enum Role
 	{
 		Customer,
 		Waitstaff,
@@ -24,13 +24,13 @@ namespace Models.Entities
 
 		[StringLength(32)]
 		public required string Password { get; set; }
-		
+
 		[StringLength(255)]
 		public required string FullName { get; set; }
-		
+
 		[StringLength(255)]
 		public required string Email { get; set; }
-		
+
 		[StringLength(15)]
 		public required string Phone { get; set; }
 
@@ -45,7 +45,7 @@ namespace Models.Entities
 		// Navigation properties
 		public ICollection<Payroll> CreatedPayrolls { get; set; } = new List<Payroll>();
 		public ICollection<Payroll> Payrolls { get; set; } = new List<Payroll>();
-        public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
-        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+		public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+		public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 	}
 }

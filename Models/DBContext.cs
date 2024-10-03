@@ -19,7 +19,7 @@ namespace Models
 
 		public DbSet<Shift> Shifts { get; set; }
 
-		public DbSet<Schedule> Schedules {  get; set; }
+		public DbSet<Schedule> Schedules { get; set; }
 
 		public DbSet<Attendance> Attendances { get; set; }
 
@@ -75,40 +75,40 @@ namespace Models
 						.WithMany(u => u.OrderItems)
 						.HasForeignKey(oi => oi.CreatedBy)
 						.OnDelete(DeleteBehavior.Restrict);
-            #endregion
+			#endregion
 
-            #region Bill
+			#region Bill
 
-            #endregion
+			#endregion
 
-            #region Shift
+			#region Shift
 
-            #endregion
+			#endregion
 
-            #region Schedule
-            modelBuilder.Entity<Schedule>()
-                       .HasOne(sch => sch.Shift)
-                       .WithMany(s => s.Schedules)
-                       .HasForeignKey(sch => sch.ShiftId)
-                       .IsRequired();
-        
-            modelBuilder.Entity<Schedule>()
-                      .HasOne(sch => sch.Employee)
-                      .WithMany(u => u.Schedules)
-                      .HasForeignKey(sch => sch.EmpId)
-                      .IsRequired();
-            #endregion
+			#region Schedule
+			modelBuilder.Entity<Schedule>()
+						.HasOne(sch => sch.Shift)
+						.WithMany(s => s.Schedules)
+						.HasForeignKey(sch => sch.ShiftId)
+						.IsRequired();
 
-            #region Attendance
-            modelBuilder.Entity<Attendance>()
-                                .HasOne(a => a.Schedule)
-                                .WithOne(s => s.Attendance)
-                                .HasForeignKey<Attendance>(a => a.ScheId)
-                                .IsRequired();
-            #endregion
+			modelBuilder.Entity<Schedule>()
+						.HasOne(sch => sch.Employee)
+						.WithMany(u => u.Schedules)
+						.HasForeignKey(sch => sch.EmpId)
+						.IsRequired();
+			#endregion
 
-            #region Payroll
-            modelBuilder.Entity<Payroll>()
+			#region Attendance
+			modelBuilder.Entity<Attendance>()
+						.HasOne(a => a.Schedule)
+						.WithOne(s => s.Attendance)
+						.HasForeignKey<Attendance>(a => a.ScheId)
+						.IsRequired();
+			#endregion
+
+			#region Payroll
+			modelBuilder.Entity<Payroll>()
 						.HasOne(p => p.Creator)
 						.WithMany(u => u.CreatedPayrolls)
 						.HasForeignKey(p => p.CreatedBy)
