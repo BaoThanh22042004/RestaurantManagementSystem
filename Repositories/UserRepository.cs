@@ -1,35 +1,71 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Models;
 using Models.Entities;
+using Repositories.Interface;
 
 namespace Repositories
 {
-	public class UserRepository : GenericRepository<User>
+	public class UserRepository : IUserRepository, IDisposable
 	{
-		public UserRepository(DBContext context) : base(context)
+		private readonly DBContext _context;
+
+		public UserRepository(DBContext context)
 		{
+			_context = context;
 		}
 
-		public async Task<User?> ValidateLogin(string username, string password)
+		public async Task<IEnumerable<User>> GetAllAsync()
 		{
-			var user = await dbSet.AsNoTracking().FirstOrDefaultAsync(u => u.Username == username);
-			if (user == null || !VerifyPassword(password, user.Password))
+			return await _context.Users.AsNoTracking().ToListAsync();
+		}
+
+		public async Task<User?> GetByIDAsync(int id)
+		{
+			return await _context.Users.FindAsync(id);
+		}
+
+		public async Task InsertAsync(User user)
+		{
+			await _context.Users.AddAsync(user);
+			await SaveAsync();
+		}
+
+		public async Task DeleteAsync(int id)
+		{
+			var user = await _context.Users.FindAsync(id);
+			if (user == null)
 			{
-				return null;
+				throw new Exception($"User with id {id} not found");
 			}
-			return user;
+			await DeleteAsync(user);
 		}
 
-		private static string HashPassword(string password)
+		public async Task DeleteAsync(User user)
 		{
-			// TODO: Implement password hashing
-			return string.Empty;
+			if (_context.Entry(user).State == EntityState.Detached)
+			{
+				_context.Users.Attach(user);
+			}
+			_context.Users.Remove(user);
+			await SaveAsync();
 		}
 
-		private static bool VerifyPassword(string password, string hash)
+		public async Task UpdateAsync(User user)
 		{
-			// TODO: Implement password verification
-			return false;
+			_context.Users.Attach(user);
+			_context.Entry(user).State = EntityState.Modified;
+			await SaveAsync();
+		}
+
+		public async Task SaveAsync()
+		{
+			await _context.SaveChangesAsync();
+		}
+
+		public void Dispose()
+		{
+			_context.Dispose();
+			GC.SuppressFinalize(this);
 		}
 	}
 }
