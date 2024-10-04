@@ -41,12 +41,19 @@ namespace Models.Entities
 
 		public required bool IsActive { get; set; }
 
-
 		// Navigation properties
 		public ICollection<Payroll> CreatedPayrolls { get; set; } = new List<Payroll>();
+
 		public ICollection<Payroll> Payrolls { get; set; } = new List<Payroll>();
+
 		public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+
 		public ICollection<OrderItem> CreatedOrderItems { get; set; } = new List<OrderItem>();
-		public ICollection<StorageLog> StorageLogs { get; set; } = new List<StorageLog>();
+
+		public ICollection<StorageLog> CreatedStorageLogs { get; set; } = new List<StorageLog>();
+
+		public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+
+		public ICollection<Bill> CreatedBills { get; set; } = new List<Bill>();
 	}
 }

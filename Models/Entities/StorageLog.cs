@@ -1,11 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Models.Entities
 {
@@ -42,10 +37,9 @@ namespace Models.Entities
 		[Column(TypeName = "text")]
 		public string? Description { get; set; }
 
-
 		// Navigation properties
 		public Storage StorageItem { get; set; } = null!;
-		public User Creator { get; set; } = null!;
 
+		public User Creator { get; set; } = null!;
 	}
 }
