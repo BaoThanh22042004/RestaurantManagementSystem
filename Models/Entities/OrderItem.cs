@@ -42,10 +42,6 @@ namespace Models.Entities
         // Navigation properties
         public User Creator { get; set; } = null!;
         public Order Order { get; set; } = null!;
-
-    }
-		// Navigation properties
-		public User Creator { get; set; } = null!;
         public Dish Dish { get; set; } = null!;
     }
 }
