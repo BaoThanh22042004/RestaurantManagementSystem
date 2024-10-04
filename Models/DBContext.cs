@@ -27,6 +27,7 @@ namespace Models
 
         public DbSet<Storage> Storages { get; set; }
 
+        public DbSet<DishCategory> DishCategories { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
 
         public DbSet<Order> Orders { get; set; }
@@ -57,7 +58,15 @@ namespace Models
             #endregion
 
             #region Dish
+            modelBuilder.Entity<DishCategory>()
+                        .HasIndex(dc => dc.CatName)
+                        .IsUnique();
 
+            modelBuilder.Entity<Dish>()
+                      .HasOne(d => d.Category)
+                      .WithMany(dc => dc.Dishes)
+                      .HasForeignKey(d => d.CategoryId)
+                      .IsRequired();
             #endregion
 
             #region Storage
@@ -102,6 +111,18 @@ namespace Models
                         .IsRequired();
             #endregion
 
+            #region OrderItem
+            modelBuilder.Entity<OrderItem>()
+             .HasOne(oi => oi.Creator)
+             .WithMany(u => u.CreatedOrderItems)
+             .HasForeignKey(oi => oi.CreatedBy)
+             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<OrderItem>()
+                        .HasOne(oi => oi.Dish)
+                        .WithMany(d => d.OrderItems)
+                        .HasForeignKey(oi => oi.DishId);
+            #endregion
             #region OrderItem
             modelBuilder.Entity<OrderItem>()
                         .HasOne(oi => oi.Creator)
