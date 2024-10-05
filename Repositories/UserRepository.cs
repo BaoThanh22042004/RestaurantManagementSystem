@@ -2,6 +2,8 @@
 using Models;
 using Models.Entities;
 using Repositories.Interface;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Repositories
 {
@@ -26,6 +28,7 @@ namespace Repositories
 
 		public async Task InsertAsync(User user)
 		{
+			user.Password = HashPassword(user.Password);
 			await _context.Users.AddAsync(user);
 			await SaveAsync();
 		}
@@ -60,6 +63,36 @@ namespace Repositories
 		public async Task SaveAsync()
 		{
 			await _context.SaveChangesAsync();
+		}
+
+		public async Task<User?> ValidateLoginAsync(string username, string password)
+		{
+			var user = await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Username == username);
+			if (user == null || !VerifyPassword(password, user.Password))
+			{
+				return null;
+			}
+
+			return user;
+		}
+
+		private static string HashPassword(string password)
+		{
+			byte[] inputBytes = Encoding.UTF8.GetBytes(password);
+			byte[] hashBytes = MD5.HashData(inputBytes);
+
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < hashBytes.Length; i++)
+			{
+				sb.Append(hashBytes[i].ToString("x2"));
+			}
+
+			return sb.ToString();
+		}
+
+		private static bool VerifyPassword(string password, string hashPassword)
+		{
+			return HashPassword(password).Equals(hashPassword, StringComparison.OrdinalIgnoreCase);
 		}
 
 		public void Dispose()

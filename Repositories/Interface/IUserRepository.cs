@@ -11,5 +11,6 @@ namespace Repositories.Interface
 		Task DeleteAsync(User user);
 		Task UpdateAsync(User user);
 		Task SaveAsync();
+		Task<User?> ValidateLoginAsync(string username, string password);
 	}
 }
