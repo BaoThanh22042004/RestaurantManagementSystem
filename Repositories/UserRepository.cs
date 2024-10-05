@@ -13,7 +13,7 @@ namespace Repositories
 		{
 			_context = context;
 		}
-	
+
 		public async Task<IEnumerable<User>> GetAllAsync()
 		{
 			return await _context.Users.AsNoTracking().ToListAsync();
