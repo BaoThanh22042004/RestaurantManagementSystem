@@ -19,7 +19,7 @@ namespace Models.Entities
 		[Column(TypeName = "text")]
 		public string? Description { get; set; }
 
-		public required bool Visible { get; set; }
+		public bool Visible { get; set; } = true;
 
 		public required int CategoryId { get; set; }
 

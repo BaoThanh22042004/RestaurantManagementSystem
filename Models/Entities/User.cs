@@ -39,7 +39,7 @@ namespace Models.Entities
 		[Precision(10, 2)]
 		public decimal? Salary { get; set; }
 
-		public required bool IsActive { get; set; }
+		public bool IsActive { get; set; } = true;
 
 		// Navigation properties
 		public ICollection<Payroll> CreatedPayrolls { get; set; } = new List<Payroll>();

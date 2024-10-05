@@ -67,7 +67,7 @@ namespace Repositories
 
 		public async Task<User?> ValidateLoginAsync(string username, string password)
 		{
-			var user = await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Username == username);
+			var user = await _context.Users.AsNoTracking().Where(user => user.IsActive).SingleOrDefaultAsync(user => user.Username == username);
 			if (user == null || !VerifyPassword(password, user.Password))
 			{
 				return null;
