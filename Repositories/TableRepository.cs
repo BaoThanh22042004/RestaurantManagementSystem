@@ -39,7 +39,7 @@ namespace Repositories
             var table = await _context.Tables.FindAsync(id);
             if (table == null)
             {
-                throw new Exception($"User with id {id} not found");
+                throw new Exception($"Table with id {id} not found");
             }
             await DeleteAsync(table);
         }

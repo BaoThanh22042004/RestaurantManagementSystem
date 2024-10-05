@@ -38,7 +38,7 @@ namespace Repositories
             var dish = await _context.Dishes.FindAsync(id);
             if (dish == null)
             {
-                throw new Exception($"User with id {id} not found");
+                throw new Exception($"Dish with id {id} not found");
             }
             await DeleteAsync(dish);
         }

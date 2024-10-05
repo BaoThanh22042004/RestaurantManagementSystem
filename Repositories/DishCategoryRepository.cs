@@ -39,7 +39,7 @@ namespace Repositories
             var dishCategory = await _context.DishCategories.FindAsync(id);
             if (dishCategory == null)
             {
-                throw new Exception($"User with id {id} not found");
+                throw new Exception($"DishCategory with id {id} not found");
             }
             await DeleteAsync(dishCategory);
         }
