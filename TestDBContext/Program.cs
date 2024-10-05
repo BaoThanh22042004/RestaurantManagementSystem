@@ -24,6 +24,9 @@ namespace TestDBContext
 			Console.WriteLine("Adding dish data...");
 			AddDishData(context).Wait();
 
+			Console.WriteLine("Adding table data...");
+			AddTableData(context).Wait();
+
 			Console.WriteLine("Exiting...");
 		}
 
@@ -98,6 +101,46 @@ namespace TestDBContext
 			}
 
 			Console.WriteLine("Dish data added.");
+		}
+
+		static async Task AddTableData(DBContext context)
+		{
+			List<Table> tables = new List<Table>
+			{
+				new Table { TableName = "Table 1", Capacity = 2, Status = TableStatus.Available },
+				new Table { TableName = "Table 2", Capacity = 4, Status = TableStatus.Available },
+				new Table { TableName = "Table 3", Capacity = 6, Status = TableStatus.Available },
+				new Table { TableName = "Table 4", Capacity = 8, Status = TableStatus.Available },
+				new Table { TableName = "Table 5", Capacity = 10, Status = TableStatus.Available },
+				new Table { TableName = "Table 6", Capacity = 2, Status = TableStatus.Unavailable },
+			};
+
+			TableRepository tableRepository = new TableRepository(context);
+			foreach (var table in tables)
+			{
+				await tableRepository.InsertAsync(table);
+			}
+
+			Console.WriteLine("Table data added.");
+		}
+
+		static async Task AddReservationData(DBContext context)
+		{
+			List<Reservation> reservations = new List<Reservation>
+			{
+				new Reservation { CustomerId = 5, PartySize = 3, ResDate = DateOnly.FromDateTime(DateTime.Now.AddDays(-1)), ResTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(2))},
+				new Reservation { CustomerId = 5, PartySize = 5, ResDate = DateOnly.FromDateTime(DateTime.Now), ResTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(3))},
+				new Reservation { CustomerId = 5, PartySize = 7, ResDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)), ResTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(4))},
+
+			};
+
+			ReservationRepository reservationRepository = new ReservationRepository(context);
+			foreach (var reservation in reservations)
+			{
+				await reservationRepository.InsertAsync(reservation);
+			}
+
+			Console.WriteLine("Reservation data added.");
 		}
 	}
 }

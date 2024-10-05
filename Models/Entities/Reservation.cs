@@ -27,10 +27,10 @@ namespace Models.Entities
 		public required DateOnly ResDate { get; set; }
 
 
-		public required TimeSpan ResTime { get; set; }
+		public required TimeOnly ResTime { get; set; }
 
 
-		public required ReservationStatus Status { get; set; }
+		public ReservationStatus Status { get; set; } = ReservationStatus.Confirmed;
 
 		[Precision(10, 2)]
 		public decimal? DepositAmount { get; set; }
