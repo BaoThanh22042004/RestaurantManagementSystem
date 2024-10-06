@@ -1,0 +1,52 @@
+﻿@model RegisterViewModel
+@{
+	Layout = "_AccountLayout";
+	ViewData["Title"] = "Register";
+}
+
+<form asp-action="Register" method="post" class="col-md-6">
+	<div class="d-flex justify-content-center mb-2">
+		@{
+			ViewData["LogoSize"] = 64;
+		}
+		<partial name="Partials/_LogoPartial" />
+	</div>
+	<h1 class="text-center mb-4">Register</h1>
+	<div class="text-danger mb-3">@TempData["Error"]</div>
+	<div class="form-floating mb-3">
+		<input asp-for="Username" class="form-control" />
+		<label asp-for="Username"></label>
+		<span asp-validation-for="Username" class="text-danger"></span>
+	</div>
+	<div class="form-floating mb-3">
+		<input asp-for="Password" class="form-control" />
+		<label asp-for="Password"></label>
+		<span asp-validation-for="Password" class="text-danger"></span>
+	</div>
+	<div class="form-floating mb-3">
+		<input asp-for="ConfirmPassword" class="form-control" />
+		<label asp-for="ConfirmPassword"></label>
+		<span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+	</div>
+	<div class="form-floating mb-3">
+		<input asp-for="FullName" class="form-control" />
+		<label asp-for="FullName"></label>
+		<span asp-validation-for="FullName" class="text-danger"></span>
+	</div>
+	<div class="form-floating mb-3">
+		<input asp-for="Email" class="form-control" />
+		<label asp-for="Email"></label>
+		<span asp-validation-for="Email" class="text-danger"></span>
+	</div>
+	<div class="form-floating mb-3">
+		<input asp-for="Phone" class="form-control" />
+		<label asp-for="Phone"></label>
+		<span asp-validation-for="Phone" class="text-danger"></span>
+	</div>
+	<div class="d-grid gap-2 mb-3">
+		<button type="submit" class="btn btn-primary">Register</button>
+	</div>
+	<div>
+		Already have an account? <a asp-action="Login" class="text-decoration-none">Login</a>
+	</div>
+</form>

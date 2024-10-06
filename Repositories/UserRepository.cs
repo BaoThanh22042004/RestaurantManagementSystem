@@ -28,6 +28,11 @@ namespace Repositories
 
 		public async Task InsertAsync(User user)
 		{
+			var isContainUsername = await _context.Users.AnyAsync(u => u.Username == user.Username);
+			if (isContainUsername)
+			{
+				throw new ArgumentException($"Username {user.Username} is already taken");
+			}
 			user.Password = HashPassword(user.Password);
 			await _context.Users.AddAsync(user);
 			await SaveAsync();
@@ -93,6 +98,11 @@ namespace Repositories
 		private static bool VerifyPassword(string password, string hashPassword)
 		{
 			return HashPassword(password).Equals(hashPassword, StringComparison.OrdinalIgnoreCase);
+		}
+
+		public async Task<User?> GetByUsernameAsync(string username)
+		{
+			return await _context.Users.AsNoTracking().SingleOrDefaultAsync(user => user.Username == username);
 		}
 
 		public void Dispose()

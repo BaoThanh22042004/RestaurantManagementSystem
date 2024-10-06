@@ -1,0 +1,35 @@
+﻿@model LoginViewModel
+@{
+	ViewData["Title"] = "Login";
+	Layout = "_AccountLayout";
+}
+
+<form asp-action="Login" method="post" class="col-md-6">
+	<div class="d-flex justify-content-center mb-2">
+		@{
+			ViewData["LogoSize"] = 64;
+		}
+		<partial name="Partials/_LogoPartial" />
+	</div>
+	<h1 class="text-center mb-4">Login</h1>
+	<div class="text-danger mb-3">@TempData["Error"]</div>
+	<div class="form-floating mb-3">
+		<input asp-for="Username" class="form-control" />
+		<label asp-for="Username"></label>
+		<span asp-validation-for="Username" class="text-danger"></span>
+	</div>
+	<div class="form-floating mb-3">
+		<input asp-for="Password" class="form-control" />
+		<label asp-for="Password"></label>
+		<span asp-validation-for="Password" class="text-danger"></span>
+	</div>
+	<div class="mb-3 text-end">
+		<a asp-action="ForgotPassword" class="text-decoration-none">Forgot password?</a>
+	</div>
+	<div class="d-grid gap-2 mb-3">
+		<button type="submit" class="btn btn-primary">Login</button>
+	</div>
+	<div>
+		Don't have an account? <a asp-action="Register" class="text-decoration-none">Register</a>
+	</div>
+</form>
