@@ -8,7 +8,7 @@ namespace WebApp.Controllers
 	{
 		public IActionResult Index()
 		{
-			return View("Dashboard");
+			return View("DashboardView");
 		}
 	}
 }

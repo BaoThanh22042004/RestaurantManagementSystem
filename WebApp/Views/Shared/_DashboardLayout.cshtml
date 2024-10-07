@@ -42,8 +42,8 @@
 						@if (User.IsInRole("Manager"))
 						{
 							<li class="nav-item">
-								<a asp-controller="Staff" asp-action="Index" class="nav-link @IsActive("Staff")">
-									Staffs
+								<a asp-controller="User" asp-action="Index" class="nav-link @IsActive("User")">
+									Users
 								</a>
 							</li>
 						}
@@ -63,9 +63,9 @@
 			</nav>
 
 			<!-- Main content -->
-			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-md-4 content-wrapper">
+			<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 content-wrapper">
 				<div class="d-md-none">
-					<button class="btn btn-secondary my-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-expanded="false" aria-controls="sidebar">
+					<button class="btn btn-secondary mb-4 ms-4 d-flex" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar" aria-expanded="false" aria-controls="sidebar">
 						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
 							<path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
 						</svg>

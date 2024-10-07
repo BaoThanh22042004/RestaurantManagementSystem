@@ -9,7 +9,7 @@ namespace Repositories.Interface
 		Task InsertAsync(User user);
 		Task DeleteAsync(int id);
 		Task DeleteAsync(User user);
-		Task UpdateAsync(User user);
+		Task UpdateAsync(User user, string? password = null);
 		Task SaveAsync();
 		Task<User?> ValidateLoginAsync(string username, string password);
 		Task<User?> GetByUsernameAsync(string username);

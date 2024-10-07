@@ -58,8 +58,13 @@ namespace Repositories
 			await SaveAsync();
 		}
 
-		public async Task UpdateAsync(User user)
+		public async Task UpdateAsync(User user, string? password = null)
 		{
+			if (password != null)
+			{
+				user.Password = HashPassword(password);
+			}
+
 			_context.Users.Attach(user);
 			_context.Entry(user).State = EntityState.Modified;
 			await SaveAsync();

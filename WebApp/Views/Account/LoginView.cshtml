@@ -6,10 +6,7 @@
 
 <form asp-action="Login" method="post" class="col-md-6">
 	<div class="d-flex justify-content-center mb-2">
-		@{
-			ViewData["LogoSize"] = 64;
-		}
-		<partial name="Partials/_LogoPartial" />
+		<partial name="Partials/_LogoPartial" model='new string("64px")'/>
 	</div>
 	<h1 class="text-center mb-4">Login</h1>
 	<div class="text-danger mb-3">@TempData["Error"]</div>

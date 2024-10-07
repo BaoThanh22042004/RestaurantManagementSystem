@@ -1,25 +1,22 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using Models.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebApp.Models
 {
-	public class RegisterViewModel
+	public class UserViewModel
 	{
+		public int? UserId { get; set; }
+
 		[Required(ErrorMessage = "Username is required.")]
 		[StringLength(255, MinimumLength = 1, ErrorMessage = "Username must be between 1 and 255 characters.")]
 		[Display(Name = "Username")]
 		public string Username { get; set; }
 
-		[Required(ErrorMessage = "Password is required.")]
 		[StringLength(255, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters long.")]
 		[DataType(DataType.Password)]
 		[Display(Name = "Password")]
-		public string Password { get; set; }
-
-		[Required(ErrorMessage = "Confirm password is required.")]
-		[Compare("Password", ErrorMessage = "Passwords do not match.")]
-		[DataType(DataType.Password)]
-		[Display(Name = "Confirm Password")]
-		public string ConfirmPassword { get; set; }
+		public string? Password { get; set; }
 
 		[Required(ErrorMessage = "Full name is required.")]
 		[StringLength(255, MinimumLength = 1, ErrorMessage = "Full name must be between 1 and 255 characters.")]
@@ -37,5 +34,33 @@ namespace WebApp.Models
 		[Phone(ErrorMessage = "Invalid phone number.")]
 		[Display(Name = "Phone Number")]
 		public string Phone { get; set; }
+
+		[Required(ErrorMessage = "Role is required.")]
+		[EnumDataType(typeof(Role), ErrorMessage = "Invalid role.")]
+		public Role Role { get; set; }
+
+		[Range(0, 100000000, ErrorMessage = "Salary must be between 0 and 100000000.")]
+		[Precision(10, 2)]
+		[Display(Name = "Salary")]
+		public decimal? Salary { get; set; }
+
+		[Display(Name = "Is Active")]
+		public bool IsActive { get; set; }
+
+		public UserViewModel()
+		{
+		}
+
+		public UserViewModel(User user)
+		{
+			UserId = user.UserId;
+			Username = user.Username;
+			FullName = user.FullName;
+			Email = user.Email;
+			Phone = user.Phone;
+			Role = user.Role;
+			Salary = user.Salary;
+			IsActive = user.IsActive;
+		}
 	}
 }

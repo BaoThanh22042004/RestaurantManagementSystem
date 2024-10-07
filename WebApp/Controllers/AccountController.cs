@@ -19,15 +19,14 @@ namespace WebApp.Controllers
 			_authorizationService = authorizationService;
 		}
 
-		[HttpGet]
-		public async Task<IActionResult> Register()
+		public IActionResult Register()
 		{
 			if (User.Identity.IsAuthenticated)
 			{
 				return RedirectToAction("RedirectBasedOnRole");
 			}
 
-			return View();
+			return View("RegisterView");
 		}
 
 		[HttpPost]
@@ -35,7 +34,7 @@ namespace WebApp.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
-				return View(register);
+				return View("RegisterView", register);
 			}
 
 			try
@@ -62,13 +61,12 @@ namespace WebApp.Controllers
 				{
 					TempData["Error"] = "An error occurred while registering user. Please try again later.";
 				}
-				return View(register);
+				return View("RegisterView", register);
 			}
 
 			return RedirectToAction("Login", "Account");
 		}
 
-		[HttpGet]
 		public async Task<IActionResult> Login()
 		{
 			if (User.Identity.IsAuthenticated)
@@ -76,7 +74,7 @@ namespace WebApp.Controllers
 				return await RedirectBasedOnRole();
 			}
 
-			return View();
+			return View("LoginView");
 		}
 
 		[HttpPost]
@@ -84,7 +82,7 @@ namespace WebApp.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
-				return View(login);
+				return View("LoginView", login);
 			}
 
 			try
@@ -93,7 +91,7 @@ namespace WebApp.Controllers
 				if (user == null)
 				{
 					TempData["Error"] = "Invalid username or password.";
-					return View(login);
+					return View("LoginView", login);
 				}
 
 				var claims = new List<Claim>
@@ -121,21 +119,20 @@ namespace WebApp.Controllers
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while logging in. Please try again later.";
-				return View(login);
+				return View("LoginView", login);
 			}
 
 			return RedirectToAction("RedirectBasedOnRole");
 		}
 
-		[HttpGet]
-		public async Task<IActionResult> ForgotPassword()
+		public IActionResult ForgotPassword()
 		{
 			if (User.Identity.IsAuthenticated)
 			{
 				return RedirectToAction("RedirectBasedOnRole");
 			}
 
-			return View();
+			return View("ForgotPasswordView");
 		}
 
 		[HttpPost]
@@ -143,7 +140,7 @@ namespace WebApp.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
-				return View(forgotPassword);
+				return View("ForgotPasswordView", forgotPassword);
 			}
 
 			try
@@ -152,13 +149,13 @@ namespace WebApp.Controllers
 				if (user == null || user.Email != forgotPassword.Email)
 				{
 					TempData["Error"] = "Invalid username or email.";
-					return View(forgotPassword);
+					return View("ForgotPasswordView", forgotPassword);
 				}
 			}
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while processing your request. Please try again later.";
-				return View(forgotPassword);
+				return View("ForgotPasswordView", forgotPassword);
 			}
 
 			// Send email to user
@@ -166,7 +163,6 @@ namespace WebApp.Controllers
 			return RedirectToAction("Login", "Account");
 		}
 
-		[HttpGet]
 		public async Task<IActionResult> Logout()
 		{
 			await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
