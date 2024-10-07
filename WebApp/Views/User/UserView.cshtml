@@ -2,6 +2,7 @@
 @{
 	ViewData["Title"] = "User";
 	Layout = "_DashboardLayout";
+	int counter = 0;
 }
 
 <h1>User</h1>
@@ -11,6 +12,9 @@
 <table class="table">
 	<thead>
 		<tr>
+			<th>
+				#
+			</th>
 			<th>
 				@Html.DisplayNameFor(model => model.Username)
 			</th>
@@ -27,6 +31,9 @@
 		@foreach (var item in Model)
 		{
 			<tr>
+				<td>
+					@(++counter)
+				</td>
 				<td>
 					@Html.DisplayFor(modelItem => item.Username)
 				</td>
