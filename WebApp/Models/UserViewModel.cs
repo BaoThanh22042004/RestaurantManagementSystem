@@ -6,6 +6,7 @@ namespace WebApp.Models
 {
 	public class UserViewModel
 	{
+		[Display(Name = "User ID")]
 		public int? UserId { get; set; }
 
 		[Required(ErrorMessage = "Username is required.")]

@@ -101,8 +101,8 @@ namespace WebApp.Controllers
 		}
 
 		[HttpPost]
-		[Route("Edit/{UserId}")]
-		public async Task<IActionResult> Edit(UserViewModel user, int UserId)
+		[Route("Edit/{id}")]
+		public async Task<IActionResult> Edit(UserViewModel user)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -111,7 +111,8 @@ namespace WebApp.Controllers
 
 			try
 			{
-				var userEntity = await _userRepository.GetByIDAsync(UserId);
+				var id = user.UserId ?? throw new InvalidOperationException();
+				var userEntity = await _userRepository.GetByIDAsync(id);
 				if (userEntity == null)
 				{
 					return NotFound();
