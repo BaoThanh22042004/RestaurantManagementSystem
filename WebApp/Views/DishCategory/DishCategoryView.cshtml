@@ -1,0 +1,40 @@
+﻿@model IEnumerable<CategoryViewModel>
+@{
+    ViewData["Title"] = "Dish Category";
+    Layout = "_DashBoardLayout";
+}
+<h1>Category</h1>
+
+<a asp-action="Create" class="btn btn-primary">Create</a>
+
+<table class="table">
+	<thead>
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.CategoryId)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.CategoryName)
+			</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => item.CategoryId)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => item.CategoryName)
+				</td>
+				<td>
+					<a asp-action="Edit" asp-route-id="@item.CategoryId">Edit</a> |
+					<a asp-action="Details" asp-route-id="@item.CategoryId" class="link-info">Details</a> |
+					<a asp-action="Delete" asp-route-id="@item.CategoryId" class="link-danger">Delete</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>

@@ -19,6 +19,8 @@ namespace WebApp
 			// Register the DBContext and Repository to the DI container
 			builder.Services.AddScoped<DBContext, DBContext>();
 			builder.Services.AddScoped<IUserRepository, UserRepository>();
+			builder.Services.AddScoped<IStorageRepository, StorageRepository>();
+			builder.Services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();
 
 			// Add authentication services
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
