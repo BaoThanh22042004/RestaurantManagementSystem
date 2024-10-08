@@ -1,0 +1,52 @@
+﻿@model IEnumerable<DishViewModel>
+@{
+    ViewData["Title"] = "Dishes";
+    Layout = "_DashboardLayout";
+}
+
+<h1 class="mb-4">Dishes</h1>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Create New Dish</a>
+
+@if (!Model.Any())
+{
+    <div class="no-dishes-message text-center mt-5">
+        <h2>No dishes available.</h2>
+        <p>Please add some dishes to the menu.</p>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <a asp-action="Details" asp-route-id="@item.DishId" class="text-decoration-none text-dark">
+                        <img src="https://placehold.co/300x200" class="card-img-top" alt="Dish Image">
+                        <div class="card-body">
+                            <h5 class="card-title">@Html.DisplayFor(modelItem => item.DishName)</h5>
+                            <p class="card-text">Price: @Html.DisplayFor(modelItem => item.Price)</p>
+                            <p class="card-text">Visible: @Html.DisplayFor(modelItem => item.Visible)</p>
+                        </div>
+                    </a>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a asp-action="Edit" asp-route-id="@item.DishId" class="btn btn-primary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@item.DishId" class="btn btn-danger">Delete</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .card img {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .no-dishes-message {
+        margin-top: 100px;
+    }
+</style>

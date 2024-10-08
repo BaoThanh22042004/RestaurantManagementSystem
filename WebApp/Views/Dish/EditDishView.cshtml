@@ -1,0 +1,18 @@
+﻿@model DishViewModel
+
+@{
+    ViewData["Title"] = "Edit Dish";
+    Layout = "_DashboardLayout";
+}
+
+<h1 class="mb-4">Edit Dish</h1>
+
+<div class="text-danger mb-3">@TempData["Error"]</div>
+
+<form asp-action="Edit" method="post">
+    <partial name="Partials/_DishPartial" model="Model" />
+    <div class="d-flex gap-3">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </div>
+</form>

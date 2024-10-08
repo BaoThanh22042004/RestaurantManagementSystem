@@ -19,6 +19,8 @@ namespace WebApp
 			// Register the DBContext and Repository to the DI container
 			builder.Services.AddScoped<DBContext, DBContext>();
 			builder.Services.AddScoped<IUserRepository, UserRepository>();
+			builder.Services.AddScoped<IDishRepository, DishRepository>();
+			builder.Services.AddScoped<ITableRepository, TableRepository>();
 			builder.Services.AddScoped<IStorageRepository, StorageRepository>();
 			builder.Services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();
 
@@ -26,7 +28,7 @@ namespace WebApp
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 				.AddCookie(options =>
 				{
-					options.AccessDeniedPath = "/Account/Login";
+					options.AccessDeniedPath = "/Account/RedirectBasedOnRole";
 				});
 
 			// Add authorization services
