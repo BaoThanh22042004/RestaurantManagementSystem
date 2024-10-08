@@ -19,9 +19,10 @@ namespace WebApp
 			// Register the DBContext and Repository to the DI container
 			builder.Services.AddScoped<DBContext, DBContext>();
 			builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<ITableRepository, TableRepository>();
 
-			// Add authentication services
-			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            // Add authentication services
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 				.AddCookie(options =>
 				{
 					options.AccessDeniedPath = "/Account/Login";
