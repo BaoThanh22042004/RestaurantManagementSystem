@@ -25,7 +25,7 @@ namespace WebApp
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 				.AddCookie(options =>
 				{
-					options.AccessDeniedPath = "/Account/Login";
+					options.AccessDeniedPath = "/Account/RedirectBasedOnRole";
 				});
 
 			// Add authorization services

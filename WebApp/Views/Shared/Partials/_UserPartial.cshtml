@@ -58,7 +58,7 @@
 {
 	case "Create User":
 		<script>
-			document.getElementById("UserId").closest("div").style.display = 'none';
+			document.getElementById("UserId").closest("div").remove();
 		</script>
 		break;
 	case "Edit User":
@@ -72,9 +72,9 @@
 	case "Delete User":
 		<script>
 			for (let input of document.getElementsByTagName("input")) {
-				input.setAttribute("readonly", true);
+				input.setAttribute("disabled", true);
 			}
-			document.getElementById("Password").remove();
+			document.getElementById("Password").closest("div").remove();
 			document.getElementById("Role").setAttribute("disabled", true);
 			document.getElementById("IsActive").setAttribute("disabled", true);
 		</script>
