@@ -1,13 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Entities;
-using Repositories;
 using Repositories.Interface;
 using WebApp.Models;
 
 namespace WebApp.Controllers
 {
-	[Route("Dashboard")]
+	[Route("Dashboard/Table")]
 	[Authorize(Roles = "Manager, Waitstaff")]
 	public class TableController : Controller
 	{
@@ -18,8 +17,6 @@ namespace WebApp.Controllers
 			_tableRepository = tableRepository;
 		}
 
-		// GET: Dashboard/Table
-		[Route("Table")]
 		public async Task<IActionResult> Index()
 		{
 			var tables = await _tableRepository.GetAllAsync();
@@ -27,17 +24,14 @@ namespace WebApp.Controllers
 			return View("TableView", tableList);
 		}
 
-		// GET: Dashboard/Table/Create
-		[Route("Table/Create")]
+		[Route("Create")]
 		public IActionResult Create()
 		{
 			return View("CreateTableView");
 		}
 
-		// POST: Dashboard/Table/Create
-		[Route("Table/Create")]
+		[Route("Create")]
 		[HttpPost]
-		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Create(TableViewModel tableViewModel)
 		{
 			if (!ModelState.IsValid)
@@ -67,8 +61,7 @@ namespace WebApp.Controllers
 			return RedirectToAction("Index");
 		}
 
-		// GET: Dashboard/Table/Details/{id}
-		[Route("Table/Details/{id}")]
+		[Route("Details/{id}")]
 		public async Task<IActionResult> Details(int id)
 		{
 			var table = await _tableRepository.GetByIDAsync(id);
@@ -81,8 +74,7 @@ namespace WebApp.Controllers
 			return View("DetailsTableView", tableViewModel);
 		}
 
-		// GET: Dashboard/Table/Edit/{id}
-		[Route("Table/Edit/{id}")]
+		[Route("Edit/{id}")]
 		public async Task<IActionResult> Edit(int id)
 		{
 			var table = await _tableRepository.GetByIDAsync(id);
@@ -95,11 +87,9 @@ namespace WebApp.Controllers
 			return View("EditTableView", tableViewModel);
 		}
 
-		// POST: Dashboard/Table/Edit/{id}
-		[Route("Table/Edit/{TableId}")]
+		[Route("Edit/{id}")]
 		[HttpPost]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> Edit(TableViewModel tableViewModel, int TableId)
+		public async Task<IActionResult> Edit(TableViewModel tableViewModel)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -108,10 +98,11 @@ namespace WebApp.Controllers
 
 			try
 			{
-				var tableEntity = await _tableRepository.GetByIDAsync(TableId);
+				var id = tableViewModel.TableId ?? throw new KeyNotFoundException();
+				var tableEntity = await _tableRepository.GetByIDAsync(id);
 				if (tableEntity == null)
 				{
-					return NotFound();
+					throw new KeyNotFoundException();
 				}
 
 				tableEntity.TableName = tableViewModel.TableName;
@@ -122,6 +113,10 @@ namespace WebApp.Controllers
 
 				await _tableRepository.UpdateAsync(tableEntity);
 			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while updating the table. Please try again later.";
@@ -131,36 +126,35 @@ namespace WebApp.Controllers
 			return RedirectToAction("Index");
 		}
 
-
-        [Route("Table/Delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var table = await _tableRepository.GetByIDAsync(id);
-            if (table == null)
-            {
-                return NotFound();
-            }
+		[Route("Delete/{id}")]
+		public async Task<IActionResult> Delete(int id)
+		{
+			var table = await _tableRepository.GetByIDAsync(id);
+			if (table == null)
+			{
+				return NotFound();
+			}
 
 			var tableViewModel = new TableViewModel(table);
-            return View("DeleteTableView", tableViewModel);
-        }
+			return View("DeleteTableView", tableViewModel);
+		}
 
-        [HttpPost]
-        [Route("Table/Delete/{TableId}")]
-        public async Task<IActionResult> DeleteConfirmed(int TableId)
-        {
-            try
-            {
-                await _tableRepository.DeleteAsync(TableId);
-            }
-            catch (Exception)
-            {
-                TempData["Error"] = "An error occurred while deleting user. Please try again later.";
-                return RedirectToAction("Delete", new { TableId });
-            }
+		[HttpPost]
+		[Route("Delete/{TableId}")]
+		public async Task<IActionResult> DeleteConfirmed(int TableId)
+		{
+			try
+			{
+				await _tableRepository.DeleteAsync(TableId);
+			}
+			catch (Exception)
+			{
+				TempData["Error"] = "An error occurred while deleting user. Please try again later.";
+				return RedirectToAction("Delete", new { TableId });
+			}
 
-            return RedirectToAction("Index");
-        }
-    }
+			return RedirectToAction("Index");
+		}
+	}
 }
 

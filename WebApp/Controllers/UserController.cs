@@ -111,11 +111,11 @@ namespace WebApp.Controllers
 
 			try
 			{
-				var id = user.UserId ?? throw new InvalidOperationException();
+				var id = user.UserId ?? throw new KeyNotFoundException();
 				var userEntity = await _userRepository.GetByIDAsync(id);
 				if (userEntity == null)
 				{
-					return NotFound();
+					throw new KeyNotFoundException();
 				}
 
 				if (userEntity.Username == User.Identity.Name && user.Role != Role.Manager)
@@ -137,7 +137,7 @@ namespace WebApp.Controllers
 
 				await _userRepository.UpdateAsync(userEntity, user.Password);
 			}
-			catch (InvalidOperationException)
+			catch (KeyNotFoundException)
 			{
 				return NotFound();
 			}
