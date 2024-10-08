@@ -20,9 +20,10 @@ namespace WebApp
 			builder.Services.AddScoped<DBContext, DBContext>();
 			builder.Services.AddScoped<IUserRepository, UserRepository>();
 			builder.Services.AddScoped<IDishRepository, DishRepository>();
+            builder.Services.AddScoped<ITableRepository, TableRepository>();
 
-			// Add authentication services
-			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+            // Add authentication services
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 				.AddCookie(options =>
 				{
 					options.AccessDeniedPath = "/Account/RedirectBasedOnRole";
