@@ -53,18 +53,19 @@ namespace WebApp.Controllers
 
 				await _userRepository.InsertAsync(user);
 			}
-			catch (Exception e)
+			catch (ArgumentException e)
 			{
-				if (e is ArgumentException)
-				{
-					TempData["Error"] = e.Message;
-				}
-				else
-				{
-					TempData["Error"] = "An error occurred while registering user. Please try again later.";
-				}
+				TempData["Error"] = e.Message;
 				return View("RegisterView", register);
 			}
+			catch
+			{
+				TempData["Error"] = "An error occurred while registering user. Please try again later.";
+				return View("RegisterView", register);
+			}
+
+
+
 
 			return RedirectToAction("Login", "Account");
 		}
@@ -118,7 +119,7 @@ namespace WebApp.Controllers
 					new ClaimsPrincipal(claimsIdentity),
 					authProperties);
 			}
-			catch (Exception)
+			catch
 			{
 				TempData["Error"] = "An error occurred while logging in. Please try again later.";
 				return View("LoginView", login);
@@ -155,7 +156,7 @@ namespace WebApp.Controllers
 					return View("ForgotPasswordView", forgotPassword);
 				}
 			}
-			catch (Exception)
+			catch
 			{
 				TempData["Error"] = "An error occurred while processing your request. Please try again later.";
 				return View("ForgotPasswordView", forgotPassword);
@@ -166,13 +167,14 @@ namespace WebApp.Controllers
 			{
 				await _userRepository.UpdateAsync(user, newPassword);
 				SendMail(user.Email, user.Username, newPassword);
+				TempData["Success"] = "An email has been sent to your email address with your new password.";
 			}
-			catch (Exception)
+			catch
 			{
 				TempData["Error"] = "An error occurred while processing your request. Please try again later.";
 				return View("ForgotPasswordView", forgotPassword);
 			}
-			TempData["Success"] = "An email has been sent to your email address with your new password.";
+
 			return RedirectToAction("Login", "Account");
 		}
 
@@ -223,7 +225,63 @@ namespace WebApp.Controllers
 			{
 				return RedirectToAction("Index", "Dashboard");
 			}
+
 			return RedirectToAction("Index", "Home");
+		}
+
+		[Authorize]
+		public async Task<IActionResult> Profile()
+		{
+			var user = await _userRepository.GetByUsernameAsync(User.Identity.Name);
+			var userViewModel = new ProfileViewModel(user);
+			return View("ProfileView", userViewModel);
+		}
+
+		[Authorize]
+		[HttpPost]
+		public async Task<IActionResult> Profile(ProfileViewModel profile)
+		{
+			try
+			{
+				if (!string.IsNullOrWhiteSpace(profile.OldPassword))
+				{
+					var isOldPasswordCorrect = await _userRepository.ValidateLoginAsync(User.Identity.Name, profile.OldPassword) != null;
+
+					if (!isOldPasswordCorrect)
+					{
+						ModelState.AddModelError("OldPassword", "Old password is incorrect.");
+					}
+					else if (!string.IsNullOrWhiteSpace(profile.NewPassword))
+					{
+						if (profile.OldPassword == profile.NewPassword)
+						{
+							ModelState.AddModelError("NewPassword", "New password must be different from old password.");
+						}
+					}
+					else
+					{
+						ModelState.AddModelError("NewPassword", "New password is required.");
+					}
+				}
+
+				if (!ModelState.IsValid)
+				{
+					return View("ProfileView", profile);
+				}
+
+				var userEntity = await _userRepository.GetByUsernameAsync(User.Identity.Name);
+				userEntity.FullName = profile.FullName;
+				userEntity.Email = profile.Email;
+				userEntity.Phone = profile.Phone;
+				await _userRepository.UpdateAsync(userEntity, profile.NewPassword);
+			}
+			catch
+			{
+				TempData["Error"] = "An error occurred while updating your profile. Please try again later.";
+				return View("ProfileView", profile);
+			}
+			
+			return RedirectToAction("Profile");
 		}
 	}
 }
