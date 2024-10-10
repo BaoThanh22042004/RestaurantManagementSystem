@@ -1,0 +1,48 @@
+﻿@model ShiftViewModel
+
+<div class="form-floating mb-3">
+    <input asp-for="ShiftId" class="form-control" id="ShiftId" />
+    <label asp-for="ShiftId"></label>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="ShiftName" class="form-control" id="ShiftName" />
+    <label asp-for="ShiftName"></label>
+    <span asp-validation-for="ShiftName" class="text-danger"></span>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="StartTime" type="time" class="form-control" id="StartTime" />
+    <label asp-for="StartTime"></label>
+    <span asp-validation-for="StartTime" class="text-danger"></span>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="EndTime" type="time" class="form-control" id="EndTime" />
+    <label asp-for="EndTime"></label>
+    <span asp-validation-for="EndTime" class="text-danger"></span>
+</div>
+
+@switch (ViewData["Title"] as string)
+{
+    case "Create Shift":
+        <script>
+            document.getElementById("ShiftId").closest("div").remove();
+        </script>
+        break;
+
+    case "Edit Shift":
+        <script>
+            document.getElementById("ShiftId").setAttribute("readonly", true);
+        </script>
+        break;
+
+    case "Details Shift":
+    case "Delete Shift":
+        <script>
+            for (let input of document.getElementsByTagName("input")) {
+                input.setAttribute("readonly", true);
+            }
+        </script>
+        break;
+}

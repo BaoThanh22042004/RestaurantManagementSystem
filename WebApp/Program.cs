@@ -20,6 +20,7 @@ namespace WebApp
 			builder.Services.AddScoped<DBContext, DBContext>();
 			builder.Services.AddScoped<IUserRepository, UserRepository>();
 			builder.Services.AddScoped<IDishRepository, DishRepository>();
+			builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
 
 			// Add authentication services
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

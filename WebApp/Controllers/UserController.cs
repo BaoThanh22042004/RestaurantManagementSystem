@@ -168,7 +168,7 @@ namespace WebApp.Controllers
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while deleting user. Please try again later.";
-				return RedirectToAction("Delete", new { UserId });
+				return RedirectToAction("Delete", new {UserId});
 			}
 
 			return RedirectToAction("Index");
