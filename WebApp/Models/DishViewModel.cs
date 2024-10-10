@@ -1,4 +1,5 @@
-﻿using Models.Entities;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Models.Entities;
 using System.ComponentModel.DataAnnotations;
 
 namespace WebApp.Models
@@ -29,6 +30,13 @@ namespace WebApp.Models
         [Display(Name = "Category")]
         public int CategoryId { get; set; }
 
+        // Dropdown list
+        public IEnumerable<SelectListItem>? CategoryOptions { get; set; }
+
+        // Display only
+        [Display(Name = "Category")]
+        public string? CategoryName { get; set; }
+
         public DishViewModel()
         {
         }
@@ -41,6 +49,7 @@ namespace WebApp.Models
             Description = dish.Description;
             Visible = dish.Visible;
             CategoryId = dish.CategoryId;
+            CategoryName = dish.Category?.CatName;
         }
     }
 }
