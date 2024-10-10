@@ -4,9 +4,11 @@
 	Layout = "_DashboardLayout";
 }
 
-<h1 class="mb-4">Dishes</h1>
+<h1 class="mb-4">Dish</h1>
 
-<a asp-action="Create" class="btn btn-primary mb-3">Create New Dish</a>
+<div class="mb-3">
+	<a asp-action="Create" class="btn btn-success">Add New Dish</a>
+</div>
 
 @if (!Model.Any())
 {
