@@ -7,7 +7,7 @@ using WebApp.Models;
 namespace WebApp.Controllers
 {
 	[Route("Dashboard/Category")]
-	[Authorize(Roles = "Manager")]
+	[Authorize(Roles = $"{nameof(Role.Manager)}")]
 	public class DishCategoryController : Controller
 	{
 		private readonly IDishCategoryRepository _dishCategoryRepository;

@@ -7,7 +7,7 @@ using WebApp.Models;
 namespace WebApp.Controllers
 {
 	[Route("DashBoard/Storage")]
-	[Authorize(Roles = "Manager")]
+	[Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Chef)}, {nameof(Role.Accountant)}")]
 	public class StorageController : Controller
 	{
 		private readonly IStorageRepository _storageRepository;
