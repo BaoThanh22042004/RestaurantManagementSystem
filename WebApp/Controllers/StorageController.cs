@@ -44,8 +44,7 @@ namespace WebApp.Controllers
 				var storage = new Storage
 				{
 					ItemName = storageViewModel.ItemName,
-					Unit = storageViewModel.Unit,
-					Quantity = storageViewModel.Quantity
+					Unit = storageViewModel.Unit
 				};
 
 				await _storageRepository.InsertAsync(storage);
