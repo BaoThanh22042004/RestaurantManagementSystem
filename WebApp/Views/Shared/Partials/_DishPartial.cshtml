@@ -59,4 +59,14 @@
             document.getElementById("Visible").setAttribute("disabled", true);
         </script>
         break;
+    case "User Details Dish":
+        <script>
+            document.getElementById("DishId").closest("div").remove();
+            for (let input of document.getElementsByTagName("input")) {
+                input.setAttribute("disabled", true);
+            }
+            document.getElementById("Description").setAttribute("disabled", true);
+            document.getElementById("Visible").closest("div").remove(); 
+        </script>
+        break;
 }
