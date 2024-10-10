@@ -3,7 +3,7 @@ using Models.Entities;
 
 namespace WebApp.Models
 {
-    public class CategoryViewModel
+    public class DishCategoryViewModel
     {
         [Display(Name = "Category ID")]
         public int? CategoryId { get; set; }
@@ -14,12 +14,12 @@ namespace WebApp.Models
         public string CategoryName { get; set; }
 
         // Default constructor
-        public CategoryViewModel()
+        public DishCategoryViewModel()
         {
         }
 
         // Constructor that maps from the Category model (entity)
-        public CategoryViewModel(DishCategory category)
+        public DishCategoryViewModel(DishCategory category)
         {
             CategoryId = category.CatId;
             CategoryName = category.CatName;

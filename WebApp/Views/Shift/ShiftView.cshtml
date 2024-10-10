@@ -1,0 +1,54 @@
+﻿@model IEnumerable<ShiftViewModel>
+@{
+    ViewData["Title"] = "Shift";
+    Layout = "_DashboardLayout";
+    int counter = 0;
+}
+
+<h1 class="mb-4">Shift</h1>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Create New Shift</a>
+
+@if (!Model.Any())
+{
+    <div class="no-shifts-message text-center mt-5">
+        <h2>No shifts available.</h2>
+        <p>Please add some shifts.</p>
+    </div>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Shift Name</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@(++counter)</td>
+                    <td>@item.ShiftName</td>
+                    <td>@item.StartTime</td>
+                    <td>@item.EndTime</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ShiftId">Edit</a>
+                        <a asp-action="Details" asp-route-id="@item.ShiftId" class="link-info">Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.ShiftId" class="link-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<style>
+    .no-shifts-message {
+        margin-top: 100px;
+    }
+</style>

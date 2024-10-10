@@ -23,6 +23,7 @@ namespace WebApp
 			builder.Services.AddScoped<ITableRepository, TableRepository>();
 			builder.Services.AddScoped<IStorageRepository, StorageRepository>();
 			builder.Services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();
+			builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
 
 			// Add authentication services
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

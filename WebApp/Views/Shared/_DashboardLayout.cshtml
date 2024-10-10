@@ -61,6 +61,16 @@
 									Dish Categories
 								</a>
 							</li>
+                            <li class="nav-item">
+                                <a asp-controller="Storage" asp-action="Index" class="nav-link @IsActive("Storage")">
+                                    Storage
+                                </a>
+                            </li>
+							<li class="nav-item">
+								<a asp-controller="Shift" asp-action="Index" class="nav-link @IsActive("Shift")">
+									Shifts
+								</a>
+							</li>
 						}
 					</ul>
 					<hr>

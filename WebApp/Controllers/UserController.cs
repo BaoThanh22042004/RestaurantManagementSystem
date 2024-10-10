@@ -183,6 +183,7 @@ namespace WebApp.Controllers
 			{
 				TempData["Error"] = "An error occurred while deleting user. Please try again later.";
 				return RedirectToAction("Delete", new { id = UserId });
+				return RedirectToAction("Delete", new {UserId});
 			}
 
 			return RedirectToAction("Index");

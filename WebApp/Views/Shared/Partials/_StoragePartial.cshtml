@@ -1,0 +1,40 @@
+﻿@model StorageViewModel
+
+<div class="form-floating mb-3">
+    <input asp-for="ItemId" class="form-control" id="ItemId" />
+    <label asp-for="ItemId">Item ID</label>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="ItemName" class="form-control" id="ItemName" />
+    <label asp-for="ItemName">Item Name</label>
+    <span asp-validation-for="ItemName" class="text-danger"></span>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="Unit" class="form-control" id="Unit" />
+    <label asp-for="Unit">Unit</label>
+    <span asp-validation-for="Unit" class="text-danger"></span>
+</div>
+
+@switch (ViewData["Title"] as string)
+{
+    case "Create Storage":
+        <script>
+            document.getElementById("ItemId").closest("div").remove();
+        </script>
+        break;
+    case "Edit Storage":
+        <script>
+            document.getElementById("ItemId").setAttribute("readonly", true);
+        </script>
+        break;
+    case "Details Storage":
+    case "Delete Storage":
+        <script>
+            for (let input of document.getElementsByTagName("input")) {
+                   input.setAttribute("disabled", true);
+            }
+        </script>
+        break;
+}

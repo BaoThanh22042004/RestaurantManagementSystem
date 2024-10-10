@@ -1,16 +1,16 @@
-﻿@model DishCategoryViewModel
+﻿@model StorageViewModel
 @{
-	ViewData["Title"] = "Delete Dish Category";
+	ViewData["Title"] = "Delete Storage";
 	Layout = "_DashboardLayout";
 }
-<h1 class="mb-4">Delete Dish Category</h1>
+<h1 class="mb-4">Delete Storage</h1>
 <h2>Are you sure you want to delete this?</h2>
 <div class="text-danger mb-3">@TempData["Error"]</div>
 
-<partial name="Partials/_CategoryPartial" model="Model" />
+<partial name="Partials/_StoragePartial" model="Model" />
 
 <form asp-action="Delete" method="post">
-	<input type="hidden" asp-for="CategoryId" />
+	<input type="hidden" asp-for="ItemId" />
 	<div class="d-flex gap-3">
 		<button type="submit" class="btn btn-danger">Delete</button>
 		<a asp-action="Index" class="btn btn-secondary">Back</a>
