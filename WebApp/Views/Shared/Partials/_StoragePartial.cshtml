@@ -17,12 +17,6 @@
     <span asp-validation-for="Unit" class="text-danger"></span>
 </div>
 
-<div class="form-floating mb-3">
-    <input asp-for="Quantity" class="form-control" id="Quantity" />
-    <label asp-for="Quantity">Quantity</label>
-    <span asp-validation-for="Quantity" class="text-danger"></span>
-</div>
-
 @switch (ViewData["Title"] as string)
 {
     case "Create Storage":
