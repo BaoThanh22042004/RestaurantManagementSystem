@@ -6,31 +6,32 @@ namespace WebApp.Models
 {
 	public class UserViewModel
 	{
+		[Display(Name = "User ID")]
 		public int? UserId { get; set; }
 
 		[Required(ErrorMessage = "Username is required.")]
-		[StringLength(255, MinimumLength = 1, ErrorMessage = "Username must be between 1 and 255 characters.")]
+		[StringLength(255, ErrorMessage = "Username must not exceed 255 characters.")]
 		[Display(Name = "Username")]
 		public string Username { get; set; }
 
-		[StringLength(255, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters long.")]
+		[StringLength(255, MinimumLength = 8, ErrorMessage = "Password must between 8 and 255 characters.")]
 		[DataType(DataType.Password)]
 		[Display(Name = "Password")]
 		public string? Password { get; set; }
 
 		[Required(ErrorMessage = "Full name is required.")]
-		[StringLength(255, MinimumLength = 1, ErrorMessage = "Full name must be between 1 and 255 characters.")]
+		[StringLength(255, ErrorMessage = "Full name must not exceed 255 characters.")]
 		[Display(Name = "Full Name")]
 		public string FullName { get; set; }
 
 		[Required(ErrorMessage = "Email is required.")]
-		[StringLength(255, MinimumLength = 1, ErrorMessage = "Email must be between 1 and 255 characters.")]
+		[StringLength(255, ErrorMessage = "Email must not exceed 255 characters.")]
 		[EmailAddress(ErrorMessage = "Invalid email format.")]
 		[Display(Name = "Email")]
 		public string Email { get; set; }
 
 		[Required(ErrorMessage = "Phone number is required.")]
-		[StringLength(15, MinimumLength = 1, ErrorMessage = "Phone number must be between 1 and 15 characters.")]
+		[StringLength(15, ErrorMessage = "Phone number must not exceed 15 characters.")]
 		[Phone(ErrorMessage = "Invalid phone number.")]
 		[Display(Name = "Phone Number")]
 		public string Phone { get; set; }

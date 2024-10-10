@@ -20,13 +20,16 @@ namespace WebApp
 			builder.Services.AddScoped<DBContext, DBContext>();
 			builder.Services.AddScoped<IUserRepository, UserRepository>();
 			builder.Services.AddScoped<IDishRepository, DishRepository>();
+			builder.Services.AddScoped<ITableRepository, TableRepository>();
+			builder.Services.AddScoped<IStorageRepository, StorageRepository>();
+			builder.Services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();
 			builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
 
 			// Add authentication services
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 				.AddCookie(options =>
 				{
-					options.AccessDeniedPath = "/Account/Login";
+					options.AccessDeniedPath = "/Account/RedirectBasedOnRole";
 				});
 
 			// Add authorization services

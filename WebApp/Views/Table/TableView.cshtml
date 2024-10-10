@@ -1,0 +1,39 @@
+﻿@model IEnumerable<WebApp.Models.TableViewModel>
+@{
+    ViewData["Title"] = "Tables";
+    Layout = "_DashboardLayout";
+}
+
+<h1 class="mb-4">Tables</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Table Name</th>
+            <th>Capacity</th>
+            <th>Status</th>
+            <th>Reservation Time</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var table in Model)
+        {
+            <tr>
+                <td>@table.TableName</td>
+                <td>@table.Capacity</td>
+                <td>@table.Status</td>
+                <td>@(table.ResTime.HasValue ? table.ResTime.Value.ToString("hh:mm tt") : "N/A")</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@table.TableId" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Edit" asp-route-id="@table.TableId" class="btn btn-primary btn-sm">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@table.TableId" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-end">
+    <a asp-action="Create" class="btn btn-success">Add New Table</a>
+</div>

@@ -7,7 +7,7 @@ using WebApp.Models;
 
 namespace WebApp.Controllers
 {
-    [Route("Dashboard")]
+    [Route("Dashboard/Dish")]
     [Authorize(Roles = "Manager")]
     public class DishController : Controller
     {
@@ -19,7 +19,6 @@ namespace WebApp.Controllers
         }
 
 
-        [Route("Dish")]
         public async Task<IActionResult> Index()
         {
             var dishes = await _dishRepository.GetAllAsync();
@@ -27,13 +26,13 @@ namespace WebApp.Controllers
             return View("DishView", dishList);
         }
 
-        [Route("Dish/Create")]
+        [Route("Create")]
         public IActionResult Create()
         {
             return View("CreateDishView");
         }
 
-        [Route("Dish/Create")]
+        [Route("Create")]
         [HttpPost]
         public async Task<IActionResult> Create(DishViewModel dishViewModel)
         {
@@ -70,7 +69,7 @@ namespace WebApp.Controllers
             return RedirectToAction("Index");
         }
 
-        [Route("Dish/Details/{id}")]
+        [Route("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
             var dish = await _dishRepository.GetByIDAsync(id);
@@ -83,7 +82,7 @@ namespace WebApp.Controllers
             return View("DetailsDishView", dishViewModel);
         }
 
-        [Route("Dish/Edit/{id}")]
+        [Route("Edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
             var dish = await _dishRepository.GetByIDAsync(id);
@@ -97,7 +96,7 @@ namespace WebApp.Controllers
         }
 
         [HttpPost]
-        [Route("Dish/Edit/{DishId}")]
+        [Route("Edit/{DishId}")]
         public async Task<IActionResult> Edit(DishViewModel dish, int DishId)
         {
             if (!ModelState.IsValid)
@@ -134,7 +133,7 @@ namespace WebApp.Controllers
             return RedirectToAction("Index");
         }
 
-        [Route("Dish/Delete/{id}")]
+        [Route("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var dish = await _dishRepository.GetByIDAsync(id);
@@ -148,7 +147,7 @@ namespace WebApp.Controllers
         }
 
         [HttpPost]
-        [Route("Dish/Delete/{DishId}")]
+        [Route("Delete/{DishId}")]
         public async Task<IActionResult> DeleteConfirmed(int DishId)
         {
             try
@@ -158,7 +157,7 @@ namespace WebApp.Controllers
             catch (Exception)
             {
                 TempData["Error"] = "An error occurred while deleting dish. Please try again later.";
-                return RedirectToAction("Delete", new { DishId });
+                return RedirectToAction("Delete", new { id = DishId });
             }
 
             return RedirectToAction("Index");

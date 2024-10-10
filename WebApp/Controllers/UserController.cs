@@ -6,7 +6,7 @@ using WebApp.Models;
 
 namespace WebApp.Controllers
 {
-	[Route("Dashboard")]
+	[Route("Dashboard/User")]
 	[Authorize(Roles = "Manager")]
 	public class UserController : Controller
 	{
@@ -17,7 +17,6 @@ namespace WebApp.Controllers
 			_userRepository = userRepository;
 		}
 
-		[Route("User")]
 		public async Task<IActionResult> Index()
 		{
 			var users = await _userRepository.GetAllAsync();
@@ -25,13 +24,13 @@ namespace WebApp.Controllers
 			return View("UserView", userList);
 		}
 
-		[Route("User/Create")]
+		[Route("Create")]
 		public IActionResult Create()
 		{
 			return View("CreateUserView");
 		}
 
-		[Route("User/Create")]
+		[Route("Create")]
 		[HttpPost]
 		public async Task<IActionResult> Create(UserViewModel userViewModel)
 		{
@@ -75,7 +74,7 @@ namespace WebApp.Controllers
 			return RedirectToAction("Index");
 		}
 
-		[Route("User/Details/{id}")]
+		[Route("Details/{id}")]
 		public async Task<IActionResult> Details(int id)
 		{
 			var user = await _userRepository.GetByIDAsync(id);
@@ -88,7 +87,7 @@ namespace WebApp.Controllers
 			return View("DetailsUserView", userViewModel);
 		}
 
-		[Route("User/Edit/{id}")]
+		[Route("Edit/{id}")]
 		public async Task<IActionResult> Edit(int id)
 		{
 			var user = await _userRepository.GetByIDAsync(id);
@@ -102,8 +101,8 @@ namespace WebApp.Controllers
 		}
 
 		[HttpPost]
-		[Route("User/Edit/{UserId}")]
-		public async Task<IActionResult> Edit(UserViewModel user, int UserId)
+		[Route("Edit/{id}")]
+		public async Task<IActionResult> Edit(UserViewModel user)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -112,10 +111,17 @@ namespace WebApp.Controllers
 
 			try
 			{
-				var userEntity = await _userRepository.GetByIDAsync(UserId);
+				var id = user.UserId ?? throw new KeyNotFoundException();
+				var userEntity = await _userRepository.GetByIDAsync(id);
 				if (userEntity == null)
 				{
-					return NotFound();
+					throw new KeyNotFoundException();
+				}
+
+				if (userEntity.Username == User.Identity.Name && user.Role != Role.Manager)
+				{
+					TempData["Error"] = "You cannot change your role to other than Manager.";
+					return View("EditUserView", user);
 				}
 
 				if (string.IsNullOrEmpty(user.Password))
@@ -131,7 +137,7 @@ namespace WebApp.Controllers
 
 				await _userRepository.UpdateAsync(userEntity, user.Password);
 			}
-			catch (InvalidOperationException)
+			catch (KeyNotFoundException)
 			{
 				return NotFound();
 			}
@@ -144,7 +150,7 @@ namespace WebApp.Controllers
 			return RedirectToAction("Index");
 		}
 
-		[Route("User/Delete/{id}")]
+		[Route("Delete/{id}")]
 		public async Task<IActionResult> Delete(int id)
 		{
 			var user = await _userRepository.GetByIDAsync(id);
@@ -158,16 +164,25 @@ namespace WebApp.Controllers
 		}
 
 		[HttpPost]
-		[Route("User/Delete/{UserId}")]
+		[Route("Delete/{UserId}")]
 		public async Task<IActionResult> DeleteConfirmed(int UserId)
 		{
 			try
 			{
+				var userEntity = await _userRepository.GetByIDAsync(UserId);
+
+				if (userEntity.Username == User.Identity.Name)
+				{
+					TempData["Error"] = "You cannot delete yourself.";
+					return RedirectToAction("Delete", new { id = UserId });
+				}
+
 				await _userRepository.DeleteAsync(UserId);
 			}
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while deleting user. Please try again later.";
+				return RedirectToAction("Delete", new { id = UserId });
 				return RedirectToAction("Delete", new {UserId});
 			}
 
