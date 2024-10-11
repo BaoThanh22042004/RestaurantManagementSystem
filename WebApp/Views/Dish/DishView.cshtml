@@ -6,7 +6,13 @@
 
 <h1 class="mb-4">Dishes</h1>
 
-<a asp-action="Create" class="btn btn-primary mb-3">Create New Dish</a>
+<div class="mb-4 d-flex justify-content-between">
+    <a asp-action="Create" class="btn btn-primary mb-3">Create New Dish</a>
+    <form class="d-flex" asp-action="Search">
+        <input class="form-control me-2 mb-3" name="keyword" type="search">
+        <button class="btn btn-outline-success mb-3" type="submit">Search</button>
+    </form>
+</div>
 
 @if (!Model.Any())
 {

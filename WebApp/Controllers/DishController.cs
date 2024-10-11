@@ -26,6 +26,15 @@ namespace WebApp.Controllers
             return View("DishView", dishList);
         }
 
+        [Route("Search")]
+        public async Task<IActionResult> Search(string keyword)
+        {
+            var dishes = await _dishRepository.GetAllAsync();
+            var dishList = dishes.Where(d => d.DishName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                .Select(dish => new DishViewModel(dish));
+            return View("DishView", dishList);
+        }
+
         [Route("Create")]
         public IActionResult Create()
         {
