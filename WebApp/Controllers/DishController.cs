@@ -48,11 +48,6 @@ namespace WebApp.Controllers
             return View("DishView", dishList);
         }
 
-        [Route("Create")]
-        public IActionResult Create()
-        {
-            return View("CreateDishView");
-        }
 		[Route("Create")]
 		public async Task<IActionResult> Create()
 		{
