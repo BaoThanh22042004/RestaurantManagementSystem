@@ -1,53 +1,56 @@
 ﻿@model DishViewModel
 
 <div class="form-floating mb-3">
-    <input asp-for="DishId" class="form-control" id="DishId" />
-    <label asp-for="DishId"></label>
+	<input asp-for="DishId" class="form-control" id="DishId" />
+	<label asp-for="DishId"></label>
 </div>
 
 <div class="form-floating mb-3">
-    <input asp-for="DishName" class="form-control" id="DishName" />
-    <label asp-for="DishName"></label>
-    <span asp-validation-for="DishName" class="text-danger"></span>
+	<input asp-for="DishName" class="form-control" id="DishName" />
+	<label asp-for="DishName"></label>
+	<span asp-validation-for="DishName" class="text-danger"></span>
 </div>
 
 <div class="form-floating mb-3">
-    <input asp-for="Price" class="form-control" id="Price" />
-    <label asp-for="Price"></label>
-    <span asp-validation-for="Price" class="text-danger"></span>
+	<input asp-for="Price" class="form-control" id="Price" />
+	<label asp-for="Price"></label>
+	<span asp-validation-for="Price" class="text-danger"></span>
 </div>
 
 <div class="form-floating mb-3">
-    <textarea asp-for="Description" class="form-control" id="Description" style="height: 100px;"></textarea>
-    <label asp-for="Description"></label>
-    <span asp-validation-for="Description" class="text-danger"></span>
+	<textarea asp-for="Description" class="form-control" id="Description" style="height: 100px;"></textarea>
+	<label asp-for="Description"></label>
+	<span asp-validation-for="Description" class="text-danger"></span>
+</div>
+
+<div class="form-floating mb-3">
+	<select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select" id="CategoryId">
+		<option selected id="DefaultSelectCategory">Please select Category</option>
+	</select>
+	<label asp-for="CategoryId"></label>
+	<span asp-validation-for="CategoryId" class="text-danger"></span>
 </div>
 
 <div class="form-check mb-3">
-    <input class="form-check-input" asp-for="Visible" id="Visible" />
-    <label class="form-check-label" asp-for="Visible"></label>
-    <span asp-validation-for="Visible" class="text-danger"></span>
-</div>
-
-<div class="form-floating mb-3">
-    <input asp-for="CategoryId" class="form-control" id="CategoryId" />
-    <label asp-for="CategoryId"></label>
-    <span asp-validation-for="CategoryId" class="text-danger"></span>
+	<input class="form-check-input" asp-for="Visible" id="Visible" />
+	<label class="form-check-label" asp-for="Visible"></label>
+	<span asp-validation-for="Visible" class="text-danger"></span>
 </div>
 
 @switch (ViewData["Title"] as string)
 {
-    case "Create Dish":
-        <script>
-            document.getElementById("DishId").closest("div").remove();
-        </script>
-        break;
+	case "Create Dish":
+		<script>
+			document.getElementById("DishId").closest("div").remove();
+		</script>
+		break;
 
-    case "Edit Dish":
-        <script>
-            document.getElementById("DishId").setAttribute("readonly", true);
-        </script>
-        break;
+	case "Edit Dish":
+		<script>
+			document.getElementById("DishId").setAttribute("readonly", true);
+			document.getElementById("DefaultSelectCategory").remove();
+		</script>
+		break;
 
     case "Details Dish":
     case "Delete Dish":
@@ -56,6 +59,7 @@
                 input.setAttribute("disabled", true);
             }
             document.getElementById("Description").setAttribute("disabled", true);
+			document.getElementById("CategoryId").setAttribute("disabled", true);
             document.getElementById("Visible").setAttribute("disabled", true);
         </script>
         break;

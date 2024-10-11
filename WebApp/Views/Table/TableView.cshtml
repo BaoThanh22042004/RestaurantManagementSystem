@@ -4,9 +4,13 @@
     Layout = "_DashboardLayout";
 }
 
-<h1 class="mb-4">Tables</h1>
+<h1 class="mb-4">Table</h1>
 
-<table class="table table-striped">
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-success">Add New Table</a>
+</div>
+
+<table class="table">
     <thead>
         <tr>
             <th>Table Name</th>
@@ -34,6 +38,4 @@
     </tbody>
 </table>
 
-<div class="d-flex justify-content-end">
-    <a asp-action="Create" class="btn btn-success">Add New Table</a>
-</div>
+

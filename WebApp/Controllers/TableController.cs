@@ -7,7 +7,7 @@ using WebApp.Models;
 namespace WebApp.Controllers
 {
 	[Route("Dashboard/Table")]
-	[Authorize(Roles = "Manager, Waitstaff")]
+	[Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Waitstaff)}")]
 	public class TableController : Controller
 	{
 		private readonly ITableRepository _tableRepository;

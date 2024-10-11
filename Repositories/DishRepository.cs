@@ -16,7 +16,8 @@ namespace Repositories
 
 		public async Task<IEnumerable<Dish>> GetAllAsync()
 		{
-			return await _context.Dishes.AsNoTracking().ToListAsync();
+			return await _context.Dishes.Include(dish => dish.Category)
+										.AsNoTracking().ToListAsync();
 		}
 
 		public async Task<Dish?> GetByIDAsync(int id)

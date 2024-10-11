@@ -17,7 +17,7 @@ namespace Models.Entities
 		public required string Unit { get; set; }
 
 		[Precision(10, 2)]
-		public decimal Quantity { get; set; }
+		public required decimal Quantity { get; set; }
 
 		// Navigation property
 		public ICollection<StorageLog> StorageLogs { get; set; } = new List<StorageLog>();

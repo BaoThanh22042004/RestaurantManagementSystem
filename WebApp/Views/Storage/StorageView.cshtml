@@ -3,9 +3,9 @@
 	ViewData["Title"] = "Storage";
 	Layout = "_DashBoardLayout";
 }
-<h1>Storage</h1>
+<h1 class="mb-4">Storage</h1>
 
-<a asp-action="Create" class="btn btn-primary">Create</a>
+<a asp-action="Create" class="btn btn-success mb-3">Add New Item</a>
 
 <table class="table">
 	<thead>
@@ -42,9 +42,9 @@
 					@Html.DisplayFor(modelItem => item.Quantity)
 				</td>
 				<td>
-					<a asp-action="Edit" asp-route-id="@item.ItemId">Edit</a> |
-					<a asp-action="Details" asp-route-id="@item.ItemId" class="link-info">Details</a> |
-					<a asp-action="Delete" asp-route-id="@item.ItemId" class="link-danger">Delete</a>
+					<a asp-action="Details" asp-route-id="@item.ItemId" class="btn btn-info">Details</a>
+					<a asp-action="Edit" asp-route-id="@item.ItemId" class="btn btn-primary">Edit</a>
+					<a asp-action="Delete" asp-route-id="@item.ItemId" class="btn btn-danger">Delete</a>
 				</td>
 			</tr>
 		}
