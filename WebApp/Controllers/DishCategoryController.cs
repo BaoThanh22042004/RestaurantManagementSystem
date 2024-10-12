@@ -7,7 +7,7 @@ using WebApp.Models;
 namespace WebApp.Controllers
 {
 	[Route("Dashboard/Category")]
-	[Authorize(Roles = "Manager")]
+	[Authorize(Roles = $"{nameof(Role.Manager)}")]
 	public class DishCategoryController : Controller
 	{
 		private readonly IDishCategoryRepository _dishCategoryRepository;
@@ -20,7 +20,7 @@ namespace WebApp.Controllers
 		public async Task<IActionResult> Index()
 		{
 			var dishes = await _dishCategoryRepository.GetAllAsync();
-			var dishList = dishes.Select(dish => new CategoryViewModel(dish));
+			var dishList = dishes.Select(dish => new DishCategoryViewModel(dish));
 			return View("DishCategoryView", dishList);
 		}
 
@@ -32,7 +32,7 @@ namespace WebApp.Controllers
 
 		[Route("Create")]
 		[HttpPost]
-		public async Task<IActionResult> Create(CategoryViewModel categoryViewModel)
+		public async Task<IActionResult> Create(DishCategoryViewModel categoryViewModel)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -65,7 +65,7 @@ namespace WebApp.Controllers
 			{
 				return NotFound();
 			}
-			var categoryViewModel = new CategoryViewModel(category);
+			var categoryViewModel = new DishCategoryViewModel(category);
 			return View("DetailsDishCategoryView", categoryViewModel);
 		}
 
@@ -78,13 +78,13 @@ namespace WebApp.Controllers
 				return NotFound();
 			}
 
-			var categoryViewModel = new CategoryViewModel(category);
+			var categoryViewModel = new DishCategoryViewModel(category);
 			return View("EditDishCategoryView", categoryViewModel);
 		}
 
 		[HttpPost]
 		[Route("Edit/{id}")]
-		public async Task<IActionResult> Edit(CategoryViewModel categoryViewModel)
+		public async Task<IActionResult> Edit(DishCategoryViewModel categoryViewModel)
 		{
 			if (!ModelState.IsValid)
 			{
@@ -125,7 +125,7 @@ namespace WebApp.Controllers
 				return NotFound();
 			}
 
-			var categoryViewModel = new CategoryViewModel(dishCategory);
+			var categoryViewModel = new DishCategoryViewModel(dishCategory);
 			return View("DeleteDishCategoryView", categoryViewModel);
 		}
 

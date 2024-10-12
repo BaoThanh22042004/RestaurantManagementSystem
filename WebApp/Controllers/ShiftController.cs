@@ -8,7 +8,7 @@ using WebApp.Models;
 namespace WebApp.Controllers
 {
 	[Route("Dashboard/Shift")]
-	[Authorize(Roles = "Manager")]
+	[Authorize(Roles = $"{nameof(Role.Manager)}")]
 	public class ShiftController : Controller
 	{
 		private readonly IShiftRepository _shiftRepository;
