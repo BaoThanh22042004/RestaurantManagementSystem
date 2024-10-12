@@ -24,7 +24,8 @@ namespace WebApp
 			builder.Services.AddScoped<IStorageRepository, StorageRepository>();
 			builder.Services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();
 			builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
-
+			builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+										
 			// Add authentication services
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 				.AddCookie(options =>

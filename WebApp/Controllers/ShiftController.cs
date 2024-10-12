@@ -35,6 +35,7 @@ namespace WebApp.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Create(ShiftViewModel shiftViewModel)
 		{
+			
 			if (!ModelState.IsValid)
 			{
 				return View("CreateShiftView", shiftViewModel);
