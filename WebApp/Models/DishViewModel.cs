@@ -37,7 +37,12 @@ namespace WebApp.Models
         [Display(Name = "Category")]
         public string? CategoryName { get; set; }
 
-        public DishViewModel()
+        public string? ImagePath { get; set; }
+
+		[Display(Name = "Upload Image")]
+		public IFormFile? UploadedImage { get; set; }
+
+		public DishViewModel()
         {
         }
 
@@ -50,6 +55,7 @@ namespace WebApp.Models
             Visible = dish.Visible;
             CategoryId = dish.CategoryId;
             CategoryName = dish.Category?.CatName;
+            ImagePath = $"/Uploads/Images/Dishes/{dish.DishId}.jpg"; ;
         }
     }
 }

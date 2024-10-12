@@ -48,7 +48,8 @@ namespace WebApp.Controllers
             }
             catch (Exception)
             {
-                throw;
+                TempData["Error"] = "An error occurred while adding dish to cart. Please try again later.";
+                return View("DishView");
             }
 
             if (!string.IsNullOrEmpty(returnUrl))
@@ -87,7 +88,8 @@ namespace WebApp.Controllers
             }
             catch (Exception ex)
             {
-                throw;
+                TempData["Error"] = "An error occurred while updating dish quantity. Please try again later.";
+                return View("CartView");
             }
             if (!string.IsNullOrEmpty(returnUrl))
             {

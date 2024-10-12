@@ -34,7 +34,7 @@ else
 				<div class="col-md-4 mb-4">
 					<div class="card">
 						<a asp-action="Details" asp-route-id="@item.DishId" class="text-decoration-none text-dark">
-							<img src="https://placehold.co/300x200" class="card-img-top" alt="Dish Image">
+							<img src="@item.ImagePath" class="card-img-top" alt="Dish Image">
 							<div class="card-body">
 								<h5 class="card-title">@Html.DisplayFor(modelItem => item.DishName)</h5>
 								<p class="card-text">Price: @Html.DisplayFor(modelItem => item.Price)</p>
