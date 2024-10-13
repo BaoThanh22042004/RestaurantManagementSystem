@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Models;
 using Models.Entities;
 using Repositories;
 using Repositories.Interface;
 using System.Security.Claims;
+using WebApp.Utilities;
 
 namespace WebApp
 {
@@ -25,11 +27,39 @@ namespace WebApp
 			builder.Services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();
 			builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
 
+			// Register Singleton services
+			builder.Services.AddSingleton<UserClaimManager>();
+
 			// Add authentication services
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 				.AddCookie(options =>
 				{
+					options.LoginPath = "/Account/Login";
 					options.AccessDeniedPath = "/Account/RedirectBasedOnRole";
+					options.LogoutPath = "/Account/Logout";
+					options.Events.OnValidatePrincipal = async context =>
+					{
+						var pendingUsersManager = context.HttpContext.RequestServices.GetRequiredService<UserClaimManager>();
+						if (!pendingUsersManager.IsEmpty)
+						{
+							var userId = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+							if (userId != null && pendingUsersManager.ContainsKey(userId))
+							{
+								var userClaim = pendingUsersManager.Get(userId);
+								if (userClaim != null)
+								{
+									context.ReplacePrincipal(userClaim);
+									context.ShouldRenew = true;
+									pendingUsersManager.Remove(userId);
+								}
+								else
+								{
+									context.RejectPrincipal();
+									await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+								}
+							}
+						}
+					};
 				});
 
 			// Add authorization services

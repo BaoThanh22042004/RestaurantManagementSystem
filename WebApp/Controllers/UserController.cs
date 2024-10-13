@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models.Entities;
 using Repositories.Interface;
 using WebApp.Models;
+using WebApp.Utilities;
 
 namespace WebApp.Controllers
 {
@@ -11,10 +12,12 @@ namespace WebApp.Controllers
 	public class UserController : Controller
 	{
 		private readonly IUserRepository _userRepository;
+		private readonly UserClaimManager _pendingUsersManager;
 
-		public UserController(IUserRepository userRepository)
+		public UserController(IUserRepository userRepository, UserClaimManager pendingUsersManager)
 		{
 			_userRepository = userRepository;
+			_pendingUsersManager = pendingUsersManager;
 		}
 
 		public async Task<IActionResult> Index()
@@ -136,6 +139,8 @@ namespace WebApp.Controllers
 				userEntity.IsActive = user.IsActive;
 
 				await _userRepository.UpdateAsync(userEntity, user.Password);
+
+				_pendingUsersManager.Add(userEntity.UserId.ToString(), userEntity);
 			}
 			catch (KeyNotFoundException)
 			{
@@ -178,12 +183,13 @@ namespace WebApp.Controllers
 				}
 
 				await _userRepository.DeleteAsync(UserId);
+
+				_pendingUsersManager.Add(UserId.ToString(), null);
 			}
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while deleting user. Please try again later.";
 				return RedirectToAction("Delete", new { id = UserId });
-				return RedirectToAction("Delete", new {UserId});
 			}
 
 			return RedirectToAction("Index");

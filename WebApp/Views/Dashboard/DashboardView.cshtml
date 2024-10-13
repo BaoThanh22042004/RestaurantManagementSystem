@@ -4,4 +4,4 @@
 }
 
 <h1>Dashboard</h1>
-<h2>Welcome, @User.FindFirst("FullName").Value</h2>
+<h2>Welcome, @User?.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value</h2>
