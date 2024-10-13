@@ -8,7 +8,7 @@ using WebApp.Models;
 namespace WebApp.Controllers
 {
 	[Route("Dashboard/Shift")]
-	[Authorize(Roles = "Manager")]
+	[Authorize(Roles = $"{nameof(Role.Manager)}")]
 	public class ShiftController : Controller
 	{
 		private readonly IShiftRepository _shiftRepository;
@@ -35,6 +35,7 @@ namespace WebApp.Controllers
 		[HttpPost]
 		public async Task<IActionResult> Create(ShiftViewModel shiftViewModel)
 		{
+			
 			if (!ModelState.IsValid)
 			{
 				return View("CreateShiftView", shiftViewModel);

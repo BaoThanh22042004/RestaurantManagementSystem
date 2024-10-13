@@ -1,0 +1,48 @@
+﻿@model ScheduleViewModel
+
+<div class="form-floating mb-3">
+    <input asp-for="ScheId" class="form-control" id="ScheId" />
+    <label asp-for="ScheId"></label>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="ScheDate" type="date" class="form-control" id="ScheDate" />
+    <label asp-for="ScheDate"></label>
+    <span asp-validation-for="ScheDate" class="text-danger"></span>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="EmpId" class="form-control" id="EmpId" />
+    <label asp-for="EmpId"></label>
+    <span asp-validation-for="EmpId" class="text-danger"></span>
+</div>
+
+<div class="form-floating mb-3">
+    <input asp-for="ShiftId" class="form-control" id="ShiftId" />
+    <label asp-for="ShiftId"></label>
+    <span asp-validation-for="ShiftId" class="text-danger"></span>
+</div>
+
+@switch (ViewData["Title"] as string)
+{
+    case "Create Schedule":
+        <script>
+            document.getElementById("ScheId").closest("div").remove();
+        </script>
+        break;
+
+    case "Edit Schedule":
+        <script>
+            document.getElementById("ScheId").setAttribute("readonly", true);
+        </script>
+        break;
+
+    case "Details Schedule":
+    case "Delete Schedule":
+        <script>
+            for (let input of document.getElementsByTagName("input")) {
+                input.setAttribute("disabled", true);
+            }
+        </script>
+        break;
+}

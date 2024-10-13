@@ -1,23 +1,41 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Entities;
 using Repositories;
 using Repositories.Interface;
+using System.Collections;
 using WebApp.Models;
 
 namespace WebApp.Controllers
 {
     [Route("Dashboard/Dish")]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Roles = $"{nameof(Role.Manager)}")]
     public class DishController : Controller
     {
         private readonly IDishRepository _dishRepository;
+        private readonly IDishCategoryRepository _dishCategoryRepository;
+        private readonly IWebHostEnvironment _environment;
 
-        public DishController(IDishRepository dishRepository)
+        private readonly string imageUploadsDir;
+
+        public DishController(IDishRepository dishRepository, IDishCategoryRepository dishCategoryRepository, IWebHostEnvironment environment)
         {
             _dishRepository = dishRepository;
+            _dishCategoryRepository = dishCategoryRepository;
+            _environment = environment;
+            imageUploadsDir = Path.Combine(_environment.WebRootPath, "Uploads/Images/Dishes");
         }
 
+        private async Task<IEnumerable<SelectListItem>> GetCategoryList()
+        {
+            var categories = (await _dishCategoryRepository.GetAllAsync()).Select(c => new SelectListItem
+            {
+                Value = c.CatId.ToString(),
+                Text = c.CatName
+            });
+            return categories;
+        }
 
         public async Task<IActionResult> Index()
         {
@@ -26,19 +44,32 @@ namespace WebApp.Controllers
             return View("DishView", dishList);
         }
 
-        [Route("Create")]
-        public IActionResult Create()
+        [Route("Search")]
+        public async Task<IActionResult> Search(string keyword)
         {
-            return View("CreateDishView");
+            var dishes = await _dishRepository.GetAllAsync();
+            var dishList = dishes.Where(d => d.DishName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                .Select(dish => new DishViewModel(dish));
+            return View("DishView", dishList);
+        }
+
+        [Route("Create")]
+        public async Task<IActionResult> Create()
+        {
+            var dishViewModel = new DishViewModel
+            {
+                CategoryOptions = await GetCategoryList()
+            };
+            return View("CreateDishView", dishViewModel);
         }
 
         [Route("Create")]
         [HttpPost]
         public async Task<IActionResult> Create(DishViewModel dishViewModel)
         {
-
             if (!ModelState.IsValid)
             {
+                dishViewModel.CategoryOptions = await GetCategoryList();
                 return View("CreateDishView", dishViewModel);
             }
 
@@ -53,7 +84,12 @@ namespace WebApp.Controllers
                     CategoryId = dishViewModel.CategoryId,
                 };
 
-                await _dishRepository.InsertAsync(dish);
+                var createdDish = await _dishRepository.InsertAsync(dish);
+
+                if (dishViewModel.UploadedImage != null && dishViewModel.UploadedImage.Length > 0)
+                {
+                    await SaveImageFile(dishViewModel.UploadedImage, createdDish.DishId);
+                }
             }
             catch (ArgumentException e)
             {
@@ -79,6 +115,7 @@ namespace WebApp.Controllers
             }
 
             var dishViewModel = new DishViewModel(dish);
+            dishViewModel.CategoryOptions = await GetCategoryList();
             return View("DetailsDishView", dishViewModel);
         }
 
@@ -92,7 +129,35 @@ namespace WebApp.Controllers
             }
 
             var dishViewModel = new DishViewModel(dish);
+            dishViewModel.CategoryOptions = await GetCategoryList();
             return View("EditDishView", dishViewModel);
+        }
+
+
+
+        private async Task SaveImageFile(IFormFile file, int dishId)
+        {
+            var imagePath = Path.Combine(imageUploadsDir, $"{dishId}.jpg");
+
+            if (!Directory.Exists(imageUploadsDir))
+            {
+                Directory.CreateDirectory(imageUploadsDir);
+            }
+
+            using (var stream = new FileStream(imagePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+        }
+
+        private void DeleteImageFile(int dishId)
+        {
+            var imagePath = Path.Combine(imageUploadsDir, $"{dishId}.jpg");
+
+            if (System.IO.File.Exists(imagePath))
+            {
+                System.IO.File.Delete(imagePath);
+            }
         }
 
         [HttpPost]
@@ -101,6 +166,7 @@ namespace WebApp.Controllers
         {
             if (!ModelState.IsValid)
             {
+                dish.CategoryOptions = await GetCategoryList();
                 return View("EditDishView", dish);
             }
 
@@ -118,13 +184,18 @@ namespace WebApp.Controllers
                 dishEntity.Visible = dish.Visible;
                 dishEntity.CategoryId = dish.CategoryId;
 
+                if (dish.UploadedImage != null && dish.UploadedImage.Length > 0)
+                {
+                    await SaveImageFile(dish.UploadedImage, DishId);
+                }
+
                 await _dishRepository.UpdateAsync(dishEntity);
             }
             catch (InvalidOperationException)
             {
                 return NotFound();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 TempData["Error"] = "An error occurred while updating dish. Please try again later.";
                 return View("EditDishView", dish);
@@ -143,6 +214,7 @@ namespace WebApp.Controllers
             }
 
             var dishViewModel = new DishViewModel(dish);
+            dishViewModel.CategoryOptions = await GetCategoryList();
             return View("DeleteDishView", dishViewModel);
         }
 
@@ -153,6 +225,7 @@ namespace WebApp.Controllers
             try
             {
                 await _dishRepository.DeleteAsync(DishId);
+                DeleteImageFile(DishId);
             }
             catch (Exception)
             {

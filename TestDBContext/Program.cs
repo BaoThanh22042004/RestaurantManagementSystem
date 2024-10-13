@@ -30,6 +30,9 @@ namespace TestDBContext
             Console.WriteLine("Adding shift data...");
             AddShiftData(context).Wait();
 
+            Console.WriteLine("Adding schedule data...");
+            AddScheduleData(context).Wait();
+
             Console.WriteLine("Exiting...");
         }
 
@@ -148,7 +151,6 @@ namespace TestDBContext
 
         static async Task AddShiftData(DBContext context)
         {
-            // Danh sách các Shift
             List<Shift> shifts = new List<Shift>
             {
                 new Shift { ShiftName = "Morning Shift", StartTime = new TimeOnly(8, 0), EndTime = new TimeOnly(12, 0) },
@@ -156,7 +158,6 @@ namespace TestDBContext
                 new Shift { ShiftName = "Evening Shift", StartTime = new TimeOnly(18, 0), EndTime = new TimeOnly(22, 0) }
             };
 
-            // Sử dụng ShiftRepository để thêm dữ liệu vào bảng
             ShiftRepository shiftRepository = new ShiftRepository(context);
             foreach (var shift in shifts)
             {
@@ -164,6 +165,30 @@ namespace TestDBContext
             }
 
             Console.WriteLine("Shift data added.");
+        }
+
+        public static async Task AddScheduleData(DBContext context)
+        {
+            List<int> empIds = new List<int> { 1, 2, 3 };
+            List<int> shiftIds = new List<int> { 1, 2, 3 };
+
+            List<Schedule> schedules = new List<Schedule>
+            {
+                new Schedule { ScheDate = new DateOnly(2024, 10, 12), EmpId = empIds[0], ShiftId = shiftIds[0] },  // Employee 1 có ca sáng
+                new Schedule { ScheDate = new DateOnly(2024, 10, 12), EmpId = empIds[1], ShiftId = shiftIds[1] },  // Employee 2 có ca chiều
+                new Schedule { ScheDate = new DateOnly(2024, 10, 12), EmpId = empIds[2], ShiftId = shiftIds[2] },  // Employee 3 có ca tối
+                new Schedule { ScheDate = new DateOnly(2024, 10, 13), EmpId = empIds[0], ShiftId = shiftIds[1] },  // Employee 1 có ca chiều
+                new Schedule { ScheDate = new DateOnly(2024, 10, 13), EmpId = empIds[1], ShiftId = shiftIds[2] },  // Employee 2 có ca tối
+                new Schedule { ScheDate = new DateOnly(2024, 10, 13), EmpId = empIds[2], ShiftId = shiftIds[0] },  // Employee 3 có ca sáng
+            };
+
+            ScheduleRepository scheduleRepository = new ScheduleRepository(context);
+            foreach (var schedule in schedules)
+            {
+                await scheduleRepository.InsertAsync(schedule);
+            }
+
+            Console.WriteLine("Schedule data added.");
         }
 
     }

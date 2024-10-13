@@ -16,7 +16,8 @@ namespace Repositories
 
 		public async Task<IEnumerable<Dish>> GetAllAsync()
 		{
-			return await _context.Dishes.AsNoTracking().ToListAsync();
+			return await _context.Dishes.Include(dish => dish.Category)
+										.AsNoTracking().ToListAsync();
 		}
 
 		public async Task<Dish?> GetByIDAsync(int id)
@@ -24,10 +25,11 @@ namespace Repositories
 			return await _context.Dishes.FindAsync(id);
 		}
 
-		public async Task InsertAsync(Dish dish)
+		public async Task<Dish> InsertAsync(Dish dish)
 		{
-			await _context.Dishes.AddAsync(dish);
+			var entityEntry = await _context.Dishes.AddAsync(dish);
 			await SaveAsync();
+			return entityEntry.Entity;
 		}
 
 		public async Task DeleteAsync(int id)

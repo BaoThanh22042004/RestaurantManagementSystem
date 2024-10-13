@@ -1,0 +1,54 @@
+﻿@model IEnumerable<DishViewModel>
+@{
+    ViewData["Title"] = "Dishes";
+    Layout = "_HomeLayout";
+}
+
+<h1 class="mb-4">Dishes</h1>
+
+<div class="mb-4 d-flex justify-content-between">
+    <form class="d-flex" asp-action="Search">
+        <input class="form-control me-2 mb-3" name="keyword" type="search">
+        <button class="btn btn-outline-success mb-3" type="submit">Search</button>
+    </form>
+</div>
+
+@if (!Model.Any(m => m.Visible))
+{
+    <div class="no-dishes-message text-center mt-5">
+        <h2>No dishes available.</h2>
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <a asp-controller="Home" asp-action="Details" asp-route-id="@item.DishId" class="text-decoration-none text-dark">
+                        <img src="@item.ImagePath" class="card-img-top" alt="Dish Image">
+                        <div class="card-body">
+                            <h5 class="card-title">@Html.DisplayFor(modelItem => item.DishName)</h5>
+                            <p class="card-text">Price: @Html.DisplayFor(modelItem => item.Price)</p>
+                        </div>
+                    </a>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a asp-controller="Cart" asp-action="AddToCart" asp-route-dishId="@item.DishId" asp-route-returnUrl="@ViewContext.HttpContext.Request.Path" class="btn btn-primary">Add</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .card img {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .no-dishes-message {
+        margin-top: 100px;
+    }
+</style>
