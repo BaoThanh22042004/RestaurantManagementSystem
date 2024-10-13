@@ -2,7 +2,7 @@
 
 namespace Repositories.Interface
 {
-	internal interface IScheduleRepository
+	public interface IScheduleRepository
 	{
 		Task<IEnumerable<Schedule>> GetAllAsync();
 		Task<Schedule?> GetByIDAsync(long id);

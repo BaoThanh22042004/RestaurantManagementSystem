@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - Home</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -24,6 +25,11 @@
                     </li>    
                     <li class="nav-item">
                         <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Menu">Menu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-controller="Cart" asp-action="">
+                            <i class="fas fa-shopping-cart"></i> Cart
+                        </a>
                     </li>
                     @if (User.Identity.IsAuthenticated)
                     {

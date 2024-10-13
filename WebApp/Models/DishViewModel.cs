@@ -29,15 +29,19 @@ namespace WebApp.Models
         [Required(ErrorMessage = "Category is required.")]
         [Display(Name = "Category")]
         public int CategoryId { get; set; }
-
-        // Dropdown list
         public IEnumerable<SelectListItem>? CategoryOptions { get; set; }
 
-        // Display only
         [Display(Name = "Category")]
         public string? CategoryName { get; set; }
 
-        public DishViewModel()
+        public string? ImagePath { get; set; }
+
+		[Display(Name = "Upload Image")]
+
+		public IFormFile? UploadedImage { get; set; }
+		public List<int>? SelectedCategories { get; set; } 
+
+		public DishViewModel()
         {
         }
 
@@ -50,6 +54,7 @@ namespace WebApp.Models
             Visible = dish.Visible;
             CategoryId = dish.CategoryId;
             CategoryName = dish.Category?.CatName;
+            ImagePath = $"/Uploads/Images/Dishes/{dish.DishId}.jpg"; ;
         }
     }
 }

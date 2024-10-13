@@ -25,10 +25,11 @@ namespace Repositories
 			return await _context.Dishes.FindAsync(id);
 		}
 
-		public async Task InsertAsync(Dish dish)
+		public async Task<Dish> InsertAsync(Dish dish)
 		{
-			await _context.Dishes.AddAsync(dish);
+			var entityEntry = await _context.Dishes.AddAsync(dish);
 			await SaveAsync();
+			return entityEntry.Entity;
 		}
 
 		public async Task DeleteAsync(int id)
