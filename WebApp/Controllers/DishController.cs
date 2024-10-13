@@ -37,23 +37,79 @@ namespace WebApp.Controllers
             return categories;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var dishes = await _dishRepository.GetAllAsync();
-            var dishList = dishes.Select(dish => new DishViewModel(dish));
-            return View("DishView", dishList);
-        }
+		public async Task<IActionResult> Index()
+		{
+			var dishes = await _dishRepository.GetAllAsync();
+			var dishList = dishes.Select(dish => new DishViewModel(dish)).ToList();
 
-        [Route("Search")]
-        public async Task<IActionResult> Search(string keyword)
-        {
-            var dishes = await _dishRepository.GetAllAsync();
-            var dishList = dishes.Where(d => d.DishName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-                .Select(dish => new DishViewModel(dish));
-            return View("DishView", dishList);
-        }
+			var allCategories = await GetCategoryList();
+			foreach (var dishViewModel in dishList)
+			{
+				dishViewModel.CategoryOptions = allCategories;
+			}
+			return View("DishView", dishList);
+		}
 
-        [Route("Create")]
+		[Route("Search")]
+		public async Task<IActionResult> Search(string keyword)
+		{
+			var dishes = await _dishRepository.GetAllAsync();
+			if (string.IsNullOrWhiteSpace(keyword))
+			{
+				var dishList = dishes.Select(dish => new DishViewModel(dish)).ToList();
+				var allCategories = await GetCategoryList();
+				foreach (var dishViewModel in dishList)
+				{
+					dishViewModel.CategoryOptions = allCategories;
+				}
+
+				return View("DishView", dishList);
+			}
+			var filteredDishes = dishes
+				.Where(d => d.DishName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+				.ToList();
+			var filteredDishList = filteredDishes.Select(dish => new DishViewModel(dish)).ToList();
+			var allCategoriesForFilter = await GetCategoryList();
+			foreach (var dishViewModel in filteredDishList)
+			{
+				dishViewModel.CategoryOptions = allCategoriesForFilter; 
+			}
+			return View("DishView", filteredDishList);
+		}
+
+		[Route("Filter")]
+		public async Task<IActionResult> Filter(List<int> selectedCategories)
+		{
+			var dishes = await _dishRepository.GetAllAsync();
+
+			if (selectedCategories == null || !selectedCategories.Any())
+			{
+				var dishList = dishes.Select(dish => new DishViewModel(dish)).ToList();
+
+				var allCategories = await GetCategoryList();
+				foreach (var dishViewModel in dishList)
+				{
+					dishViewModel.CategoryOptions = allCategories; 
+				}
+
+				return View("DishView", dishList);
+			}
+
+			var filteredDishes = dishes
+				.Where(d => selectedCategories.Contains(d.CategoryId)).ToList(); 
+
+			var filteredDishList = filteredDishes.Select(dish => new DishViewModel(dish)).ToList();
+
+			var allCategoriesForFilter = await GetCategoryList();
+			foreach (var dishViewModel in filteredDishList)
+			{
+				dishViewModel.CategoryOptions = allCategoriesForFilter; 
+			}
+
+			return View("DishView", filteredDishList);
+		}
+
+		[Route("Create")]
         public async Task<IActionResult> Create()
         {
             var dishViewModel = new DishViewModel
@@ -132,8 +188,6 @@ namespace WebApp.Controllers
             dishViewModel.CategoryOptions = await GetCategoryList();
             return View("EditDishView", dishViewModel);
         }
-
-
 
         private async Task SaveImageFile(IFormFile file, int dishId)
         {
