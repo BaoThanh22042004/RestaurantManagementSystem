@@ -16,22 +16,23 @@ namespace WebApp
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-			// Register the DBContext and Repository to the DI container
-			builder.Services.AddScoped<DBContext, DBContext>();
-			builder.Services.AddScoped<IUserRepository, UserRepository>();
-			builder.Services.AddScoped<IDishRepository, DishRepository>();
-			builder.Services.AddScoped<ITableRepository, TableRepository>();
-			builder.Services.AddScoped<IStorageRepository, StorageRepository>();
-			builder.Services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();
-			builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
-			builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
-										
-			// Add authentication services
-			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-				.AddCookie(options =>
-				{
-					options.AccessDeniedPath = "/Account/RedirectBasedOnRole";
-				});
+            // Register the DBContext and Repository to the DI container
+            builder.Services.AddScoped<DBContext, DBContext>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IDishRepository, DishRepository>();
+            builder.Services.AddScoped<ITableRepository, TableRepository>();
+            builder.Services.AddScoped<IStorageRepository, StorageRepository>();
+            builder.Services.AddScoped<IDishCategoryRepository, DishCategoryRepository>();
+            builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
+            builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
+            builder.Services.AddScoped<IStorageLogRepository, StorageLogRepository>();
+
+            // Add authentication services
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.AccessDeniedPath = "/Account/RedirectBasedOnRole";
+                });
 
             // Add authorization services
             builder.Services.AddAuthorizationBuilder()
