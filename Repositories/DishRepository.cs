@@ -22,7 +22,9 @@ namespace Repositories
 
 		public async Task<Dish?> GetByIDAsync(int id)
 		{
-			return await _context.Dishes.FindAsync(id);
+			return await _context.Dishes
+				.Include(dish => dish.Category)
+				.FirstOrDefaultAsync(dish => dish.DishId.Equals(id));
 		}
 
 		public async Task<Dish> InsertAsync(Dish dish)
