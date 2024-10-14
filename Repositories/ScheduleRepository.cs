@@ -16,7 +16,10 @@ namespace Repositories
 
 		public async Task<IEnumerable<Schedule>> GetAllAsync()
 		{
-			return await _context.Schedules.AsNoTracking().ToListAsync();
+			return await _context.Schedules
+				.Include(s => s.Shift)
+				.Include(s => s.Employee)
+				.AsNoTracking().ToListAsync();
 		}
 
 		public async Task<Schedule?> GetByIDAsync(long id)

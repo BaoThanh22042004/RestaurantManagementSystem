@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Entities;
 using Repositories;
 using Repositories.Interface;
@@ -8,27 +9,65 @@ using WebApp.Models;
 namespace WebApp.Controllers
 {
     [Route("Dashboard/Schedule")]
-    [Authorize(Roles = "Manager , Staff")]  
-    public class ScheduleController : Controller
+	[Authorize(Roles = $"{nameof(Role.Manager)},{nameof(Role.Waitstaff)}")]
+	public class ScheduleController : Controller
     {
         private readonly IScheduleRepository _scheduleRepository;
+        private readonly IShiftRepository _shiftRepository;
+        private readonly IUserRepository _userRepository;
 
-        public ScheduleController(IScheduleRepository scheduleRepository) 
+        public ScheduleController(IScheduleRepository scheduleRepository, IShiftRepository shiftRepository, IUserRepository userRepository)
         {
             _scheduleRepository = scheduleRepository;
+            _shiftRepository = shiftRepository;
+            _userRepository = userRepository;
         }
 
-        public async Task<IActionResult> Index()
+        private async Task<IEnumerable<SelectListItem>> GetShiftList() 
         {
-            var schedules = await _scheduleRepository.GetAllAsync();
-            var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule));
+            var shift = (await _shiftRepository.GetAllAsync()).Select(s => new SelectListItem
+			{
+                Value = s.ShiftId.ToString(),
+                Text = s.ShiftName
+            });
+            return shift;
+        }
+
+        private async Task<IEnumerable<SelectListItem>> GetUserList()
+        {
+            var user = (await _userRepository.GetAllAsync()).Where(u => u.Role != Role.Customer).Select(u => new SelectListItem
+            {
+                Value = u.UserId.ToString(),
+                Text =  u.FullName
+            }).ToList();
+            return user;
+        }
+
+		public async Task<IActionResult> Index()
+        {
+			var allShifts = await GetShiftList();
+
+			var allUsers = await GetUserList();
+
+			var schedules = await _scheduleRepository.GetAllAsync();
+            var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule)
+            {
+                ShiftOptions = allShifts,
+                EmployeeOptions = allUsers
+            });
+  
             return View("ScheduleView", scheduleList);
         }
 
         [Route("Create")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View("CreateScheduleView");
+            var schedule = new ScheduleViewModel()
+            {
+                ShiftOptions = await GetShiftList(),
+                EmployeeOptions = await GetUserList()
+            };
+            return View("CreateScheduleView", schedule);
         }
 
         [Route("Create")]
@@ -38,6 +77,8 @@ namespace WebApp.Controllers
 
             if (!ModelState.IsValid)
             {
+                scheduleViewModel.ShiftOptions = await GetShiftList();
+                scheduleViewModel.EmployeeOptions = await GetUserList();
                 return View("CreateScheduleView", scheduleViewModel);
             }
 
@@ -75,7 +116,11 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var scheduleViewModel = new ScheduleViewModel(schedule);
+            var scheduleViewModel = new ScheduleViewModel(schedule) 
+            {
+                ShiftOptions = await GetShiftList(),
+                EmployeeOptions = await GetUserList()
+            };
             return View("DetailsScheduleView", scheduleViewModel);
         }
 
@@ -89,6 +134,8 @@ namespace WebApp.Controllers
             }
 
             var scheduleViewModel = new ScheduleViewModel(schedule);
+            scheduleViewModel.ShiftOptions = await GetShiftList();
+            scheduleViewModel.EmployeeOptions = await GetUserList();
             return View("EditScheduleView", scheduleViewModel);
         }
 
@@ -98,6 +145,8 @@ namespace WebApp.Controllers
         {
             if (!ModelState.IsValid)
             {
+                schedule.ShiftOptions = await GetShiftList();
+                schedule.EmployeeOptions = await GetUserList();
                 return View("EditScheduleView", schedule);
             }
 
@@ -138,7 +187,11 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var scheduleViewModel = new ScheduleViewModel(schedule);
+            var scheduleViewModel = new ScheduleViewModel(schedule)
+            {
+                ShiftOptions = await GetShiftList(),
+                EmployeeOptions = await GetUserList()
+            };
             return View("DeleteScheduleView", scheduleViewModel);
         }
 

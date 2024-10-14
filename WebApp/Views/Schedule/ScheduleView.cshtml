@@ -34,8 +34,8 @@ else
                 <tr>
                     <td>@(++counter)</td>
                     <td>@item.ScheDate</td>
-                    <td>@item.EmpId</td>
-                    <td>@item.ShiftId</td>
+                    <td>@item.EmployeeName</td>
+                    <td>@item.ShiftName</td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.ScheId" class="btn btn-info">Edit</a>
                         <a asp-action="Details" asp-route-id="@item.ScheId" class="btn btn-primary">Details</a>
