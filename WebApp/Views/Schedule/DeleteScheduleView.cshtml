@@ -1,7 +1,7 @@
 ﻿@model ScheduleViewModel
 @{
-    ViewData["Title"] = "Delete Schedule";
-    Layout = "_DashboardLayout";
+	ViewData["Title"] = "Delete Schedule";
+	Layout = "_DashboardLayout";
 }
 
 <h1 class="mb-4">Delete Schedule</h1>
@@ -11,9 +11,9 @@
 <partial name="Partials/_SchedulePartial" model="Model" />
 
 <form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="ScheId" />
-    <div class="d-flex gap-3">
-        <button type="submit" class="btn btn-danger">Delete</button>
-        <a asp-action="Index" class="btn btn-secondary">Back</a>
-    </div>
+	<input type="hidden" asp-for="ScheId" />
+	<div class="d-flex gap-3">
+		<button type="submit" class="btn btn-danger">Delete</button>
+		<a asp-action="Index" class="btn btn-secondary">Back</a>
+	</div>
 </form>

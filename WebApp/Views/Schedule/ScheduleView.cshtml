@@ -1,8 +1,8 @@
 ﻿@model IEnumerable<ScheduleViewModel>
 @{
-    ViewData["Title"] = "Schedule";
-    Layout = "_DashboardLayout";
-    int counter = 0;
+	ViewData["Title"] = "Schedule";
+	Layout = "_DashboardLayout";
+	int counter = 0;
 }
 
 <h1 class="mb-4">Schedule</h1>
@@ -11,44 +11,44 @@
 
 @if (!Model.Any())
 {
-    <div class="no-shifts-message text-center mt-5">
-        <h2>No schedules available.</h2>
-        <p>Please add some schedule.</p>
-    </div>
+	<div class="no-shifts-message text-center mt-5">
+		<h2>No schedules available.</h2>
+		<p>Please add some schedule.</p>
+	</div>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Schedule Date</th>
-                <th>Employee</th>
-                <th>Shift</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@(++counter)</td>
-                    <td>@item.ScheDate</td>
-                    <td>@item.EmpId</td>
-                    <td>@item.ShiftId</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.ScheId" class="btn btn-info">Edit</a>
-                        <a asp-action="Details" asp-route-id="@item.ScheId" class="btn btn-primary">Details</a>
-                        <a asp-action="Delete" asp-route-id="@item.ScheId" class=" btn btn-danger">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>Schedule Date</th>
+				<th>Employee</th>
+				<th>Shift</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model)
+			{
+				<tr>
+					<td>@(++counter)</td>
+					<td>@item.ScheDate</td>
+					<td>@item.EmpId</td>
+					<td>@item.ShiftId</td>
+					<td>
+						<a asp-action="Edit" asp-route-id="@item.ScheId" class="btn btn-info">Edit</a>
+						<a asp-action="Details" asp-route-id="@item.ScheId" class="btn btn-primary">Details</a>
+						<a asp-action="Delete" asp-route-id="@item.ScheId" class=" btn btn-danger">Delete</a>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
 }
 
 <style>
-    .no-shifts-message {
-        margin-top: 100px;
-    }
+	.no-shifts-message {
+		margin-top: 100px;
+	}
 </style>

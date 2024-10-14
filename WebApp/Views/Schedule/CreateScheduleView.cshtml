@@ -1,7 +1,7 @@
 ﻿@model ScheduleViewModel
 @{
-    ViewData["Title"] = "Create Schedule";
-    Layout = "_DashboardLayout";
+	ViewData["Title"] = "Create Schedule";
+	Layout = "_DashboardLayout";
 }
 
 <h1 class="mb-4">Create Schedule</h1>
@@ -9,9 +9,9 @@
 <div class="text-danger mb-3">@TempData["Error"]</div>
 
 <form asp-action="Create" method="post">
-    <partial name="Partials/_SchedulePartial" model="Model" />
-    <div class="d-flex gap-3">
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a asp-action="Index" class="btn btn-secondary">Back</a>
-    </div>
+	<partial name="Partials/_SchedulePartial" model="Model" />
+	<div class="d-flex gap-3">
+		<button type="submit" class="btn btn-primary">Create</button>
+		<a asp-action="Index" class="btn btn-secondary">Back</a>
+	</div>
 </form>
