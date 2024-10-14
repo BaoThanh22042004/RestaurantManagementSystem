@@ -8,280 +8,265 @@ using System.Net.Mail;
 using System.Net;
 using System.Security.Claims;
 using WebApp.Models;
+using WebApp.Utilities;
 
 namespace WebApp.Controllers
 {
-	public class AccountController : Controller
-	{
-		private readonly IUserRepository _userRepository;
-		private readonly IAuthorizationService _authorizationService;
-		public AccountController(IUserRepository userRepository, IAuthorizationService authorizationService)
-		{
-			_userRepository = userRepository;
-			_authorizationService = authorizationService;
-		}
+    public class AccountController : Controller
+    {
+        private readonly IUserRepository _userRepository;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly UserClaimManager _userClaimManager;
+        public AccountController(IUserRepository userRepository, IAuthorizationService authorizationService, UserClaimManager userClaimManager)
+        {
+            _userRepository = userRepository;
+            _authorizationService = authorizationService;
+            _userClaimManager = userClaimManager;
+        }
 
-		public IActionResult Register()
-		{
-			if (User.Identity.IsAuthenticated)
-			{
-				return RedirectToAction("RedirectBasedOnRole");
-			}
+        public IActionResult Register()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("RedirectBasedOnRole");
+            }
 
-			return View("RegisterView");
-		}
+            return View("RegisterView");
+        }
 
-		[HttpPost]
-		public async Task<IActionResult> Register(RegisterViewModel register)
-		{
-			if (!ModelState.IsValid)
-			{
-				return View("RegisterView", register);
-			}
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel register)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("RegisterView", register);
+            }
 
-			try
-			{
-				var user = new User
-				{
-					Username = register.Username,
-					Password = register.Password,
-					FullName = register.FullName,
-					Email = register.Email,
-					Phone = register.Phone,
-					Role = Role.Customer,
-				};
+            try
+            {
+                var user = new User
+                {
+                    Username = register.Username,
+                    Password = register.Password,
+                    FullName = register.FullName,
+                    Email = register.Email,
+                    Phone = register.Phone,
+                    Role = Role.Customer,
+                };
 
-				await _userRepository.InsertAsync(user);
-			}
-			catch (ArgumentException e)
-			{
-				TempData["Error"] = e.Message;
-				return View("RegisterView", register);
-			}
-			catch
-			{
-				TempData["Error"] = "An error occurred while registering user. Please try again later.";
-				return View("RegisterView", register);
-			}
+                await _userRepository.InsertAsync(user);
+            }
+            catch (ArgumentException e)
+            {
+                TempData["Error"] = e.Message;
+                return View("RegisterView", register);
+            }
+            catch
+            {
+                TempData["Error"] = "An error occurred while registering user. Please try again later.";
+                return View("RegisterView", register);
+            }
 
+            return RedirectToAction("Login", "Account");
+        }
 
+        public async Task<IActionResult> Login()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return await RedirectBasedOnRole();
+            }
 
+            return View("LoginView");
+        }
 
-			return RedirectToAction("Login", "Account");
-		}
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginViewModel login)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("LoginView", login);
+            }
 
-		public async Task<IActionResult> Login()
-		{
-			if (User.Identity.IsAuthenticated)
-			{
-				return await RedirectBasedOnRole();
-			}
+            try
+            {
+                var user = await _userRepository.ValidateLoginAsync(login.Username, login.Password);
+                if (user == null)
+                {
+                    TempData["Error"] = "Invalid username or password.";
+                    return View("LoginView", login);
+                }
 
-			return View("LoginView");
-		}
+                await SignInAsync(user);
+            }
+            catch
+            {
+                TempData["Error"] = "An error occurred while logging in. Please try again later.";
+                return View("LoginView", login);
+            }
 
-		[HttpPost]
-		public async Task<IActionResult> Login(LoginViewModel login)
-		{
-			if (!ModelState.IsValid)
-			{
-				return View("LoginView", login);
-			}
+            return RedirectToAction("RedirectBasedOnRole");
+        }
 
-			try
-			{
-				var user = await _userRepository.ValidateLoginAsync(login.Username, login.Password);
-				if (user == null)
-				{
-					TempData["Error"] = "Invalid username or password.";
-					return View("LoginView", login);
-				}
+        public IActionResult ForgotPassword()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("RedirectBasedOnRole");
+            }
 
-				var claims = new List<Claim>
-				{
-					new Claim(ClaimTypes.Name, user.Username),
-					new Claim("FullName", user.FullName),
-					new Claim(ClaimTypes.Role, user.Role.ToString()),
-				};
+            return View("ForgotPasswordView");
+        }
 
-				var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel forgotPassword)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("ForgotPasswordView", forgotPassword);
+            }
 
-				var authProperties = new AuthenticationProperties
-				{
-					AllowRefresh = true,
-					ExpiresUtc = DateTimeOffset.UtcNow.AddDays(1),
-					IsPersistent = true,
-					IssuedUtc = DateTimeOffset.UtcNow
-				};
+            try
+            {
+                var user = await _userRepository.GetByUsernameAsync(forgotPassword.Username);
+                if (user == null || user.Email != forgotPassword.Email)
+                {
+                    TempData["Error"] = "Invalid username or email.";
+                    return View("ForgotPasswordView", forgotPassword);
+                }
 
-				await HttpContext.SignInAsync(
-					CookieAuthenticationDefaults.AuthenticationScheme,
-					new ClaimsPrincipal(claimsIdentity),
-					authProperties);
-			}
-			catch
-			{
-				TempData["Error"] = "An error occurred while logging in. Please try again later.";
-				return View("LoginView", login);
-			}
+                var newPassword = Guid.NewGuid().ToString().Substring(0, 8);
+                await _userRepository.UpdateAsync(user, newPassword);
+                SendMail(user.Email, user.Username, newPassword);
+                TempData["Success"] = "An email has been sent to your email address with your new password.";
+            }
+            catch
+            {
+                TempData["Error"] = "An error occurred while processing your request. Please try again later.";
+                return View("ForgotPasswordView", forgotPassword);
+            }
 
-			return RedirectToAction("RedirectBasedOnRole");
-		}
+            return RedirectToAction("Login", "Account");
+        }
 
-		public IActionResult ForgotPassword()
-		{
-			if (User.Identity.IsAuthenticated)
-			{
-				return RedirectToAction("RedirectBasedOnRole");
-			}
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Home");
+        }
 
-			return View("ForgotPasswordView");
-		}
+        public async Task<IActionResult> RedirectBasedOnRole()
+        {
+            var result = await _authorizationService.AuthorizeAsync(User, "Staff");
+            if (result.Succeeded)
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
 
-		[HttpPost]
-		public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel forgotPassword)
-		{
-			User user;
-			if (!ModelState.IsValid)
-			{
-				return View("ForgotPasswordView", forgotPassword);
-			}
+            return RedirectToAction("Index", "Home");
+        }
 
-			try
-			{
-				user = await _userRepository.GetByUsernameAsync(forgotPassword.Username);
-				if (user == null || user.Email != forgotPassword.Email)
-				{
-					TempData["Error"] = "Invalid username or email.";
-					return View("ForgotPasswordView", forgotPassword);
-				}
-			}
-			catch
-			{
-				TempData["Error"] = "An error occurred while processing your request. Please try again later.";
-				return View("ForgotPasswordView", forgotPassword);
-			}
+        [Authorize]
+        public async Task<IActionResult> Profile()
+        {
+            var user = await _userRepository.GetByUsernameAsync(User.Identity.Name);
+            var userViewModel = new ProfileViewModel(user);
+            return View("ProfileView", userViewModel);
+        }
 
-			var newPassword = Guid.NewGuid().ToString().Substring(0, 8);
-			try
-			{
-				await _userRepository.UpdateAsync(user, newPassword);
-				SendMail(user.Email, user.Username, newPassword);
-				TempData["Success"] = "An email has been sent to your email address with your new password.";
-			}
-			catch
-			{
-				TempData["Error"] = "An error occurred while processing your request. Please try again later.";
-				return View("ForgotPasswordView", forgotPassword);
-			}
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Profile(ProfileViewModel profile)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(profile.OldPassword))
+                {
+                    var isOldPasswordCorrect = await _userRepository.ValidateLoginAsync(User.Identity.Name, profile.OldPassword) != null;
 
-			return RedirectToAction("Login", "Account");
-		}
+                    if (!isOldPasswordCorrect)
+                    {
+                        ModelState.AddModelError("OldPassword", "Old password is incorrect.");
+                    }
+                    else if (!string.IsNullOrWhiteSpace(profile.NewPassword))
+                    {
+                        if (profile.OldPassword == profile.NewPassword)
+                        {
+                            ModelState.AddModelError("NewPassword", "New password must be different from old password.");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("NewPassword", "New password is required.");
+                    }
+                }
 
-		public async Task<IActionResult> Logout()
-		{
-			await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-			return RedirectToAction("Index", "Home");
-		}
+                if (!ModelState.IsValid)
+                {
+                    return View("ProfileView", profile);
+                }
 
-		private void SendMail(string to, string username, string password)
-		{
-			var userSecret = new ConfigurationBuilder()
-				  .AddUserSecrets<AccountController>()
-				  .Build();
+                var userEntity = await _userRepository.GetByUsernameAsync(User.Identity.Name);
+                userEntity.FullName = profile.FullName;
+                userEntity.Email = profile.Email;
+                userEntity.Phone = profile.Phone;
+                await _userRepository.UpdateAsync(userEntity, profile.NewPassword);
 
-			var fromAddress = new MailAddress(userSecret["Email"]);
-			var toAddress = new MailAddress(to);
-			string fromPassword = userSecret["AppPassword"];
-			string subject = $"[RMS] Reset Password for {username} account";
-			string body = "This is an automated email. Please do not reply.\n\n" +
-				$"Your new password is: {password}\n\n" +
-				"Please change your password after logging in.\n\n" +
-				"Thank you for using our service.";
+                await SignInAsync(userEntity);
 
-			var smtp = new SmtpClient
-			{
-				Host = "smtp.gmail.com",
-				Port = 587,
-				EnableSsl = true,
-				DeliveryMethod = SmtpDeliveryMethod.Network,
-				UseDefaultCredentials = false,
-				Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
-			};
-			using (var message = new MailMessage(fromAddress, toAddress)
-			{
-				Subject = subject,
-				Body = body
-			})
-			{
-				smtp.Send(message);
-			}
-		}
+                TempData["Success"] = "Profile updated successfully.";
+            }
+            catch
+            {
+                TempData["Error"] = "An error occurred while updating your profile. Please try again later.";
+                return View("ProfileView", profile);
+            }
 
-		public async Task<IActionResult> RedirectBasedOnRole()
-		{
-			var result = await _authorizationService.AuthorizeAsync(User, "Staff");
-			if (result.Succeeded)
-			{
-				return RedirectToAction("Index", "Dashboard");
-			}
+            return RedirectToAction("Profile");
+        }
 
-			return RedirectToAction("Index", "Home");
-		}
+        private async Task SignInAsync(User userEntity)
+        {
+            var claimsIdentity = _userClaimManager.CreateClaimsPrincipal
+                (userEntity.UserId.ToString(), userEntity.Username, userEntity.FullName, userEntity.Role.ToString());
+            var authenticationProperties = _userClaimManager.authenticationProperties;
 
-		[Authorize]
-		public async Task<IActionResult> Profile()
-		{
-			var user = await _userRepository.GetByUsernameAsync(User.Identity.Name);
-			var userViewModel = new ProfileViewModel(user);
-			return View("ProfileView", userViewModel);
-		}
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authenticationProperties);
+        }
 
-		[Authorize]
-		[HttpPost]
-		public async Task<IActionResult> Profile(ProfileViewModel profile)
-		{
-			try
-			{
-				if (!string.IsNullOrWhiteSpace(profile.OldPassword))
-				{
-					var isOldPasswordCorrect = await _userRepository.ValidateLoginAsync(User.Identity.Name, profile.OldPassword) != null;
+        private void SendMail(string to, string username, string password)
+        {
+            var userSecret = new ConfigurationBuilder()
+                  .AddUserSecrets<AccountController>()
+                  .Build();
 
-					if (!isOldPasswordCorrect)
-					{
-						ModelState.AddModelError("OldPassword", "Old password is incorrect.");
-					}
-					else if (!string.IsNullOrWhiteSpace(profile.NewPassword))
-					{
-						if (profile.OldPassword == profile.NewPassword)
-						{
-							ModelState.AddModelError("NewPassword", "New password must be different from old password.");
-						}
-					}
-					else
-					{
-						ModelState.AddModelError("NewPassword", "New password is required.");
-					}
-				}
+            var fromAddress = new MailAddress(userSecret["Email"]);
+            var toAddress = new MailAddress(to);
+            string fromPassword = userSecret["AppPassword"];
+            string subject = $"[RMS] Reset Password for {username} account";
+            string body = "This is an automated email. Please do not reply.\n\n" +
+                $"Your new password is: {password}\n\n" +
+                "Please change your password after logging in.\n\n" +
+                "Thank you for using our service.";
 
-				if (!ModelState.IsValid)
-				{
-					return View("ProfileView", profile);
-				}
-
-				var userEntity = await _userRepository.GetByUsernameAsync(User.Identity.Name);
-				userEntity.FullName = profile.FullName;
-				userEntity.Email = profile.Email;
-				userEntity.Phone = profile.Phone;
-				await _userRepository.UpdateAsync(userEntity, profile.NewPassword);
-			}
-			catch
-			{
-				TempData["Error"] = "An error occurred while updating your profile. Please try again later.";
-				return View("ProfileView", profile);
-			}
-			
-			return RedirectToAction("Profile");
-		}
-	}
+            var smtp = new SmtpClient
+            {
+                Host = "smtp.gmail.com",
+                Port = 587,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            };
+            using var message = new MailMessage(fromAddress, toAddress)
+            {
+                Subject = subject,
+                Body = body
+            };
+            smtp.Send(message);
+        }
+    }
 }

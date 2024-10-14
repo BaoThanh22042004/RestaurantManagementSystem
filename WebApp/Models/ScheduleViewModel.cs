@@ -8,7 +8,7 @@ namespace WebApp.Models
         public long ScheId { get; set; }
 
         [Required(ErrorMessage = "Schedule date is required.")]
-        [Display(Name = "Shedule Date")]
+        [Display(Name = "Schedule Date")]
         public DateOnly ScheDate { get; set; }
 
         [Required(ErrorMessage = "Employee is required.")]
