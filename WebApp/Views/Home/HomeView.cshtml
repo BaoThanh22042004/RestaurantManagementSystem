@@ -5,3 +5,59 @@
 <div class="text-center">
     <h1 class="display-4">Welcome @User?.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value</h1>
 </div>
+
+<div class="full-screen-image" id="image-container-1"></div>
+<div class="full-screen-image" id="image-container-2"></div>
+
+<style>
+    .full-screen-image {
+        width: 100vw;
+        height: 100vh;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        background-size: cover;
+        background-position: center;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+    }
+
+    .visible {
+        opacity: 1;
+    }
+</style>
+
+<script>
+    const images = [
+        '/Uploads/Images/Home/RestaurantBackground1.jpg',
+        '/Uploads/Images/Home/RestaurantBackground3.jpg',
+        '/Uploads/Images/Home/RestaurantBackground2.jpg'
+    ];
+
+    let currentIndex = 0; 
+    const imageContainer1 = document.getElementById('image-container-1');
+    const imageContainer2 = document.getElementById('image-container-2');
+    let isFirstContainerVisible = true; 
+
+    function changeImage() {
+
+        const currentContainer = isFirstContainerVisible ? imageContainer1 : imageContainer2;
+        const nextContainer = isFirstContainerVisible ? imageContainer2 : imageContainer1;
+
+        nextContainer.style.backgroundImage = `url(${images[currentIndex]})`;
+        nextContainer.classList.add('visible');
+
+        setTimeout(() => {
+            currentContainer.classList.remove('visible');
+        }, 1000); 
+
+        currentIndex = (currentIndex + 1) % images.length;
+        isFirstContainerVisible = !isFirstContainerVisible;
+    }
+
+    imageContainer1.style.backgroundImage = `url(${images[currentIndex]})`;
+    imageContainer1.classList.add('visible');
+
+    setInterval(changeImage, 5000); 
+</script>
