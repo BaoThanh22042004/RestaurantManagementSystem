@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Entities;
 
 namespace WebApp.Models
@@ -20,6 +21,11 @@ namespace WebApp.Models
 
         [Display(Name = "Quantity")]
         public decimal Quantity { get; set; }
+        public IEnumerable<SelectListItem>? CategoryOptions { get; set; }
+        public string? CategoryName { get; set; }
+        //public List<int>? SelectedCategories { get; set; }
+
+        public bool HasSearched { get; set; }
 
         // Default constructor
         public StorageViewModel()
