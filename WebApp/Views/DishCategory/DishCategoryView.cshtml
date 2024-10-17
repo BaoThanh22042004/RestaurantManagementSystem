@@ -1,62 +1,62 @@
 ﻿@model IEnumerable<DishCategoryViewModel>
 @{
-    ViewData["Title"] = "Dish Category";
-    Layout = "_DashBoardLayout";
+	ViewData["Title"] = "Dish Category";
+	Layout = "_DashBoardLayout";
 }
 <h1 class="mb-4">Dish Categories</h1>
 
 <div class="mb-4">
-    <form class="justify-content-between" method="get">
-        <a asp-action="Create" class="btn btn-primary">Add New Dish Category</a>
+	<form class="justify-content-between" method="get">
+		<a asp-action="Create" class="btn btn-primary">Add New Dish Category</a>
 
-        @if (Model != null && Model.Any() && Model.First().HasSearched)
-        {
-            <a asp-controller="DishCategory" asp-action="Index" class="btn btn-secondary">Back to List</a>
-        }
+		@if (!string.IsNullOrEmpty(@Context.Request.Query["keyword"]))
+		{
+			<a asp-controller="DishCategory" asp-action="Index" class="btn btn-secondary">Back to List</a>
+		}
 
-        <input class="form-control" name="keyword" type="search" placeholder="Search by name..." />
-        <button class="btn btn-outline-success mb-3" type="submit" formaction="@Url.Action("Search")">Search</button>
-    </form>
+		<input class="form-control" name="keyword" type="search" value="@Context.Request.Query["keyword"]" placeholder="Search by name..." />
+		<button class="btn btn-outline-success mb-3" type="submit" formaction="@Url.Action("Search")">Search</button>
+	</form>
 
-    @if (!Model.Any())
-    {
-        <a asp-controller="DishCategory" asp-action="Index" class="btn btn-secondary">Back to List</a>
-        <div class="no-dishes-message text-center mt-5">
-            <h2>No dish categories available.</h2>
-        </div>
-    }
-    else
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.CategoryId)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.CategoryName)
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.CategoryId)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.CategoryName)
-                        </td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@item.CategoryId" class="btn btn-info">Details</a>
-                            <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn btn-primary">Edit</a>
-                            <a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn btn-danger">Delete</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
+	@if (!Model.Any())
+	{
+		<a asp-controller="DishCategory" asp-action="Index" class="btn btn-secondary">Back to List</a>
+		<div class="no-dishes-message text-center mt-5">
+			<h2>No dish categories available.</h2>
+		</div>
+	}
+	else
+	{
+		<table class="table">
+			<thead>
+				<tr>
+					<th>
+						@Html.DisplayNameFor(model => model.CategoryId)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.CategoryName)
+					</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in Model)
+				{
+					<tr>
+						<td>
+							@Html.DisplayFor(modelItem => item.CategoryId)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.CategoryName)
+						</td>
+						<td>
+							<a asp-action="Details" asp-route-id="@item.CategoryId" class="btn btn-info">Details</a>
+							<a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn btn-primary">Edit</a>
+							<a asp-action="Delete" asp-route-id="@item.CategoryId" class="btn btn-danger">Delete</a>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
 </div>
