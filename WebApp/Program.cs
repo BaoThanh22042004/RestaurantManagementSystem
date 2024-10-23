@@ -28,6 +28,7 @@ namespace WebApp
             builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
             builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
             builder.Services.AddScoped<IStorageLogRepository, StorageLogRepository>();
+            builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 
 			// Register Singleton services
 			builder.Services.AddSingleton<UserClaimManager>();
