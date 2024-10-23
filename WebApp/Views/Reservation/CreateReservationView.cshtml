@@ -1,0 +1,17 @@
+﻿@model ReservationViewModel
+@{
+    ViewData["Title"] = "Create Reservation";
+    Layout = "_DashboardLayout";
+}
+
+<h1 class="mb-4">Create Reservation</h1>
+
+<div class="text-danger mb-3">@TempData["Error"]</div>
+
+<form asp-action="Create" method="post">
+    <partial name="Partials/_ReservationPartial" model="Model" />
+    <div class="d-flex gap-3">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </div>
+</form>
