@@ -85,14 +85,14 @@ else
                                                 @sche.ShiftName <br />
                                                 @sche.StartTime
                                                 @sche.EndTime
-                                                @if (sche.Attendance.Status == Models.Entities.AttendanceStatus.Scheduled)
+                                                @if (sche.Attendance == null)
                                                 {
-                                                    <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId">Clock In</a>
-                                                } else if (sche.Attendance.Status == Models.Entities.AttendanceStatus.ClockIn)
+                                                    <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock In</a>
+                                                } else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn)
                                                 {
-                                                    <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId">Clock Out</a>
+                                                    <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock Out</a>
                                                 }
-
+                                                @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
                                             </div>
                                         }
 
@@ -133,14 +133,14 @@ else
                                                 @sche.ShiftName <br />
                                                 @sche.StartTime
                                                 @sche.EndTime
-                                                @if (sche.Attendance.Status == Models.Entities.AttendanceStatus.Scheduled)
+                                                @if (sche.Attendance == null)
                                                 {
-                                                                                    <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId">Clock In</a>
-                                                }
-                                                else if (sche.Attendance.Status == Models.Entities.AttendanceStatus.ClockIn)
+                                                    <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock In</a>
+                                                } else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn)
                                                 {
-                                                                                    <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId">Clock Out</a>
+                                                    <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock Out</a>
                                                 }
+                                                @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status) 
                                             </div>
                                         }
                                     </td>

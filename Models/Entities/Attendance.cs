@@ -6,7 +6,6 @@ namespace Models.Entities
 {
 	public enum AttendanceStatus
 	{
-		Scheduled,
 		ClockIn,
 		ClockOut,
 		Absent
