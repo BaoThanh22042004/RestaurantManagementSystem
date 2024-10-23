@@ -1,0 +1,16 @@
+﻿@model WebApp.Models.OrderViewModel
+
+@{
+    ViewData["Title"] = "Order Details";
+    Layout = "_DashboardLayout";
+}
+
+<h2>Order Details</h2>
+
+<div class="text-danger mb-3">@TempData["Error"]</div>
+
+<partial name="Partials/_OrderPartial" model="Model" />
+
+<a asp-action="AddOrderItem" asp-route-id="@Model.OrderId" class="btn btn-primary">Add Order Item</a>
+<a asp-action="Edit" asp-route-id="@Model.OrderId" class="btn btn-primary">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Back to Orders</a>
