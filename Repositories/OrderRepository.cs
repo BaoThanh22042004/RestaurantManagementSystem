@@ -16,13 +16,20 @@ namespace Repositories
 
 		public async Task<IEnumerable<Order>> GetAllAsync()
 		{
-			return await _context.Orders.AsNoTracking().ToListAsync();
-		}
+            return await _context.Orders.Include(order => order.OrderItems)
+										.Include(order => order.Reservation)
+										.Include(order => order.Table)
+										.AsNoTracking()
+										.ToListAsync();
+        }
 
 		public async Task<Order?> GetByIDAsync(long id)
 		{
-			return await _context.Orders.FindAsync(id);
-		}
+            return await _context.Orders.Include(order => order.OrderItems)
+										.Include(order => order.Reservation)
+										.Include(order => order.Table)
+										.FirstOrDefaultAsync(order => order.OrderId == id);
+        }
 
 		public async Task InsertAsync(Order order)
 		{

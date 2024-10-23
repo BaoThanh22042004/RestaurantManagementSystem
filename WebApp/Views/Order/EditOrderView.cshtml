@@ -1,0 +1,17 @@
+﻿@model WebApp.Models.OrderViewModel
+
+@{
+    ViewData["Title"] = "Edit Order";
+    Layout = "_DashboardLayout";
+}
+
+<h2>Edit Order</h2>
+
+<div class="text-danger mb-3">@TempData["Error"]</div>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <partial name="Partials/_OrderPartial" model="Model" />
+
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-action="Details" asp-route-id="@Model.OrderId" class="btn btn-secondary">Back to Orders</a>
+</form>

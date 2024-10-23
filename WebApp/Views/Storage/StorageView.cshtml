@@ -5,49 +5,78 @@
 }
 <h1 class="mb-4">Storage</h1>
 
-<a asp-action="Create" class="btn btn-primary">Add New Item</a>
-<a asp-controller="StorageLog" asp-action="Index" class="btn btn-info">Storage Log</a>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.ItemId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ItemName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Unit)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantity)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+<div class="mb-4">
+    <form class="justify-content-between" method="get">
+        <a asp-action="Create" class="btn btn-primary">Add New Item</a>
+        <a asp-controller="StorageLog" asp-action="Index" class="btn btn-info">Storage Log</a>
+        @if (Model != null && Model.Any() && Model.First().HasSearched)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ItemId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.ItemName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Unit)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Quantity)
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.ItemId" class="btn btn-info">Details</a>
-                    <a asp-action="Edit" asp-route-id="@item.ItemId" class="btn btn-primary">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@item.ItemId" class="btn btn-danger">Delete</a>
-                </td>
-            </tr>
+            <a asp-controller="Storage" asp-action="Index" class="btn btn-secondary">Back to List</a>
         }
-    </tbody>
-</table>
+
+        <input class="form-control" name="keyword" type="search" placeholder="Search by name...">
+        <button class="btn btn-outline-success mb-3" type="submit" formaction="@Url.Action("Search")">Search</button>
+    </form>
+    @if (!Model.Any())
+    {
+        <a asp-controller="Storage" asp-action="Index" class="btn btn-secondary">Back to List</a>
+        <div class="no-dishes-message text-center mt-5">
+            <h2>No dishes available.</h2>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var category in Model.GroupBy(storage => storage.ItemId))
+            {
+                <div>
+                    <h2>@category.First().CategoryName</h2>
+                </div>
+            }
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ItemId)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ItemName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Unit)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Quantity)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ItemId)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ItemName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Unit)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Quantity)
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.ItemId" class="btn btn-info">Details</a>
+                            <a asp-action="Edit" asp-route-id="@item.ItemId" class="btn btn-primary">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.ItemId" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

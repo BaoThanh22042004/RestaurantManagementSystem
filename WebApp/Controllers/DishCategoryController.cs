@@ -24,6 +24,21 @@ namespace WebApp.Controllers
 			return View("DishCategoryView", dishList);
 		}
 
+		[Route("Search")]
+		public async Task<IActionResult> Search(string keyword)
+		{
+			if (string.IsNullOrWhiteSpace(keyword))
+			{
+				return RedirectToAction("Index");
+			}
+
+			var dishes = await _dishCategoryRepository.GetAllAsync();
+			dishes = dishes.Where(d => d.CatName.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+			var dishList = dishes.Select(dish => new DishCategoryViewModel(dish)).ToList();
+
+			return View("DishCategoryView", dishList);
+		}
+
 		[Route("Create")]
 		public IActionResult Create()
 		{

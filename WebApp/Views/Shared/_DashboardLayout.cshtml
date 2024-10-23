@@ -71,6 +71,16 @@
 									Users
 								</a>
 							</li>
+							<li class="nav-item">
+								<a asp-controller="Reservation" asp-action="Index" class="nav-link @IsActive("Reservation")">
+									Reservations
+								</a>
+							</li>
+							<li class="nav-item">
+								<a asp-controller="Order" asp-action="Index" class="nav-link @IsActive("Order")">
+									Order
+								</a>
+							</li>
 						}
 						@if (User.IsInRole(nameof(Models.Entities.Role.Accountant)))
 						{
