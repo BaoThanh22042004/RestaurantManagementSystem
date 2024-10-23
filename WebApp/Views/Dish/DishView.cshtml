@@ -1,84 +1,156 @@
-﻿@model IEnumerable<DishViewModel>
+﻿@model MenuViewModel
 @{
-	ViewData["Title"] = "Dishes";
-	Layout = "_DashboardLayout";
+    ViewData["Title"] = "Dishes";
+    Layout = "_DashboardLayout";
 }
 
 <h1 class="mb-4">Dishes</h1>
 
 <div class="mb-4">
-	<form class="d-flex justify-content-between" method="get">
-		<a asp-action="Create" class="btn btn-primary me-2">Create New Dish</a>
+    <div class="d-flex justify-content-between">
+        <div>
+            <a asp-action="Create" class="btn btn-primary me-2">Create New Dish</a>
+        </div>
+        <div class="text-end mb-4">
+            <a class="btn btn-outline-secondary" data-bs-toggle="collapse" href="#filterForm" role="button" aria-expanded="false" aria-controls="filterForm">
+                <i class="bi bi-filter-circle"></i> Filters
+            </a>
+        </div>
+    </div>
+    <div class="collapse" id="filterForm">
+        <form method="get">
+            <div class="filter-form">
+                <div class="mb-3">
+                    <label asp-for="Keyword" class="form-label">Keyword Search</label>
+                    <input class="form-control" asp-for="Keyword" id="keyword" type="search" placeholder="Search by name">
+                </div>
 
-		<input class="form-control me-2 mb-3" name="keyword" type="search" placeholder="Search by name...">
-		<button class="btn btn-outline-success mb-3" type="submit" formaction="@Url.Action("Search")">Search</button>
+                <div class="mb-3">
+                    <label class="form-label">Category</label><br />
+                    <div class="form-check form-check-inline">
+                        @foreach (var category in Model.Categories)
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" name="SelectedCategories" value="@category.CategoryId" @(category.IsSelected ? "checked" : "")>
+                                <label class="form-check-label" for="SelectedCategories">@category.CategoryName</label>
+                            </div>
+                        }
+                    </div>
+                </div>
 
-		<div class="form-check form-check-inline mb-3">
-			<label class="form-check-label">Select Categories:</label>
-			@if (Model.Any())
-			{
-				foreach (var category in Model.First().CategoryOptions)
-				{
-					<div class="form-check">
-						<input class="form-check-input" type="checkbox" name="selectedCategories" value="@category.Value" id="category_@category.Value">
-						<label class="form-check-label" for="category_@category.Value">@category.Text</label>
-					</div>
-				}
-			}
-			else
-			{
-				<p>No categories available.</p>
-			}
-		</div>
-		<button class="btn btn-outline-primary mb-3 ms-2" type="submit" formaction="@Url.Action("Filter")">Filter</button>
-	</form>
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="button" class="btn btn-outline-secondary" id="resetButton">Reset</button>
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </div>
+
+            </div>
+        </form>
+    </div>
 </div>
 
-@if (!Model.Any())
+@if (!Model.Dishes.Any())
 {
-	<div class="no-dishes-message text-center mt-5">
-		<h2>No dishes available.</h2>
-		<p>Please add some dishes to the menu.</p>
-	</div>
+    <div class="no-dishes-message text-center mt-5">
+        <h2>No dishes available.</h2>
+        <p>Please add some dishes to the menu.</p>
+    </div>
 }
 else
 {
-	<div class="row">
-		@foreach (var category in Model.GroupBy(dish => dish.CategoryId))
-		{
-			<div>
-				<h2>@category.First().CategoryName</h2>
-			</div>
-			@foreach (var item in category)
-			{
-				<div class="col-md-4 mb-4">
-					<div class="card">
-						<a asp-action="Details" asp-route-id="@item.DishId" class="text-decoration-none text-dark">
-							<img src="@item.ImagePath" class="card-img-top" alt="Dish Image">
-							<div class="card-body">
-								<h5 class="card-title">@Html.DisplayFor(modelItem => item.DishName)</h5>
-								<p class="card-text">Price: @Html.DisplayFor(modelItem => item.Price)</p>
-								<p class="card-text">Visible: @Html.DisplayFor(modelItem => item.Visible)</p>
-							</div>
-						</a>
-						<div class="card-footer d-flex justify-content-between">
-							<a asp-action="Edit" asp-route-id="@item.DishId" class="btn btn-primary">Edit</a>
-							<a asp-action="Delete" asp-route-id="@item.DishId" class="btn btn-danger">Delete</a>
-						</div>
-					</div>
-				</div>
-			}
-		}
-	</div>
+    <div class="row">
+        @foreach (var category in Model.Dishes.GroupBy(dish => dish.CategoryName))
+        {
+            <div>
+                <h2>@category.First().CategoryName</h2>
+            </div>
+            @foreach (var item in category)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <a asp-action="Details" asp-route-id="@item.DishId" class="text-decoration-none text-dark">
+                            <img src="@item.ImagePath" class="card-img-top" alt="Dish Image">
+                            <div class="card-body">
+                                <h5 class="card-title">@Html.DisplayFor(modelItem => item.DishName)</h5>
+                                <p class="card-text">Price: @Html.DisplayFor(modelItem => item.Price)</p>
+                                <p class="card-text">Visible: @Html.DisplayFor(modelItem => item.Visible)</p>
+                            </div>
+                        </a>
+                        <div class="card-footer d-flex justify-content-between">
+                            <a asp-action="Edit" asp-route-id="@item.DishId" class="btn btn-primary">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.DishId" class="btn btn-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
 }
 
 <style>
-	.card img {
-		height: 200px;
-		object-fit: cover;
-	}
+    .card img {
+        height: 200px;
+        object-fit: cover;
+    }
 
-	.no-dishes-message {
-		margin-top: 100px;
-	}
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f0f0f0;
+    }
+
+    h1, h3 {
+        font-weight: 700;
+        color: #333333;
+    }
+
+    .card {
+        border-radius: 10px;
+        transition: transform 0.2s;
+    }
+
+        .card:hover {
+            transform: scale(1.03);
+        }
+
+        .card img {
+            width: 100%;
+            height: 360px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+        }
+
+    .btn-outline-primary {
+        border-radius: 20px;
+    }
+
+    .filter-form {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        background-color: #fff;
+    }
+
+        .filter-form .form-label {
+            font-weight: bold;
+        }
+
+    .collapse {
+        margin-top: 20px;
+    }
+
+    .dropdown-menu {
+        max-height: 250px;
+        overflow-y: auto;
+    }
 </style>
+
+<script>
+    document.getElementById('resetButton').addEventListener('click', function () {
+        document.getElementById('keyword').value = '';
+
+        const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
+
+        checkboxes.forEach((checkbox) => {
+            checkbox.checked = false;
+        });
+    });
+</script>

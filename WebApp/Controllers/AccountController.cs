@@ -67,7 +67,8 @@ namespace WebApp.Controllers
                 return View("RegisterView", register);
             }
 
-            return RedirectToAction("Login", "Account");
+            TempData["Success"] = "User registered successfully. Please login to continue.";
+			return RedirectToAction("Login", "Account");
         }
 
         public async Task<IActionResult> Login()

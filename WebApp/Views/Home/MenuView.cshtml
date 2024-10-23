@@ -34,7 +34,7 @@
 			</div>
 
 			<div class="d-flex justify-content-between mt-3">
-				<button type="reset" class="btn btn-outline-secondary">Reset</button>
+				<button type="button" class="btn btn-outline-secondary" id="resetButton">Reset</button>
 				<button type="submit" class="btn btn-primary">Apply</button>
 			</div>
 		</form>
@@ -131,3 +131,16 @@
 		overflow-y: auto;
 	}
 </style>
+
+<script>
+	document.getElementById('resetButton').addEventListener('click', function () {
+		document.getElementById('keyword').value = '';
+
+		const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
+
+		checkboxes.forEach((checkbox) => {
+			checkbox.checked = false;
+		});
+	});
+</script>
+

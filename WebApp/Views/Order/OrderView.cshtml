@@ -1,0 +1,35 @@
+﻿@model IEnumerable<WebApp.Models.OrderViewModel>
+
+@{
+    ViewData["Title"] = "Order List";
+    Layout = "_DashboardLayout";
+}
+
+<h2>Order List</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Table Number</th>
+            <th>Created At</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderId</td>
+                <td>@order.TableId</td>
+                <td>@order.CreatedAt.ToString("g")</td>
+                <td>@order.Status.ToString()</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-info">Details</a>                 
+                        <a asp-action="Delete" asp-route-id="@order.OrderId" class="btn btn-danger">Delete</a>                 
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
