@@ -6,7 +6,6 @@ namespace Models.Entities
 {
 	public enum AttendanceStatus
 	{
-		Scheduled,
 		ClockIn,
 		ClockOut,
 		Absent
@@ -20,9 +19,9 @@ namespace Models.Entities
 
 		public required long ScheId { get; set; }
 
-		public required TimeOnly CheckIn { get; set; }
+		public required DateTime CheckIn { get; set; }
 
-		public TimeOnly? CheckOut { get; set; }
+		public DateTime? CheckOut { get; set; }
 
 		[Precision(4, 2)]
 		public decimal? WorkingHours { get; set; }

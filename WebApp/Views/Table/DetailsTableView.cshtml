@@ -24,7 +24,11 @@
 </div>
 
 <div class="mb-3">
-    <strong>Notes:</strong> @(string.IsNullOrEmpty(Model.Notes) ? "None" : Model.Notes) <!-- Handling Notes -->
+    <strong>Notes:</strong> @(string.IsNullOrEmpty(Model.Notes) ? "None" : Model.Notes)
+</div>
+
+<div class="mb-3">
+    <a asp-action="Create" asp-controller="Order" asp-route-tableId="@Model.TableId" class="btn btn-primary">Create Order</a>
 </div>
 
 <div class="d-flex gap-3">
