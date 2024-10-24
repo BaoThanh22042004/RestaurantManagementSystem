@@ -1,0 +1,17 @@
+﻿@model ReservationViewModel
+@{
+    ViewData["Title"] = "Delete Reservation";
+    Layout = "_DashboardLayout";
+}
+<h1 class="mb-4">Delete Reservation</h1>
+
+<div class="text-danger mb-3">@TempData["Error"]</div>
+
+<form asp-action="Delete" method="post">
+    <partial name="Partials/_ReservationPartial" model="Model" />
+    <div class="d-flex gap-3">
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </div>
+</form>
+

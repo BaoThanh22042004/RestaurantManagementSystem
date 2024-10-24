@@ -16,7 +16,9 @@ namespace Repositories
 
 		public async Task<IEnumerable<Attendance>> GetAllAsync()
 		{
-			return await _context.Attendances.AsNoTracking().ToListAsync();
+			return await _context.Attendances
+				.Include(a => a.Schedule)
+				.AsNoTracking().ToListAsync();
 		}
 
 		public async Task<Attendance?> GetByIDAsync(long id)

@@ -19,12 +19,17 @@ namespace Repositories
 			return await _context.Schedules
 				.Include(s => s.Shift)
 				.Include(s => s.Employee)
+				.Include(s => s.Attendance)
 				.AsNoTracking().ToListAsync();
 		}
 
 		public async Task<Schedule?> GetByIDAsync(long id)
 		{
-			return await _context.Schedules.FindAsync(id);
+			return await _context.Schedules
+				.Include(s => s.Shift)
+                .Include(s => s.Employee)
+                .Include(s => s.Attendance)
+				.FirstOrDefaultAsync(s => s.ScheId == id);
 		}
 
 		public async Task InsertAsync(Schedule schedule)
