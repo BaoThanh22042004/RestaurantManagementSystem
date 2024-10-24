@@ -34,6 +34,8 @@ namespace WebApp
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
             builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+            builder.Services.AddScoped<IPayrollRepository, PayrollRepository>();
+
 
             // Register Singleton services
             builder.Services.AddSingleton<UserClaimManager>();
