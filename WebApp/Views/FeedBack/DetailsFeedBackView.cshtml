@@ -1,0 +1,36 @@
+﻿@model WebApp.Models.FeedBackViewModel
+
+<h2>Feedback Details</h2>
+
+<div>
+    <h4>Feedback</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Customer ID</dt>
+        <dd class="col-sm-10">@Model.CustomerId</dd>
+
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+
+        <dt class="col-sm-2">Phone</dt>
+        <dd class="col-sm-10">@Model.Phone</dd>
+
+        <dt class="col-sm-2">Subject</dt>
+        <dd class="col-sm-10">@Model.Subject</dd>
+
+        <dt class="col-sm-2">Body</dt>
+        <dd class="col-sm-10">@Model.Body</dd>
+
+        <dt class="col-sm-2">Status</dt>
+        <dd class="col-sm-10">@Model.Status</dd>
+
+        <dt class="col-sm-2">Created At</dt>
+        <dd class="col-sm-10">@Model.CreateAt</dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.FeedbackId" class="btn btn-primary">Edit</a>
+    <a asp-action="Delete" asp-route-id="@Model.FeedbackId" class="btn btn-danger">Delete</a>
+</div>

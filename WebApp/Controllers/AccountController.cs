@@ -228,15 +228,30 @@ namespace WebApp.Controllers
 
         private async Task SignInAsync(User userEntity)
         {
-            var claimsIdentity = _userClaimManager.CreateClaimsPrincipal
-                (userEntity.UserId.ToString(), userEntity.Username, userEntity.FullName, userEntity.Role.ToString());
+            
+            var claimsPrincipal = _userClaimManager.CreateClaimsPrincipal(
+                userEntity.UserId.ToString(),   
+                userEntity.Username,           
+                userEntity.FullName,           
+                userEntity.Role.ToString()      
+            );
+
+            
+            var claimsIdentity = (ClaimsIdentity)claimsPrincipal.Identity;
+
+          
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.Email, userEntity.Email)); 
+            claimsIdentity.AddClaim(new Claim("Phone", userEntity.Phone));         
+
             var authenticationProperties = _userClaimManager.authenticationProperties;
 
+          
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
+                claimsPrincipal,
                 authenticationProperties);
         }
+
 
         private void SendMail(string to, string username, string password)
         {
