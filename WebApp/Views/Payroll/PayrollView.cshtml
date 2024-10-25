@@ -1,0 +1,71 @@
+﻿@model IEnumerable<WebApp.Models.PayrollViewModel>
+
+@{
+    ViewData["Title"] = "Payroll List";
+    Layout = "_DashboardLayout";
+}
+
+<h1 class="mb-4">Payroll List</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-success">Add New Payroll</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Payroll ID</th>
+            <th>Employee ID</th>
+            <th>Month</th>
+            <th>Year</th>
+            <th>Working Hours</th>
+            <th>Salary</th>
+            <th>Status</th>
+            <th>Payment Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var payroll in Model)
+        {
+            <tr>
+                <td>@payroll.PayrollId</td>
+                <td>@payroll.EmpId</td>
+                <td>@payroll.Month</td>
+                <td>@payroll.Year</td>
+                <td>@payroll.WorkingHours</td>
+                <td>@payroll.Salary</td>
+                <td>@payroll.Status</td>
+                <td>@payroll.PaymentDate?.ToString("d")</td>
+                <td>
+                 
+                    <a asp-action="Details" asp-route-id="@payroll.PayrollId" class="btn btn-info btn-sm">Details</a>
+
+                    <a asp-action="Edit" asp-route-id="@payroll.PayrollId" class="btn btn-primary btn-sm">Edit</a>
+
+                    <a asp-action="Delete" asp-route-id="@payroll.PayrollId" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No payrolls found.
+    </div>
+}

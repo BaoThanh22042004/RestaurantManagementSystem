@@ -27,14 +27,13 @@ namespace WebApp.Controllers
 			return View("UserView", userList);
 		}
 
-		[Route("Create")]
+		[HttpGet("Create")]
 		public IActionResult Create()
 		{
-			return View("CreateUserView");
+			return PartialView("_CreateUserModal");
 		}
 
-		[Route("Create")]
-		[HttpPost]
+		[HttpPost("Create")]
 		public async Task<IActionResult> Create(UserViewModel userViewModel)
 		{
 			if (string.IsNullOrWhiteSpace(userViewModel.Password))
@@ -44,7 +43,7 @@ namespace WebApp.Controllers
 
 			if (!ModelState.IsValid)
 			{
-				return View("CreateUserView", userViewModel);
+				return PartialView("_CreateUserModal", userViewModel);
 			}
 
 			try
@@ -66,18 +65,18 @@ namespace WebApp.Controllers
 			catch (ArgumentException e)
 			{
 				TempData["Error"] = e.Message;
-				return View("CreateUserView", userViewModel);
+				return PartialView("_CreateUserModal", userViewModel);
 			}
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while creating user. Please try again later.";
-				return View("CreateUserView", userViewModel);
+				return PartialView("_CreateUserModal", userViewModel);
 			}
 
-			return RedirectToAction("Index");
+			return Json(new { success = true });
 		}
 
-		[Route("Details/{id}")]
+		[HttpGet("Details/{id}")]
 		public async Task<IActionResult> Details(int id)
 		{
 			var user = await _userRepository.GetByIDAsync(id);
@@ -87,7 +86,7 @@ namespace WebApp.Controllers
 			}
 
 			var userViewModel = new UserViewModel(user);
-			return View("DetailsUserView", userViewModel);
+			return PartialView("_DetailsUserModal", userViewModel);
 		}
 
 		[Route("Edit/{id}")]
@@ -100,7 +99,7 @@ namespace WebApp.Controllers
 			}
 
 			var userViewModel = new UserViewModel(user);
-			return View("EditUserView", userViewModel);
+			return PartialView("_EditUserModal", userViewModel);
 		}
 
 		[HttpPost]
@@ -109,7 +108,7 @@ namespace WebApp.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
-				return View("EditUserView", user);
+				return PartialView("_EditUserModal", user);
 			}
 
 			try
@@ -124,7 +123,7 @@ namespace WebApp.Controllers
 				if (userEntity.Username == User.Identity.Name && user.Role != Role.Manager)
 				{
 					TempData["Error"] = "You cannot change your role to other than Manager.";
-					return View("EditUserView", user);
+					return PartialView("_EditUserModal", user);
 				}
 
 				if (string.IsNullOrEmpty(user.Password))
@@ -149,10 +148,10 @@ namespace WebApp.Controllers
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while updating user. Please try again later.";
-				return View("EditUserView", user);
+				return PartialView("_EditUserModal", user);
 			}
 
-			return RedirectToAction("Index");
+			return Json(new { success = true });
 		}
 
 		[Route("Delete/{id}")]
@@ -165,7 +164,7 @@ namespace WebApp.Controllers
 			}
 
 			var userViewModel = new UserViewModel(user);
-			return View("DeleteUserView", userViewModel);
+			return PartialView("_DeleteUserModal", userViewModel);
 		}
 
 		[HttpPost]
@@ -192,7 +191,7 @@ namespace WebApp.Controllers
 				return RedirectToAction("Delete", new { id = UserId });
 			}
 
-			return RedirectToAction("Index");
+			return Json(new { success = true });
 		}
 	}
 }

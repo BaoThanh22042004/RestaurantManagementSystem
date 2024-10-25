@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Entities;
 using Repositories.Interface;
+using System.Security.Claims;
 using WebApp.Models;
 using WebApp.Utilities;
 
@@ -103,7 +104,6 @@ namespace WebApp.Controllers
 					EmpId = scheduleViewModel.EmpId,
 					ShiftId = scheduleViewModel.ShiftId,
 				};
-
 				await _scheduleRepository.InsertAsync(schedule);
 			}
 			catch (Exception)

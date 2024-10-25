@@ -1,0 +1,156 @@
+﻿@model InformationViewModel
+@{
+	ViewData["Title"] = "Information";
+	Layout = "_DashboardLayout";
+}
+
+<h1 class="mb-3">Restaurant Information</h1>
+
+<hr class="my-5" />
+
+<div class="text-center p-4 rounded-3 clickable-div" onclick="restaurantName()">
+	<h2 class="mb-3">Restaurant Name</h2>
+	<span class="fs-2">@Model.RestaurantName</span>
+</div>
+
+<hr class="my-5" />
+
+<!-- Carousels -->
+<div class="text-center">
+	<h2 class="mb-3">Carousels</h2>
+	@for (int i = 0; i < Model.Carousels.Count; i++)
+	{
+		<div class="p-4 rounded-3 clickable-div" onclick="carousel(@i)">
+			<img src="@Model.Carousels[i].ImagePath" onerror="this.src='https://placehold.co/1024x512'"
+				 height="512" class="d-block w-100 object-fit-cover mb-2" />
+			<h3>@Model.Carousels[i].Heading</h3>
+			<p>@Model.Carousels[i].Description</p>
+		</div>
+		<hr class="my-5" />
+	}
+</div>
+
+<!-- Highlights -->
+<div class="text-center">
+	<h2 class="mb-3">Highlights</h2>
+	<div class="row">
+		@for (int i = 0; i < Model.Highlights.Count; i++)
+		{
+			<div class="col-md-4 p-4 rounded-3 clickable-div" onclick="highlight(@i)">
+				<img class="rounded-circle shadow-sm object-fit-cover" width="140" height="140" src="@Model.Highlights[i].ImagePath"
+					 onerror="this.src='https://placehold.co/140x140'" />
+				<h2 class="fw-normal">@Model.Highlights[i].Heading</h2>
+				<p>@Model.Highlights[i].Description</p>
+			</div>
+		}
+	</div>
+	<hr class="my-5" />
+</div>
+
+
+<!-- Features -->
+<div>
+	<h2 class="text-center mb-3">Features</h2>
+	@for (int i = 0; i < Model.Features.Count; i++)
+	{
+		<div class="row align-items-center p-4 rounded-3 clickable-div" onclick="feature(@i)">
+			@if (i % 2 == 0)
+			{
+
+				<div class="col-md-7">
+					<h2 class="fw-normal lh-1 fs-1">@Model.Features[i].Heading <span class="text-secondary">@Model.Features[i].SecondaryHeading</span></h2>
+					<p class="lead">@Model.Features[i].Description</p>
+				</div>
+				<div class="col-md-5">
+					<img class="rounded img-fluid mx-auto d-block shadow" width="500" height="500" src="@Model.Features[i].ImagePath"
+						 onerror="this.src='https://placehold.co/500x500'" />
+				</div>
+			}
+			else
+			{
+				<div class="col-md-5">
+					<img class="rounded img-fluid mx-auto d-block shadow" width="500" height="500" src="@Model.Features[i].ImagePath"
+						 onerror="this.src='https://placehold.co/500x500'" />
+				</div>
+				<div class="col-md-7">
+					<h2 class="fw-normal lh-1 fs-1">@Model.Features[i].Heading <span class="text-secondary">@Model.Features[i].SecondaryHeading</span></h2>
+					<p class="lead">@Model.Features[i].Description</p>
+				</div>
+			}
+		</div>
+		<hr class="my-5" />
+	}
+</div>
+
+<!-- Contact Section -->
+<div class="row p-4 rounded-3 clickable-div" onclick="contact()">
+	<div class="col-lg-6 p-3">
+		<h1 class="display-4 fw-bold lh-1 text-body-emphasis">Contact Us</h1>
+		<p class="lead text-body-emphasis">@Model.Contact.CTA</p>
+		<p class="fs-5 mb-1"><i class="bi bi-geo-alt-fill text-danger"></i> <strong>Address:</strong> @Model.Contact.Address</p>
+		<p class="fs-5 mb-1"><i class="bi bi-telephone-fill text-success"></i> <strong>Phone:</strong> @Model.Contact.Phone</p>
+		<p class="fs-5"><i class="bi bi-envelope-fill text-info"></i> <strong>Email:</strong> @Model.Contact.Email</p>
+	</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content" id="modalContent">
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		function restaurantName() {
+			var url = '@Url.Action("RestaurantName", "Information")';
+			$.get(url, function (data) {
+				$('#modalContent').html(data);
+				$('#modal').modal('show');
+			});
+		}
+		function carousel(index) {
+			var url = '@Url.Action("Carousel", "Information", new { index = "__index__" })'.replace("__index__", index);
+			$.get(url, function (data) {
+				$('#modalContent').html(data);
+				$('#modal').modal('show');
+			});
+		}
+		function highlight(index) {
+			var url = '@Url.Action("Highlight", "Information", new { index = "__index__" })'.replace("__index__", index);
+			$.get(url, function (data) {
+				$('#modalContent').html(data);
+				$('#modal').modal('show');
+			});
+		}
+		function feature(index) {
+			var url = '@Url.Action("Feature", "Information", new { index = "__index__" })'.replace("__index__", index);
+			$.get(url, function (data) {
+				$('#modalContent').html(data);
+				$('#modal').modal('show');
+			});
+		}
+		function contact() {
+			var url = '@Url.Action("Contact", "Information")';
+			$.get(url, function (data) {
+				$('#modalContent').html(data);
+				$('#modal').modal('show');
+			});
+		}
+	</script>
+}
+
+@section Styles {
+	<style>
+		.clickable-div {
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+			.clickable-div:hover {
+				background-color: #f2f0ef;
+				box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+			}
+	</style>
+}

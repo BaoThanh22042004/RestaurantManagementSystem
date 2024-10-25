@@ -1,0 +1,47 @@
+﻿@model ContentItem
+
+<form method="post" asp-action="Feature" id="form">
+	<partial name="Partials/_ModalHeader" model='"Edit Feature"' />
+
+	<div class="modal-body" id="modalBody">
+		<div class="mb-3">
+			<img id="preview" class="rounded img-fluid mx-auto d-block shadow" width="500" height="500" src="@Model.ImagePath" onerror="this.src='https://placehold.co/500x500'" />
+		</div>
+
+		<div class="input-group my-3">
+			<div class="form-floating">
+				<input asp-for="Heading" class="form-control fw-bold" />
+				<label asp-for="Heading"></label>
+				<span asp-validation-for="Heading" class="text-danger"></span>
+			</div>
+
+			<div class="form-floating">
+				<input asp-for="SecondaryHeading" class="form-control fw-bold text-secondary" />
+				<label asp-for="SecondaryHeading"></label>
+				<span asp-validation-for="SecondaryHeading" class="text-danger"></span>
+			</div>
+		</div>
+
+
+		<div class="form-floating mb-3">
+			<textarea asp-for="Description" class="form-control"></textarea>
+			<label asp-for="Description"></label>
+			<span asp-validation-for="Description" class="text-danger"></span>
+		</div>
+
+		<div class="mb-3">
+			<input asp-for="ImagePath" type="hidden" />
+			<div class="input-group">
+				<label for="file" class="input-group-text">Image</label>
+				<input name="file" type="file" class="form-control" onchange="previewImage(event)" accept="image/*" />
+			</div>
+			@Html.ValidationMessage("file", "", new { @class = "text-danger" })
+		</div>
+	</div>
+
+	@{
+		string saveButton = "<button type='submit' class='btn btn-primary'>Save</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model='@saveButton' />
+</form>
