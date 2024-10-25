@@ -31,7 +31,9 @@
 
 <h1 class="mb-4">Schedule</h1>
 
-<a asp-action="Create" class="btn btn-primary mb-3">Create New Schedule</a>
+<div class="mb-3">
+    <button onclick="create()" class="btn btn-success">Add New Schedule</button>
+</div>
 
 @if (!Model.Any())
 {
@@ -286,8 +288,46 @@ else
     });
 </script>
 
+<!-- Modal -->
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="modalContent">
+        </div>
+    </div>
+</div>
 
-
+@section Scripts {
+    <script>
+        function create() {
+            var url = '@Url.Action("Create", "Schedule")';
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function details(id) {
+            var url = '@Url.Action("Details", "Schedule", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function edit(id) {
+            var url = '@Url.Action("Edit", "Schedule", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function deleteAction(id) {
+            var url = '@Url.Action("Delete", "Schedule", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+    </script>
+}
 
 
 

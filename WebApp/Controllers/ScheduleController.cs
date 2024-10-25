@@ -73,7 +73,7 @@ namespace WebApp.Controllers
             return View("ScheduleView", scheduleList);
         }
 
-        [Route("Create")]
+        [HttpGet("Create")]
         public async Task<IActionResult> Create()
         {
             var schedule = new ScheduleViewModel()
@@ -81,11 +81,10 @@ namespace WebApp.Controllers
                 ShiftOptions = await GetShiftList(),
                 EmployeeOptions = await GetUserList()
             };
-            return View("CreateScheduleView", schedule);
+            return PartialView("_CreateScheduleModal", schedule);
         }
 
-		[Route("Create")]
-		[HttpPost]
+		[HttpPost("Create")]
 		public async Task<IActionResult> Create(ScheduleViewModel scheduleViewModel)
 		{
 
@@ -93,7 +92,7 @@ namespace WebApp.Controllers
             {
                 scheduleViewModel.ShiftOptions = await GetShiftList();
                 scheduleViewModel.EmployeeOptions = await GetUserList();
-                return View("CreateScheduleView", scheduleViewModel);
+                return PartialView("_CreateScheduleModal", scheduleViewModel);
             }
 
 			try
@@ -109,13 +108,13 @@ namespace WebApp.Controllers
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while creating schedule. Please try again later.";
-				return View("CreateScheduleView", scheduleViewModel);
+				return PartialView("_CreateScheduleModal", scheduleViewModel);
 			}
 
-			return RedirectToAction("Index");
+			return Json(new { success = true });
 		}
 
-		[Route("Details/{id}")]
+		[HttpGet("Details/{id}")]
 		public async Task<IActionResult> Details(int id)
 		{
 			var schedule = await _scheduleRepository.GetByIDAsync(id);
@@ -129,7 +128,7 @@ namespace WebApp.Controllers
                 ShiftOptions = await GetShiftList(),
                 EmployeeOptions = await GetUserList()
             };
-            return View("DetailsScheduleView", scheduleViewModel);
+            return PartialView("_DetailsScheduleModal", scheduleViewModel);
         }
 
 		[Route("Edit/{id}")]
@@ -144,7 +143,7 @@ namespace WebApp.Controllers
             var scheduleViewModel = new ScheduleViewModel(schedule);
             scheduleViewModel.ShiftOptions = await GetShiftList();
             scheduleViewModel.EmployeeOptions = await GetUserList();
-            return View("EditScheduleView", scheduleViewModel);
+            return PartialView("_EditScheduleModal", scheduleViewModel);
         }
 
         [HttpPost]
@@ -155,7 +154,7 @@ namespace WebApp.Controllers
             {
                 schedule.ShiftOptions = await GetShiftList();
                 schedule.EmployeeOptions = await GetUserList();
-                return View("EditScheduleView", schedule);
+                return PartialView("_EditScheduleModal", schedule);
             }
 
 			try
@@ -179,11 +178,11 @@ namespace WebApp.Controllers
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while updating schedule. Please try again later.";
-				return View("EditScheduleView", schedule);
+				return PartialView("_EditScheduleModal", schedule);
 			}
 
-			return RedirectToAction("Index");
-		}
+			return Json(new { success = true });
+        }
 
 		[Route("Delete/{id}")]
 		public async Task<IActionResult> Delete(int id)
@@ -199,7 +198,7 @@ namespace WebApp.Controllers
                 ShiftOptions = await GetShiftList(),
                 EmployeeOptions = await GetUserList()
             };
-            return View("DeleteScheduleView", scheduleViewModel);
+            return PartialView("_DeleteScheduleModal", scheduleViewModel);
         }
 
 		[HttpPost]
@@ -216,7 +215,7 @@ namespace WebApp.Controllers
 				return RedirectToAction("Delete", new { id = ScheId });
 			}
 
-			return RedirectToAction("Index");
-		}
+			return Json(new { success = true });
+        }
 	}
 }

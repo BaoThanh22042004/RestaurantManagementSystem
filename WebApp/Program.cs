@@ -41,6 +41,7 @@ namespace WebApp
 			builder.Services.AddSingleton<UserClaimManager>();
             builder.Services.AddSingleton<InformationManager>();
             builder.Services.AddSingleton<FileUploadManager>();
+			builder.Services.AddSingleton<CartManager>();
 
 			// Add authentication services
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

@@ -1,0 +1,45 @@
+﻿@model ShiftViewModel
+
+<form method="post" asp-action="Edit" id="form">
+    <partial name="Partials/_ModalHeader" model='"Edit User"' />
+
+    <div class="modal-body" id="modalBody">
+
+        @if (@TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @TempData["Error"]
+            </div>
+        }
+
+        <div class="form-floating mb-3">
+            <input asp-for="ShiftId" type="hidden" />
+            <input asp-for="ShiftId" class="form-control" disabled />
+            <label asp-for="ShiftId"></label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="ShiftName" class="form-control" id="ShiftName" />
+            <label asp-for="ShiftName"></label>
+            <span asp-validation-for="ShiftName" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="StartTime" type="time" class="form-control" id="StartTime" />
+            <label asp-for="StartTime"></label>
+            <span asp-validation-for="StartTime" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="EndTime" type="time" class="form-control" id="EndTime" />
+            <label asp-for="EndTime"></label>
+            <span asp-validation-for="EndTime" class="text-danger"></span>
+        </div>
+    </div>
+
+    @{
+        string saveButton = "<button type='submit' class='btn btn-primary'>Save</button>";
+    }
+
+    <partial name="Partials/_ModalFooter" model='@saveButton' />
+</form>

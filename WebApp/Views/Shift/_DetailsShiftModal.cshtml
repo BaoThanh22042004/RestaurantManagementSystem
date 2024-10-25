@@ -1,0 +1,21 @@
+﻿@model ShiftViewModel
+
+<partial name="Partials/_ModalHeader" model='"Details Shift"'/>
+
+<div class="modal-body" id="modalBody">
+	<dl>
+		<dt>@Html.DisplayNameFor(m => m.ShiftId)</dt>
+		<dd>@Model.ShiftId</dd>
+
+		<dt>@Html.DisplayNameFor(m => m.ShiftName)</dt>
+		<dd>@Model.ShiftName</dd>
+
+		<dt>@Html.DisplayNameFor(m => m.StartTime)</dt>
+		<dd>@Model.StartTime</dd>
+
+		<dt>@Html.DisplayNameFor(m => m.EndTime)</dt>
+		<dd>@Model.EndTime</dd>
+	</dl>
+</div>
+
+<partial name="Partials/_ModalFooter" model='""' />

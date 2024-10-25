@@ -25,20 +25,19 @@ namespace WebApp.Controllers
 			return View("ShiftView", shiftList);
 		}
 
-		[Route("Create")]
-		public IActionResult Create()
+        [HttpGet("Create")]
+        public IActionResult Create()
 		{
-			return View("CreateShiftView");
+			return PartialView("_CreateShiftModal");
 		}
 
-		[Route("Create")]
-		[HttpPost]
-		public async Task<IActionResult> Create(ShiftViewModel shiftViewModel)
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create(ShiftViewModel shiftViewModel)
 		{
 			
 			if (!ModelState.IsValid)
 			{
-				return View("CreateShiftView", shiftViewModel);
+				return PartialView("_CreateShiftModal", shiftViewModel);
 			}
 
 			try
@@ -55,18 +54,18 @@ namespace WebApp.Controllers
 			catch (ArgumentException e)
 			{
 				TempData["Error"] = e.Message;
-				return View("CreateShiftView", shiftViewModel);
-			}
+				return PartialView("_CreateShiftModal", shiftViewModel);
+            }
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while creating shift. Please try again later.";
-				return View("CreateShiftView", shiftViewModel);
-			}
+				return PartialView("_CreateShiftModal", shiftViewModel);
+            }
 
-			return RedirectToAction("Index");
-		}
+			return Json(new { success = true });
+        }
 
-		[Route("Details/{id}")]
+		[HttpGet("Details/{id}")]
 		public async Task<IActionResult> Details(int id)
 		{
 			var shift = await _shiftRepository.GetByIDAsync(id);
@@ -75,7 +74,7 @@ namespace WebApp.Controllers
 				return NotFound();
 			}
 			var shiftViewModel = new ShiftViewModel(shift);
-			return View("DetailsShiftView", shiftViewModel);
+			return PartialView("_DetailsShiftModal", shiftViewModel);
 		}
 
 		[Route("Edit/{id}")]
@@ -88,7 +87,7 @@ namespace WebApp.Controllers
 			}
 
 			var shiftViewModel = new ShiftViewModel(shift);
-			return View("EditShiftView", shiftViewModel);
+			return PartialView("_EditShiftModal", shiftViewModel);
 		}
 
 		[HttpPost]
@@ -97,7 +96,7 @@ namespace WebApp.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
-				return View("EditShiftView", shift);
+				return PartialView("_EditShiftModal", shift);
 			}
 
 			try
@@ -121,13 +120,13 @@ namespace WebApp.Controllers
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while updating shift. Please try again later.";
-				return View("EditShiftView", shift);
+				return PartialView("_EditShiftModal", shift);
 			}
 
-			return RedirectToAction("Index");
-		}
+			return Json(new { success = true });
+        }
 
-		[Route("Shift/Delete/{id}")]
+		[Route("Delete/{id}")]
 		public async Task<IActionResult> Delete(int id)
 		{
 			var shift = await _shiftRepository.GetByIDAsync(id);
@@ -137,11 +136,11 @@ namespace WebApp.Controllers
 			}
 
 			var shiftViewModel = new ShiftViewModel(shift);
-			return View("DeleteShiftView", shiftViewModel);
+			return PartialView("_DeleteShiftModal", shiftViewModel);
 		}
 
 		[HttpPost]
-		[Route("Shift/Delete/{ShiftId}")]
+		[Route("Delete/{ShiftId}")]
 		public async Task<IActionResult> DeleteConfirmed(int ShiftId)
 		{
 			try
@@ -154,7 +153,7 @@ namespace WebApp.Controllers
 				return RedirectToAction("Delete", new { ShiftId });
 			}
 
-			return RedirectToAction("Index");
-		}
+			return Json(new { success = true });
+        }
 	}
 }

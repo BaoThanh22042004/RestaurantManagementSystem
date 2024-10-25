@@ -1,0 +1,46 @@
+﻿@model ScheduleViewModel
+
+<form method="post" asp-action="Create" id="form">
+    <partial name="Partials/_ModalHeader" model='"Create Schedule"' />
+
+    <div class="modal-body" id="modalBody">
+
+        @if (@TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @TempData["Error"]
+            </div>
+        }
+
+        <div class="form-floating mb-3">
+            <input asp-for="ScheDate" type="date" class="form-control" id="ScheDate" />
+            <label asp-for="ScheDate"></label>
+            <span asp-validation-for="ScheDate" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <select asp-for="EmpId" asp-items="Model.EmployeeOptions" class="form-select" id="EmpId">
+                <option selected id="DefaultSelectEmpId">Please select Employee</option>
+            </select>
+            <label asp-for="EmpId"></label>
+            <span asp-validation-for="EmpId" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <select asp-for="ShiftId" asp-items="Model.ShiftOptions" class="form-select" id="ShiftId">
+                <option selected id="DefaultSelectShiftId">Please select Shift</option>
+            </select>
+            <label asp-for="ShiftId"></label>
+            <span asp-validation-for="ShiftId" class="text-danger"></span>
+        </div>
+    </div>
+
+    @{
+        string createButton = "<button type='submit' class='btn btn-primary'>Create</button>";
+    }
+    <partial name="Partials/_ModalFooter" model='@createButton' />
+</form>
+
+<script>
+    document.getElementById("ScheDate").valueAsDate = new Date();
+</script>
