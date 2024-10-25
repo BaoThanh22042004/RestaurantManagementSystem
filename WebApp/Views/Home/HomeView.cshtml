@@ -1,63 +1,135 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model InformationViewModel
+@{
+	ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome @User?.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value</h1>
+<!-- Carousel -->
+<div id="carousel" class="carousel slide" data-bs-ride="carousel">
+	<div class="carousel-indicators">
+		<button type="button" data-bs-target="#carousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+		<button type="button" data-bs-target="#carousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+		<button type="button" data-bs-target="#carousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+	</div>
+	<div class="carousel-inner">
+		<!-- Carousel Item -->
+		@for (int i = 0; i < Model.Carousels.Count; i++)
+		{
+			<div class="carousel-item @(i == 0 ? "active" : "")">
+				<img src="@Model.Carousels[i].ImagePath"
+					 onerror="this.src='https://placehold.co/1024x512'"
+					 height="512"
+					 class="d-block w-100 object-fit-cover">
+
+				<div class="carousel-caption">
+					<h5>@Model.Carousels[i].Heading</h5>
+					<p>@Model.Carousels[i].Description</p>
+				</div>
+			</div>
+		}
+		<!-- END: Carousel Item -->
+	</div>
+	<button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
+		<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+		<span class="visually-hidden">Previous</span>
+	</button>
+	<button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
+		<span class="carousel-control-next-icon" aria-hidden="true"></span>
+		<span class="visually-hidden">Next</span>
+	</button>
+</div>
+<!-- END: Carousel -->
+
+<div class="container mt-5">
+	<!-- Highlight -->
+	<div class="row gx-4 gy-2">
+		<!-- Highlight Item -->
+		@for (int i = 0; i < Model.Highlights.Count; i++)
+		{
+			<div class="col-lg-4 text-center">
+				<img class="rounded-circle shadow-sm object-fit-cover" width="140" height="140" focusable="false" src="@Model.Highlights[i].ImagePath" onerror="this.src='https://placehold.co/140x140'" />
+				<h2 class="fw-normal">@Model.Highlights[i].Heading</h2>
+				<p>@Model.Highlights[i].Description</p>
+			</div>
+		}
+		<!-- END: Highlight Item -->
+	</div>
+	<!-- END: Highlight -->
+	<hr class="my-5" />
+	<!-- Features -->
+	@for (int i = 0; i < Model.Features.Count; i++)
+	{
+		<div class="row align-items-center gy-4">
+			@if (i % 2 == 0)
+			{
+				<div class="col-md-7">
+					<h2 class="fw-normal lh-1 fs-1">@Model.Features[i].Heading <span class="text-secondary">@Model.Features[i].SecondaryHeading</span></h2>
+					<p class="lead">@Model.Features[i].Description</p>
+				</div>
+				<div class="col-md-5">
+					<img class="rounded img-fluid mx-auto d-block shadow" width="500" height="500" focusable="false" src="@Model.Features[i].ImagePath" onerror="this.src='https://placehold.co/500x500'" />
+				</div>
+			}
+			else
+			{
+				<div class="col-md-5">
+					<img class="rounded img-fluid mx-auto d-block shadow" width="500" height="500" focusable="false" src="@Model.Features[i].ImagePath" onerror="this.src='https://placehold.co/500x500'" />
+				</div>
+				<div class="col-md-7">
+					<h2 class="fw-normal lh-1 fs-1">@Model.Features[i].Heading <span class="text-secondary">@Model.Features[i].SecondaryHeading</span></h2>
+					<p class="lead">@Model.Features[i].Description</p>
+				</div>
+			}
+		</div>
+		<hr class="my-5" />
+	}
+	<!-- END: Features -->
+	<!-- Contact -->
+	<div class="row p-4 align-items-center justify-content-around rounded-3 border shadow-lg">
+		<!-- Left Column: Restaurant Info -->
+		<div class="col-lg-6 p-3">
+			<h1 class="display-4 fw-bold lh-1 text-body-emphasis">Contact Us</h1>
+			<!-- Text -->
+			<p class="lead text-body-emphasis">@Model.Contact.CTA</p>
+
+			<!-- Address -->
+			<p class="fs-5 mb-1"><i class="bi bi-geo-alt-fill text-danger"></i> <strong>Address:</strong> @Model.Contact.Address</p>
+
+			<!-- Phone -->
+			<p class="fs-5 mb-1"><i class="bi bi-telephone-fill text-success"></i> <strong>Phone:</strong> @Model.Contact.Phone</p>
+
+			<!-- Email -->
+			<p class="fs-5"><i class="bi bi-envelope-fill text-info"></i> <strong>Email:</strong> @Model.Contact.Email</p>
+		</div>
+
+		<!-- Right Column: Contact Form -->
+		<div class="col-lg-5 p-3 p-lg-5 rounded-3 border shadow-lg">
+			<h2 class="fw-bold">Send Us a Message</h2>
+			<form>
+				<div class="mb-3">
+					<label for="name" class="form-label">Full Name</label>
+					<input type="text" class="form-control" id="name" placeholder="Your Name" required="">
+				</div>
+				<div class="mb-3">
+					<label for="email" class="form-label">Email Address</label>
+					<input type="email" class="form-control" id="email" placeholder="you@example.com" required="">
+				</div>
+				<div class="mb-3">
+					<label for="phone" class="form-label">Phone Number</label>
+					<input type="tel" class="form-control" id="phone" placeholder="(555) 123-4567">
+				</div>
+				<div class="mb-3">
+					<label for="subject" class="form-label">Subject</label>
+					<input type="text" class="form-control" id="subject" placeholder="Subject">
+				</div>
+				<div class="mb-3">
+					<label for="message" class="form-label">Message</label>
+					<textarea class="form-control" id="message" rows="5" placeholder="Your message here..." required="" style="height: 118px;"></textarea>
+				</div>
+				<button type="submit" class="btn btn-primary">Send Message</button>
+			</form>
+		</div>
+	</div>
+	<!-- END: Contact -->
 </div>
 
-<div class="full-screen-image" id="image-container-1"></div>
-<div class="full-screen-image" id="image-container-2"></div>
 
-<style>
-    .full-screen-image {
-        width: 100vw;
-        height: 100vh;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: -1;
-        background-size: cover;
-        background-position: center;
-        opacity: 0;
-        transition: opacity 1s ease-in-out;
-    }
-
-    .visible {
-        opacity: 1;
-    }
-</style>
-
-<script>
-    const images = [
-        '/Uploads/Images/Home/RestaurantBackground1.jpg',
-        '/Uploads/Images/Home/RestaurantBackground3.jpg',
-        '/Uploads/Images/Home/RestaurantBackground2.jpg'
-    ];
-
-    let currentIndex = 0; 
-    const imageContainer1 = document.getElementById('image-container-1');
-    const imageContainer2 = document.getElementById('image-container-2');
-    let isFirstContainerVisible = true; 
-
-    function changeImage() {
-
-        const currentContainer = isFirstContainerVisible ? imageContainer1 : imageContainer2;
-        const nextContainer = isFirstContainerVisible ? imageContainer2 : imageContainer1;
-
-        nextContainer.style.backgroundImage = `url(${images[currentIndex]})`;
-        nextContainer.classList.add('visible');
-
-        setTimeout(() => {
-            currentContainer.classList.remove('visible');
-        }, 1000); 
-
-        currentIndex = (currentIndex + 1) % images.length;
-        isFirstContainerVisible = !isFirstContainerVisible;
-    }
-
-    imageContainer1.style.backgroundImage = `url(${images[currentIndex]})`;
-    imageContainer1.classList.add('visible');
-
-    setInterval(changeImage, 5000); 
-</script>

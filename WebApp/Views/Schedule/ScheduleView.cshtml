@@ -8,9 +8,9 @@
     static DateOnly getSunday()
     {
         DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
-        int dayOfWeek = (int)currentDate.DayOfWeek; ;
+        int dayOfWeek = (int)currentDate.DayOfWeek;
         currentDate = currentDate.AddDays(-dayOfWeek);
-        return currentDate.AddDays(-7);
+        return currentDate.AddDays(0);
     }
 
     static List<DateOnly> listDate()
@@ -25,6 +25,7 @@
         return list;
     }
 
+    DateOnly curDate = DateOnly.FromDateTime(DateTime.Now);
     List<DateOnly> dateList = listDate();
 }
 
@@ -41,10 +42,37 @@
 }
 else
 {
+    @foreach (var roleList in Model.Where(s => s.ScheDate >= dateList[0] && s.ScheDate <= dateList[6]).GroupBy(s => s.Role))
+    {
+        if (roleList.First().Role == Models.Entities.Role.Manager)
+        {
+            foreach (var name in roleList.GroupBy(s => s.EmployeeName))
+            {
+                var scheInDate = name.Where(sche => sche.ScheDate == DateOnly.FromDateTime(DateTime.Now)).OrderBy(t => t.StartTime);
+                if (scheInDate.Any())
+                {
+                    @foreach (var sche in scheInDate)
+                    {
+                        <div>
+                            @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
+                            {
+                                <a asp-controller="Attendance" class="btn btn-primary" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId">Clock In</a>
+                            }
+                            else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
+                            {
+                                <a asp-controller="Attendance" class="btn btn-primary" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId">Clock Out</a>
+                            }
+                        </div>
+                    }
+                }
+            }
+        }
+    }
+    <br />
     <table class="table table-bordered border border-3 border-primary">
         <thead>
-            <tr>
-                <th class="Name" colspan="2" rowspan="2">Staff's Name</th>
+            <tr class="fs-5">
+                <th class="Name fs-6" colspan="2" rowspan="2">Staff's Name</th>
                 <th>Sun</th>
                 <th>Mon</th>
                 <th>Tues</th>
@@ -53,7 +81,7 @@ else
                 <th>Fri</th>
                 <th>Sat</th>
             </tr>
-            <tr id='dateRow'>
+            <tr id='dateRow' class="fs-5">
                 @foreach (var day in dateList)
                 {
                     <th>@day.ToString("MMM dd")</th>
@@ -71,31 +99,41 @@ else
                     foreach (var name in roleList.GroupBy(s => s.EmployeeName))
                     {
                         <tr>
-                            <td class="Name" colspan="2">@roleList.First().EmployeeName</td>
+                            <td class="Name" style="font-weight: bold" colspan="2">
+                                @roleList.First().EmployeeName
+                            </td>
 
                             @for (var i = 0; i < 7; i++)
                             {
-                                var scheInDate = name.Where(sche => sche.ScheDate == dateList[i]);
+                                var scheInDate = name.Where(sche => sche.ScheDate == dateList[i]).OrderBy(t => t.StartTime);
                                 if (scheInDate.Any())
                                 {
                                     <td>
                                         @foreach (var sche in scheInDate)
                                         {
                                             <div>
-                                                @sche.ShiftName <br />
-                                                @sche.StartTime
-                                                @sche.EndTime
-                                                @if (sche.Attendance == null)
-                                                {
-                                                    <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock In</a>
-                                                } else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn)
-                                                {
-                                                    <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock Out</a>
-                                                }
-                                                @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
+                                                <div class="shiftName">
+                                                    @sche.ShiftName <br />
+                                                </div>
+                                                <div class="shiftTime">
+                                                    @sche.StartTime
+                                                    @sche.EndTime
+                                                </div>
+                                                <div class="attendanceStatus">
+                                                    @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
+                                                </div>
+                                                <div>
+                                                    @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
+                                                    {
+                                                        <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock In</a>
+                                                    }
+                                                    else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
+                                                    {
+                                                        <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock Out</a>
+                                                    }
+                                                </div>
                                             </div>
                                         }
-
                                     </td>
                                 }
                                 else
@@ -118,29 +156,43 @@ else
                     foreach (var name in roleList.GroupBy(s => s.EmployeeName))
                     {
                         <tr>
-                            <td class="Name" colspan="2">@roleList.First().EmployeeName</td>
+                            <td class="Name" colspan="2">
+                                <div style="font-weight: bold">
+                                    @roleList.First().EmployeeName
+                                    (@roleList.First().Role)
+                                </div>
+                            </td>
 
                             @for (var i = 0; i < 7; i++)
                             {
 
-                                var scheInDate = name.Where(sche => sche.ScheDate == dateList[i]);
+                                var scheInDate = name.Where(sche => sche.ScheDate == dateList[i]).OrderBy(t => t.StartTime);
                                 if (scheInDate.Any())
                                 {
                                     <td>
                                         @foreach (var sche in scheInDate)
                                         {
                                             <div>
-                                                @sche.ShiftName <br />
-                                                @sche.StartTime
-                                                @sche.EndTime
-                                                @if (sche.Attendance == null)
-                                                {
-                                                    <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock In</a>
-                                                } else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn)
-                                                {
-                                                    <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock Out</a>
-                                                }
-                                                @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status) 
+                                                <div class="shiftName">
+                                                    @sche.ShiftName <br />
+                                                </div>
+                                                <div class="shiftTime">
+                                                    @sche.StartTime
+                                                    @sche.EndTime
+                                                </div>
+                                                <div class="attendanceStatus">
+                                                    @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
+                                                </div>
+                                                <div>
+                                                    @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
+                                                    {
+                                                        <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock In</a>
+                                                    }
+                                                    else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
+                                                    {
+                                                        <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock Out</a>
+                                                    }
+                                                </div>
                                             </div>
                                         }
                                     </td>
@@ -161,10 +213,6 @@ else
 }
 
 <style>
-    .no-shifts-message {
-        margin-top: 100px;
-    }
-
     th, td {
         vertical-align: middle;
     }
@@ -173,49 +221,70 @@ else
         border-collapse: collapse;
         width: 100%;
         text-align: center;
+        font-size: 95%;
     }
 
-    .table tr:hover {
-        background-color: transparent !important;
-    }
-    
-    .table td:hover {
+        .table tr:hover {
+            background-color: transparent !important;
+        }
+
+        .table td:hover {
             cursor: pointer;
             background-color: lightgrey;
-    }
+        }
 
     th, td {
         vertical-align: middle;
-        padding: 10px;
         width: 12%;
     }
 
-    .Name{     
+    .Name {
         width: 8%;
     }
 
-    .rowName{
+    .rowName {
         cursor: default !important;
         background-color: transparent !important;
     }
 
     tbody td.selected {
-        background-color: #b3d4fc; /* Màu nền khi hàng được chọn */
+        background-color: #b3d4fc;
     }
 
-    /* Style for popup */
-    .modal-content {
-        padding: 20px;
+    .shiftName {
+        text-align: left;
+        font-weight: bold;
     }
 
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .shiftTime {
+        text-align: left;
+    }
+
+    .attendanceStatus {
+        text-align: right;
+        font-weight: bold;
     }
 </style>
 
+<script>
+    // Lấy tất cả các phần tử có class "status-text"
+    const textElements = document.querySelectorAll(".attendanceStatus");
 
+    // Vòng lặp qua các phần tử để thay đổi màu
+    textElements.forEach((textElement) => {
+        const text = textElement.innerText;
+
+        if (text === "ClockIn") {
+            textElement.style.color = "blue";
+        } else if (text === "ClockOut") {
+            textElement.style.color = "green";
+        } else if (text === "Absent") {
+            textElement.style.color = "red";
+        } else {
+            textElement.style.color = "black";
+        }
+    });
+</script>
 
 
 
