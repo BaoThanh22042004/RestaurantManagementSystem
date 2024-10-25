@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Entities;
 using Repositories.Interface;
 using WebApp.Models;
+using WebApp.Utilities;
 
 namespace WebApp.Controllers
 {
@@ -37,22 +38,35 @@ namespace WebApp.Controllers
             var user = (await _userRepository.GetAllAsync()).Where(u => u.Role != Role.Customer).Select(u => new SelectListItem
             {
                 Value = u.UserId.ToString(),
-                Text =  u.FullName
+                Text =  u.FullName,             
             }).ToList();
             return user;
         }
 
-		public async Task<IActionResult> Index()
+        private async Task<IEnumerable<SelectListItem>> GetUserRole()
+        {
+            var userRole = (await _userRepository.GetAllAsync()).Where(u => u.Role != Role.Customer).Select(u => new SelectListItem
+            {
+                Value = u.UserId.ToString(),
+                Text = u.Role.ToString()
+            }).ToList();
+            return userRole;
+        }
+
+        public async Task<IActionResult> Index()
         {
 			var allShifts = await GetShiftList();
 
 			var allUsers = await GetUserList();
 
+            var allUserRoleByIds = await GetUserRole();
+
 			var schedules = await _scheduleRepository.GetAllAsync();
             var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule)
             {
                 ShiftOptions = allShifts,
-                EmployeeOptions = allUsers
+                EmployeeOptions = allUsers,
+                EmployeeRoleOptions = allUserRoleByIds
             });
   
             return View("ScheduleView", scheduleList);

@@ -33,77 +33,45 @@ namespace WebApp.Controllers
 			return categories;
 		}
 
-		public async Task<IActionResult> Index()
+		private async Task<List<DishCategoryViewModel>> GetCategoryListForFilter(List<DishViewModel> dishList)
 		{
-			var dishes = await _dishRepository.GetAllAsync();
-			var dishList = dishes.Select(dish => new DishViewModel(dish)).ToList();
-
-			var allCategories = await GetCategoryList();
-			foreach (var dishViewModel in dishList)
-			{
-				dishViewModel.CategoryOptions = allCategories;
-			}
-			return View("DishView", dishList);
+			var result = await _dishCategoryRepository.GetAllAsync();
+			result = result.Where(category => dishList.Any(dish => dish.CategoryId.Equals(category.CatId)));
+			return result.Select(category => new DishCategoryViewModel(category)).ToList();
 		}
 
-		[Route("Search")]
-		public async Task<IActionResult> Search(string keyword)
+		private async Task<List<DishViewModel>> GetDishList()
 		{
-			var dishes = await _dishRepository.GetAllAsync();
-			if (string.IsNullOrWhiteSpace(keyword))
-			{
-				var dishList = dishes.Select(dish => new DishViewModel(dish)).ToList();
-				var allCategories = await GetCategoryList();
-				foreach (var dishViewModel in dishList)
-				{
-					dishViewModel.CategoryOptions = allCategories;
-				}
-
-				return View("DishView", dishList);
-			}
-			var filteredDishes = dishes
-				.Where(d => d.DishName.Contains(keyword, StringComparison.OrdinalIgnoreCase))
-				.ToList();
-			var filteredDishList = filteredDishes.Select(dish => new DishViewModel(dish)).ToList();
-			var allCategoriesForFilter = await GetCategoryList();
-			foreach (var dishViewModel in filteredDishList)
-			{
-				dishViewModel.CategoryOptions = allCategoriesForFilter;
-			}
-			return View("DishView", filteredDishList);
+			var dishes = (await _dishRepository.GetAllAsync());
+			return dishes.Select(d => new DishViewModel(d)).ToList();
 		}
 
-		[Route("Filter")]
-		public async Task<IActionResult> Filter(List<int> selectedCategories)
+		public async Task<IActionResult> Index(MenuViewModel menuViewModel)
 		{
-			var dishes = await _dishRepository.GetAllAsync();
+			menuViewModel.Dishes ??= await GetDishList();
+			menuViewModel.Categories ??= await GetCategoryListForFilter(menuViewModel.Dishes);
+			menuViewModel.SelectedCategories ??= new List<int>();
 
-			if (selectedCategories == null || !selectedCategories.Any())
+			if (string.IsNullOrWhiteSpace(menuViewModel.Keyword) && menuViewModel.SelectedCategories.Count == 0)
 			{
-				var dishList = dishes.Select(dish => new DishViewModel(dish)).ToList();
-
-				var allCategories = await GetCategoryList();
-				foreach (var dishViewModel in dishList)
-				{
-					dishViewModel.CategoryOptions = allCategories;
-				}
-
-				return View("DishView", dishList);
+				return View("DishView", menuViewModel);
 			}
 
-			var filteredDishes = dishes
-				.Where(d => selectedCategories.Contains(d.CategoryId)).ToList();
-
-			var filteredDishList = filteredDishes.Select(dish => new DishViewModel(dish)).ToList();
-
-			var allCategoriesForFilter = await GetCategoryList();
-			foreach (var dishViewModel in filteredDishList)
+			if (!string.IsNullOrWhiteSpace(menuViewModel.Keyword))
 			{
-				dishViewModel.CategoryOptions = allCategoriesForFilter;
+				menuViewModel.Dishes = menuViewModel.Dishes.Where(d => d.DishName.Contains(menuViewModel.Keyword, StringComparison.OrdinalIgnoreCase)).ToList();
 			}
 
-			return View("DishView", filteredDishList);
+			if (menuViewModel.SelectedCategories.Count != 0)
+			{
+				menuViewModel.SelectedCategories.ForEach(selected => menuViewModel.Categories.Find(c => c.CategoryId.Equals(selected)).IsSelected = true);
+				menuViewModel.Dishes = menuViewModel.Dishes.Where(d => menuViewModel.SelectedCategories.Contains(d.CategoryId)).ToList();
+			}
+
+			return View("DishView", menuViewModel);
 		}
+
+
 
 		[Route("Create")]
 		public async Task<IActionResult> Create()
@@ -214,17 +182,18 @@ namespace WebApp.Controllers
 					await _fileUploadManager.UploadImageAsync(dish.UploadedImage, "Dishes", $"{DishId}.jpg");
 				}
 
-				await _dishRepository.UpdateAsync(dishEntity);
-			}
-			catch (InvalidOperationException)
-			{
-				return NotFound();
-			}
-			catch (Exception e)
-			{
-				TempData["Error"] = "An error occurred while updating dish. Please try again later.";
-				return View("EditDishView", dish);
-			}
+                await _dishRepository.UpdateAsync(dishEntity);
+            }
+            catch (InvalidOperationException)
+            {
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                TempData["Error"] = "An error occurred while updating dish. Please try again later.";
+                dish.CategoryOptions = await GetCategoryList();
+                return View("EditDishView", dish);
+            }
 
 			return RedirectToAction("Index");
 		}

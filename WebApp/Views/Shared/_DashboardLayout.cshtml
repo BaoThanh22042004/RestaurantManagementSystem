@@ -76,6 +76,21 @@
 									Information
 								</a>
 							</li>
+							<li class="nav-item">
+								<a asp-controller="Reservation" asp-action="Index" class="nav-link @IsActive("Reservation")">
+									Reservations
+								</a>
+							</li>
+							<li class="nav-item">
+								<a asp-controller="Order" asp-action="Index" class="nav-link @IsActive("Order")">
+									Order
+								</a>
+							</li>
+							<li class="nav-item">
+								<a asp-controller="FeedBack" asp-action="Index" class="nav-link @IsActive("FeedBack")">
+									FeedBack
+								</a>
+							</li>
 						}
 						@if (User.IsInRole(nameof(Models.Entities.Role.Accountant)))
 						{
@@ -104,6 +119,11 @@
 						<li class="nav-item">
 							<a asp-controller="Schedule" asp-action="Index" class="nav-link @IsActive("Schedule")">
 								Schedules
+							</a>
+						</li>
+						<li class="nav-item">
+							<a asp-controller="Attendance" asp-action="Index" class="nav-link @IsActive("Attendance")">
+								Attendances
 							</a>
 						</li>
 					</ul>

@@ -2,7 +2,30 @@
 @{
     ViewData["Title"] = "Schedule";
     Layout = "_DashboardLayout";
-    int counter = 0;
+}
+
+@{
+    static DateOnly getSunday()
+    {
+        DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
+        int dayOfWeek = (int)currentDate.DayOfWeek; ;
+        currentDate = currentDate.AddDays(-dayOfWeek);
+        return currentDate.AddDays(-7);
+    }
+
+    static List<DateOnly> listDate()
+    {
+        List<DateOnly> list = new List<DateOnly>();
+        DateOnly currentDate = getSunday();
+        for (int i = 0; i < 7; i++)
+        {
+            list.Add(currentDate);
+            currentDate = currentDate.AddDays(1);
+        }
+        return list;
+    }
+
+    List<DateOnly> dateList = listDate();
 }
 
 <h1 class="mb-4">Schedule</h1>
@@ -18,31 +41,121 @@
 }
 else
 {
-    <table class="table">
+    <table class="table table-bordered border border-3 border-primary">
         <thead>
             <tr>
-                <th>#</th>
-                <th>Schedule Date</th>
-                <th>Employee</th>
-                <th>Shift</th>
-                <th>Actions</th>
+                <th class="Name" colspan="2" rowspan="2">Staff's Name</th>
+                <th>Sun</th>
+                <th>Mon</th>
+                <th>Tues</th>
+                <th>Wed</th>
+                <th>Thurs</th>
+                <th>Fri</th>
+                <th>Sat</th>
+            </tr>
+            <tr id='dateRow'>
+                @foreach (var day in dateList)
+                {
+                    <th>@day.ToString("MMM dd")</th>
+                }
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model)
+            <tr class="border border-3 border-primary non-selectable">
+                <td class="rowName" colspan="9" style="font-weight: bold">Managers</td>
+            </tr>
+            @foreach (var roleList in Model.Where(s => s.ScheDate >= dateList[0] && s.ScheDate <= dateList[6]).GroupBy(s => s.Role))
             {
-                <tr>
-                    <td>@(++counter)</td>
-                    <td>@item.ScheDate</td>
-                    <td>@item.EmployeeName</td>
-                    <td>@item.ShiftName</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.ScheId" class="btn btn-info">Edit</a>
-                        <a asp-action="Details" asp-route-id="@item.ScheId" class="btn btn-primary">Details</a>
-                        <a asp-action="Delete" asp-route-id="@item.ScheId" class=" btn btn-danger">Delete</a>
-                    </td>
-                </tr>
+                if (roleList.First().Role == Models.Entities.Role.Manager)
+                {
+                    foreach (var name in roleList.GroupBy(s => s.EmployeeName))
+                    {
+                        <tr>
+                            <td class="Name" colspan="2">@roleList.First().EmployeeName</td>
+
+                            @for (var i = 0; i < 7; i++)
+                            {
+                                var scheInDate = name.Where(sche => sche.ScheDate == dateList[i]);
+                                if (scheInDate.Any())
+                                {
+                                    <td>
+                                        @foreach (var sche in scheInDate)
+                                        {
+                                            <div>
+                                                @sche.ShiftName <br />
+                                                @sche.StartTime
+                                                @sche.EndTime
+                                                @if (sche.Attendance == null)
+                                                {
+                                                    <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock In</a>
+                                                } else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn)
+                                                {
+                                                    <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock Out</a>
+                                                }
+                                                @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
+                                            </div>
+                                        }
+
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                            }
+
+                        </tr>
+                    }
+                }
             }
+            <tr class="border border-3 border-primary non-selectable">
+                <td class="rowName" colspan="9" style="font-weight: bold">Staffs</td>
+            </tr>
+            @foreach (var roleList in Model.Where(s => s.ScheDate >= dateList[0] && s.ScheDate <= dateList[6]).GroupBy(s => s.Role))
+            {
+                if (roleList.First().Role != Models.Entities.Role.Manager)
+                {
+                    foreach (var name in roleList.GroupBy(s => s.EmployeeName))
+                    {
+                        <tr>
+                            <td class="Name" colspan="2">@roleList.First().EmployeeName</td>
+
+                            @for (var i = 0; i < 7; i++)
+                            {
+
+                                var scheInDate = name.Where(sche => sche.ScheDate == dateList[i]);
+                                if (scheInDate.Any())
+                                {
+                                    <td>
+                                        @foreach (var sche in scheInDate)
+                                        {
+                                            <div>
+                                                @sche.ShiftName <br />
+                                                @sche.StartTime
+                                                @sche.EndTime
+                                                @if (sche.Attendance == null)
+                                                {
+                                                    <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock In</a>
+                                                } else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn)
+                                                {
+                                                    <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock Out</a>
+                                                }
+                                                @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status) 
+                                            </div>
+                                        }
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                    </td>
+                                }
+                            }
+                        </tr>
+                    }
+                }
+            }
+
         </tbody>
     </table>
 }
@@ -51,4 +164,61 @@ else
     .no-shifts-message {
         margin-top: 100px;
     }
+
+    th, td {
+        vertical-align: middle;
+    }
+
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+        text-align: center;
+    }
+
+    .table tr:hover {
+        background-color: transparent !important;
+    }
+    
+    .table td:hover {
+            cursor: pointer;
+            background-color: lightgrey;
+    }
+
+    th, td {
+        vertical-align: middle;
+        padding: 10px;
+        width: 12%;
+    }
+
+    .Name{     
+        width: 8%;
+    }
+
+    .rowName{
+        cursor: default !important;
+        background-color: transparent !important;
+    }
+
+    tbody td.selected {
+        background-color: #b3d4fc; /* Màu nền khi hàng được chọn */
+    }
+
+    /* Style for popup */
+    .modal-content {
+        padding: 20px;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 </style>
+
+
+
+
+
+
+
+

@@ -17,15 +17,19 @@ namespace WebApp.Models
         [Display(Name = "Employee")]
         public int EmpId { get; set; }
         public IEnumerable<SelectListItem>? EmployeeOptions { get; set; }
+        public IEnumerable<SelectListItem>? EmployeeRoleOptions { get; set; }
         public string? EmployeeName { get; set; }
+        public Role? Role { get; set; }
 
 
         [Required(ErrorMessage = "Shift is required.")]
         [Display(Name = "Shift")]
         public int ShiftId { get; set; }
         public string? ShiftName { get; set; }
+        public TimeOnly? StartTime { get; set; }
+        public TimeOnly? EndTime { get; set; }
 		public IEnumerable<SelectListItem>? ShiftOptions { get; set; }
-
+        public Attendance? Attendance { get; set; }
 		public ScheduleViewModel() 
         { 
         }
@@ -37,7 +41,11 @@ namespace WebApp.Models
             EmpId = schedule.EmpId; 
             ShiftId = schedule.ShiftId; 
             ShiftName = schedule.Shift?.ShiftName;
+            StartTime = schedule.Shift?.StartTime;
+            EndTime = schedule.Shift?.EndTime;
             EmployeeName = schedule.Employee?.FullName;
+            Attendance = schedule.Attendance;
+            Role = schedule.Employee?.Role;
         }
     }
 }

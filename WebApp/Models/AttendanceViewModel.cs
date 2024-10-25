@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Models.Entities;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,15 +11,17 @@ namespace WebApp.Models
         public long? AttendId { get; set; }
 
         [Required(ErrorMessage = "Schedule is required.")]
-        [Display(Name = "Schedule")]
+        [Display(Name = "Schedule Date")]
         public long ScheId { get; set; }
+        public DateOnly? ScheDate { get; set; }
+        public IEnumerable<SelectListItem>? ScheduleOptions { get; set; }
 
         [Required(ErrorMessage = "Check in is required.")]
         [Display(Name = "Check In")]
-        public TimeOnly CheckIn { get; set; }
+        public DateTime CheckIn { get; set; }
 
         [Display(Name = "Check Out")]
-        public TimeOnly? CheckOut { get; set; }
+        public DateTime? CheckOut { get; set; }
 
         [Display(Name = "Working Hour")]
         public decimal? WorkingHours { get; set; }
@@ -36,6 +39,7 @@ namespace WebApp.Models
         {
             AttendId = attendance.AttendId;
             ScheId = attendance.ScheId;
+            ScheDate = attendance.Schedule?.ScheDate;
             CheckIn = attendance.CheckIn;
             CheckOut = attendance.CheckOut;
             WorkingHours = attendance.WorkingHours;
