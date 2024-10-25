@@ -1,0 +1,21 @@
+﻿@model ScheduleViewModel
+
+<partial name="Partials/_ModalHeader" model='"Details Shift"' />
+
+<div class="modal-body" id="modalBody">
+	<dl>
+		<dt>@Html.DisplayNameFor(m => m.ScheId)</dt>
+		<dd>@Model.ScheId</dd>
+
+		<dt>@Html.DisplayNameFor(m => m.ScheDate)</dt>
+		<dd>@Model.ScheDate</dd>
+
+		<dt>@Html.DisplayNameFor(m => m.EmployeeName)</dt>
+		<dd>@Model.EmployeeName</dd>
+
+		<dt>@Html.DisplayNameFor(m => m.ShiftName)</dt>
+		<dd>@Model.ShiftName</dd>
+	</dl>
+</div>
+
+<partial name="Partials/_ModalFooter" model='""' />

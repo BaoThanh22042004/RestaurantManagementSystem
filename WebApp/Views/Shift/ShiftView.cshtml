@@ -7,8 +7,8 @@
 
 <h1 class="mb-4 text-center">Shift</h1>
 
-<div class="mb-3 d-flex justify-content-between">
-    <a asp-action="Create" class="btn btn-success">Add New Shift</a>
+<div class="mb-3">
+    <button onclick="create()" class="btn btn-success">Add New Shift</button>
 </div>
 
 @if (!Model.Any())
@@ -41,9 +41,9 @@ else
                         <td>@item.EndTime.ToString("hh:mm tt")</td>
                         <td class="d-flex justify-content-end">
                             <div class="btn-group" role="group">
-                                <a asp-action="Details" asp-route-id="@item.ShiftId" class="btn btn-sm btn-info">Details</a>
-                                <a asp-action="Edit" asp-route-id="@item.ShiftId" class="btn btn-sm btn-primary">Edit</a>
-                                <a asp-action="Delete" asp-route-id="@item.ShiftId" class="btn btn-sm btn-danger">Delete</a>
+                                <button class="btn btn-info" onclick="details(@item.ShiftId)">Details</button>
+                                <button class="btn btn-primary" onclick="edit(@item.ShiftId)">Edit</button>
+                                <button class="btn btn-danger" onclick="deleteAction(@item.ShiftId)">Delete</button>
                             </div>
                         </td>
                     </tr>
@@ -51,4 +51,45 @@ else
             </tbody>
         </table>
     </div>
+}
+
+<!-- Modal -->
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="modalContent">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function create() {
+            var url = '@Url.Action("Create", "Shift")';
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function details(id) {
+            var url = '@Url.Action("Details", "Shift", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function edit(id) {
+            var url = '@Url.Action("Edit", "Shift", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function deleteAction(id) {
+            var url = '@Url.Action("Delete", "Shift", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+    </script>
 }

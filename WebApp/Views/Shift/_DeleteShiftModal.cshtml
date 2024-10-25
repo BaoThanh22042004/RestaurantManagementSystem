@@ -1,0 +1,40 @@
+﻿@model ShiftViewModel
+
+<form method="post" asp-action="Delete" id="form">
+    <partial name="Partials/_ModalHeader" model='"Delete Shift"' />
+
+	<div class="modal-body" id="modalBody">
+
+		@if (@TempData["Error"] != null)
+		{
+			<div class="alert alert-danger" role="alert">
+				@TempData["Error"]
+			</div>
+		}
+		<input asp-for="ShiftId" type="hidden" />
+
+		<h3 class="mb-3">Are you sure you want to delete this shift?</h3>
+
+		<dl>
+
+			<dt>@Html.DisplayNameFor(m => m.ShiftId)</dt>
+			<dd>@Model.ShiftId</dd>
+
+			<dt>@Html.DisplayNameFor(m => m.ShiftName)</dt>
+			<dd>@Model.ShiftName</dd>
+
+			<dt>@Html.DisplayNameFor(m => m.StartTime)</dt>
+			<dd>@Model.StartTime</dd>
+
+			<dt>@Html.DisplayNameFor(m => m.EndTime)</dt>
+			<dd>@Model.EndTime</dd>
+
+		</dl>
+	</div>
+
+	@{
+		string deleteButton = "<button type='submit' class='btn btn-danger'>Delete</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model='@deleteButton' />
+</form>
