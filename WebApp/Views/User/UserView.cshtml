@@ -8,7 +8,7 @@
 <h1 class="mb-4">User</h1>
 
 <div class="mb-3">
-	<a asp-action="Create" class="btn btn-success">Add New User</a>
+	<button onclick="create()" class="btn btn-success">Add New User</button>
 </div>
 
 <table class="table">
@@ -46,11 +46,53 @@
 					@Html.DisplayFor(modelItem => item.Role)
 				</td>
 				<td>
-					<a asp-action="Details" asp-route-id="@item.UserId" class="btn btn-info">Details</a>
-					<a asp-action="Edit" asp-route-id="@item.UserId" class="btn btn-primary">Edit</a>
-					<a asp-action="Delete" asp-route-id="@item.UserId" class="btn btn-danger">Delete</a>
+					<button class="btn btn-info" onclick="details(@item.UserId)">Details</button>
+					<button class="btn btn-primary" onclick="edit(@item.UserId)">Edit</button>
+					<button class="btn btn-danger" onclick="deleteAction(@item.UserId)">Delete</button>
 				</td>
 			</tr>
 		}
 	</tbody>
 </table>
+
+<!-- Modal -->
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content" id="modalContent">
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		function create() {
+			var url = '@Url.Action("Create", "User")';
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function details(id) {
+			var url = '@Url.Action("Details", "User", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function edit(id) {
+			var url = '@Url.Action("Edit", "User", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function deleteAction(id) {
+			var url = '@Url.Action("Delete", "User", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+	</script>
+
+}

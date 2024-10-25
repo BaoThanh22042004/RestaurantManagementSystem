@@ -1,0 +1,78 @@
+﻿@model UserViewModel
+
+<form method="post" asp-action="Edit" id="form">
+	<partial name="Partials/_ModalHeader" model='"Edit User"' />
+
+	<div class="modal-body" id="modalBody">
+
+		@if (@TempData["Error"] != null)
+		{
+			<div class="alert alert-danger" role="alert">
+				@TempData["Error"]
+			</div>
+		}
+
+		<div class="form-floating mb-3">
+			<input asp-for="UserId" type="hidden" />
+			<input asp-for="UserId" class="form-control" disabled />
+			<label asp-for="UserId"></label>
+		</div>
+
+		<div class="form-floating mb-3">
+			<input asp-for="Username" class="form-control" id="Username" />
+			<label asp-for="Username"></label>
+			<span asp-validation-for="Username" class="text-danger"></span>
+		</div>
+
+		<div class="form-floating mb-3">
+			<input asp-for="Password" class="form-control" id="Password" />
+			<label asp-for="Password"></label>
+			<span asp-validation-for="Password" class="text-danger"></span>
+		</div>
+
+		<div class="form-floating mb-3">
+			<input asp-for="FullName" class="form-control" id="FullName" />
+			<label asp-for="FullName"></label>
+			<span asp-validation-for="FullName" class="text-danger"></span>
+		</div>
+
+		<div class="form-floating mb-3">
+			<input asp-for="Email" class="form-control" id="Email" />
+			<label asp-for="Email"></label>
+			<span asp-validation-for="Email" class="text-danger"></span>
+		</div>
+
+		<div class="form-floating mb-3">
+			<input asp-for="Phone" class="form-control" id="Phone" />
+			<label asp-for="Phone"></label>
+			<span asp-validation-for="Phone" class="text-danger"></span>
+		</div>
+
+		<div class="form-floating mb-3">
+			<select asp-for="Role" asp-items="Html.GetEnumSelectList<Models.Entities.Role>()" class="form-select" id="Role">
+				<option selected id="DefaultSelectRole">Please select Role</option>
+			</select>
+			<label asp-for="Role"></label>
+			<span asp-validation-for="Role" class="text-danger"></span>
+		</div>
+
+		<div class="form-floating mb-3">
+			<input asp-for="Salary" class="form-control" id="Salary" />
+			<label asp-for="Salary"></label>
+			<span asp-validation-for="Salary" class="text-danger"></span>
+		</div>
+
+		<div class="form-check mb-3">
+			<input class="form-check-input" asp-for="IsActive" id="IsActive" />
+			<label class="form-check-label" asp-for="IsActive"></label>
+			<span asp-validation-for="IsActive" class="text-danger"></span>
+		</div>
+
+	</div>
+
+	@{
+		string saveButton = "<button type='submit' class='btn btn-primary'>Save</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model='@saveButton' />
+</form>
