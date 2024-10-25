@@ -13,10 +13,10 @@
 		</a>
 	</div>
 
-	<div class="collapse mb-4" id="filterForm">
-		<form class="filter-form" method="get">
+	<div class="collapse my-4" id="filterForm">
+		<form class="p-4 border rounded-4" method="get">
 			<div class="mb-3">
-				<label asp-for="Keyword" class="form-label">Keyword Search</label>
+				<label asp-for="Keyword" class="fw-bold mb-3">Keyword Search</label>
 				<input class="form-control" asp-for="Keyword" id="keyword" type="search" placeholder="Search by name">
 			</div>
 
@@ -26,8 +26,8 @@
 					@foreach (var category in Model.Categories)
 					{
 						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="checkbox" id="@category.CategoryName" name="SelectedCategories" value="@category.CategoryId" @(category.IsSelected ? "checked" : "")>
 							<label class="form-check-label" for="@category.CategoryName">@category.CategoryName</label>
-							<input class="form-check-input" type="checkbox" name="@category.CategoryName" id="@category.CategoryName" value="@category.CategoryId" checked="@category.IsSelected">
 						</div>
 					}
 				</div>
@@ -59,10 +59,10 @@
 
 				@foreach (var item in category)
 				{
-					<div class="col-md-4 mb-4">
-						<div class="card border-0 shadow-sm h-100 text-center">
+					<div class="col-lg-4 col-md-6 mb-4">
+						<div class="card border-0 rounded-4 shadow-sm h-100 text-center">
 							<a asp-action="Details" asp-route-id="@item.DishId" class="text-decoration-none">
-								<img src="@item.ImagePath" class="card-img-top rounded-top" alt="Image of @item.DishName">
+								<img src="@item.ImagePath" height="360" class="card-img-top rounded-top object-fit-cover w-100" alt="Image of @item.DishName" onerror="this.src='https://placehold.co/360x360'">
 								<div class="card-body">
 									<h5 class="card-title">@item.DishName</h5>
 									<p class="card-text">@item.Description</p>
@@ -80,62 +80,27 @@
 	}
 </div>
 
-@* <style>
-	body {
-		font-family: 'Roboto', sans-serif;
-		background-color: #f0f0f0;
-	}
-
-	h1, h3 {
-		font-weight: 700;
-		color: #333333;
-	}
-
-	.card {
-		border-radius: 10px;
-		transition: transform 0.2s;
-	}
-
+@section Styles {
+	<style>
+		.card {
+			transition: transform 0.2s;
+		}
 		.card:hover {
 			transform: scale(1.03);
 		}
+	</style>
+}
 
-		.card img {
-			width: 100%;
-			height: 360px;
-			object-fit: cover;
-			border-radius: 10px 10px 0 0;
-		}
+@section Scripts {
+	<script>
+		document.getElementById('resetButton').addEventListener('click', function () {
+			document.getElementById('keyword').value = '';
 
-	.filter-form {
-		border: 1px solid #e0e0e0;
-		border-radius: 8px;
-		padding: 20px;
-		background-color: #fff;
-	}
+			const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
 
-		.filter-form .form-label {
-			font-weight: bold;
-		}
-
-	.collapse {
-		margin-top: 20px;
-	}
-
-	.dropdown-menu {
-		max-height: 250px;
-		overflow-y: auto;
-	}
-</style> *@
-
-<script>
-	document.getElementById('resetButton').addEventListener('click', function () {
-		document.getElementById('keyword').value = '';
-
-		const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
-
-		checkboxes.forEach((checkbox) => {
-			checkbox.checked = false;
+			checkboxes.forEach((checkbox) => {
+				checkbox.checked = false;
+			});
 		});
-	});
-</script>
+	</script>
+}
