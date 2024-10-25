@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Repositories.Interface;
 using WebApp.Models;
+using WebApp.Utilities;
 
 namespace WebApp.Controllers
 {
@@ -9,16 +10,20 @@ namespace WebApp.Controllers
 	{
 		private readonly IDishRepository _dishRepository;
 		private readonly IDishCategoryRepository _dishCategoryRepository;
+		private readonly InformationManager _informationManager;
 
-		public HomeController(IDishRepository dishRepository, IDishCategoryRepository categoryRepository)
+		public HomeController(IDishRepository dishRepository, IDishCategoryRepository categoryRepository, InformationManager informationManager)
 		{
 			_dishRepository = dishRepository;
 			_dishCategoryRepository = categoryRepository;
+			_informationManager = informationManager;
 		}
 
 		public IActionResult Index()
 		{
-			return View("HomeView");
+			var informationViewModel = _informationManager.Information;
+
+			return View("HomeView", informationViewModel);
 		}
 
 		private async Task<List<DishCategoryViewModel>> GetCategoryList(List<DishViewModel> dishList)

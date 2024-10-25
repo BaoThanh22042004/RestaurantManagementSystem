@@ -31,6 +31,8 @@ namespace WebApp
 
 			// Register Singleton services
 			builder.Services.AddSingleton<UserClaimManager>();
+            builder.Services.AddSingleton<InformationManager>();
+            builder.Services.AddSingleton<FileUploadManager>();
 
 			// Add authentication services
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
