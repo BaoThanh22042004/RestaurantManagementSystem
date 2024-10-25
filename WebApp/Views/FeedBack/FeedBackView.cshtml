@@ -1,0 +1,73 @@
+﻿@model IEnumerable<WebApp.Models.FeedBackViewModel>
+
+@{
+    ViewData["Title"] = "Feedback List";
+    Layout = "_DashboardLayout"; // Nếu có bố cục dùng chung
+}
+
+<h1 class="mb-4">Feedback List</h1>
+
+<!-- Thông báo lỗi hoặc thành công nếu có -->
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+<!-- <div class="mb-3">
+    <a asp-action="Create" class="btn btn-success">Add New Feedback</a>
+</div> -->
+
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Feedback ID</th>
+            <th>Customer ID</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Subject</th>
+            <th>Status</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var feedback in Model)
+        {
+            <tr>
+                <td>@feedback.FeedbackId</td>
+                <td>@feedback.CustomerId</td>
+                <td>@feedback.Email</td>
+                <td>@feedback.Phone</td>
+                <td>@feedback.Subject</td>
+                <td>@feedback.Status</td>
+                <td>@feedback.CreateAt?.ToString("g")</td>
+                <td>
+                    <!-- Nút Details -->
+                    <a asp-action="Details" asp-route-id="@feedback.FeedbackId" class="btn btn-info btn-sm">Details</a>
+
+                    <!-- Nút Edit -->
+                    <a asp-action="Edit" asp-route-id="@feedback.FeedbackId" class="btn btn-primary btn-sm">Edit</a>
+
+                    <!-- Nút Delete -->
+                    <a asp-action="Delete" asp-route-id="@feedback.FeedbackId" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No feedbacks found.
+    </div>
+}

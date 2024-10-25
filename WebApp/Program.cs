@@ -28,6 +28,8 @@ namespace WebApp
             builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
             builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
             builder.Services.AddScoped<IStorageLogRepository, StorageLogRepository>();
+            builder.Services.AddScoped<IFeedBackRepository, FeedBackRepository>();
+
             builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
@@ -35,6 +37,8 @@ namespace WebApp
 
 			// Register Singleton services
 			builder.Services.AddSingleton<UserClaimManager>();
+            builder.Services.AddSingleton<InformationManager>();
+            builder.Services.AddSingleton<FileUploadManager>();
 
 			// Add authentication services
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
