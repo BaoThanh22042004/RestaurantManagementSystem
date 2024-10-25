@@ -4,35 +4,35 @@
     Layout = "_DashboardLayout";
 }
 
-<h1 class="mb-4">Dishes</h1>
+<h1 class="mb-4 text-center">Dishes</h1>
 
 <div class="mb-4">
     <div class="d-flex justify-content-between">
         <div>
-            <a asp-action="Create" class="btn btn-primary me-2">Create New Dish</a>
+            <button onclick="createDish()" class="btn btn-primary">Create New Dish</button>
         </div>
-        <div class="text-end mb-4">
+        <div class="text-end">
             <a class="btn btn-outline-secondary" data-bs-toggle="collapse" href="#filterForm" role="button" aria-expanded="false" aria-controls="filterForm">
                 <i class="bi bi-filter-circle"></i> Filters
             </a>
         </div>
     </div>
-    <div class="collapse" id="filterForm">
+    <div class="collapse mt-3" id="filterForm">
         <form method="get">
-            <div class="filter-form">
+            <div class="border p-3 rounded bg-white">
                 <div class="mb-3">
-                    <label asp-for="Keyword" class="form-label">Keyword Search</label>
+                    <label asp-for="Keyword" class="form-label fw-bold">Keyword Search</label>
                     <input class="form-control" asp-for="Keyword" id="keyword" type="search" placeholder="Search by name">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Category</label><br />
-                    <div class="form-check form-check-inline">
+                    <label class="form-label fw-bold">Category</label><br />
+                    <div>
                         @foreach (var category in Model.Categories)
                         {
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" name="SelectedCategories" value="@category.CategoryId" @(category.IsSelected ? "checked" : "")>
-                                <label class="form-check-label" for="SelectedCategories">@category.CategoryName</label>
+                                <label class="form-check-label">@category.CategoryName</label>
                             </div>
                         }
                     </div>
@@ -42,7 +42,6 @@
                     <button type="button" class="btn btn-outline-secondary" id="resetButton">Reset</button>
                     <button type="submit" class="btn btn-primary">Apply</button>
                 </div>
-
             </div>
         </form>
     </div>
@@ -50,7 +49,7 @@
 
 @if (!Model.Dishes.Any())
 {
-    <div class="no-dishes-message text-center mt-5">
+    <div class="text-center mt-5">
         <h2>No dishes available.</h2>
         <p>Please add some dishes to the menu.</p>
     </div>
@@ -67,18 +66,18 @@ else
             @foreach (var item in category)
             {
                 <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <a asp-action="Details" asp-route-id="@item.DishId" class="text-decoration-none text-dark">
-                            <img src="@item.ImagePath" class="card-img-top" alt="Dish Image">
+                    <div class="card h-100 shadow-sm">
+                        <div onclick="detailsDish(@item.DishId)" class="text-decoration-none text-dark cursor-pointer">
+                            <img src="@item.ImagePath" class="card-img-top rounded-top" alt="Dish Image" style="width: 100%; height: 360px; object-fit: cover;">
                             <div class="card-body">
-                                <h5 class="card-title">@Html.DisplayFor(modelItem => item.DishName)</h5>
-                                <p class="card-text">Price: @Html.DisplayFor(modelItem => item.Price)</p>
-                                <p class="card-text">Visible: @Html.DisplayFor(modelItem => item.Visible)</p>
+                                <h5 class="card-title">@item.DishName</h5>
+                                <p class="card-text">Price: @item.Price</p>
+                                <p class="card-text">Visible: @item.Visible</p>
                             </div>
-                        </a>
+                        </div>
                         <div class="card-footer d-flex justify-content-between">
-                            <a asp-action="Edit" asp-route-id="@item.DishId" class="btn btn-primary">Edit</a>
-                            <a asp-action="Delete" asp-route-id="@item.DishId" class="btn btn-danger">Delete</a>
+                            <button onclick="editDish(@item.DishId)" class="btn btn-primary">Edit</button>
+                            <button onclick="deleteDish(@item.DishId)" class="btn btn-danger">Delete</button>
                         </div>
                     </div>
                 </div>
@@ -87,71 +86,53 @@ else
     </div>
 }
 
-<style>
-    .card img {
-        height: 200px;
-        object-fit: cover;
-    }
+<div class="modal fade" id="dishModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="dishModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="modalContent">
+        </div>
+    </div>
+</div>
 
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f0f0f0;
-    }
-
-    h1, h3 {
-        font-weight: 700;
-        color: #333333;
-    }
-
-    .card {
-        border-radius: 10px;
-        transition: transform 0.2s;
-    }
-
-        .card:hover {
-            transform: scale(1.03);
+@section Scripts {
+    <script>
+        function createDish() {
+            var url = '@Url.Action("Create", "Dish")';
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#dishModal').modal('show');
+            });
         }
 
-        .card img {
-            width: 100%;
-            height: 360px;
-            object-fit: cover;
-            border-radius: 10px 10px 0 0;
+        function detailsDish(id) {
+            var url = '@Url.Action("Details", "Dish", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#dishModal').modal('show');
+            });
         }
 
-    .btn-outline-primary {
-        border-radius: 20px;
-    }
-
-    .filter-form {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 20px;
-        background-color: #fff;
-    }
-
-        .filter-form .form-label {
-            font-weight: bold;
+        function editDish(id) {
+            var url = '@Url.Action("Edit", "Dish", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#dishModal').modal('show');
+            });
         }
 
-    .collapse {
-        margin-top: 20px;
-    }
+        function deleteDish(id) {
+            var url = '@Url.Action("Delete", "Dish", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#dishModal').modal('show');
+            });
+        }
 
-    .dropdown-menu {
-        max-height: 250px;
-        overflow-y: auto;
-    }
-</style>
-
-<script>
-    document.getElementById('resetButton').addEventListener('click', function () {
-        document.getElementById('keyword').value = '';
-
-        const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
-
-        checkboxes.forEach((checkbox) => {
-            checkbox.checked = false;
+        document.getElementById('resetButton').addEventListener('click', function () {
+            document.getElementById('keyword').value = '';
+            const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
+            checkboxes.forEach((checkbox) => {
+                checkbox.checked = false;
+            });
         });
-    });
-</script>
+    </script>
+}

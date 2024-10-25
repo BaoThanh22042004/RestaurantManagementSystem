@@ -1,0 +1,72 @@
+﻿@model DishViewModel
+
+<form method="post" asp-action="Edit" id="form">
+    <partial name="Partials/_ModalHeader" model='"Edit Dish"' />
+
+    <div class="modal-body" id="modalBody">
+
+        @if (@TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @TempData["Error"]
+            </div>
+        }
+
+        <div class="form-floating mb-3">
+            <input asp-for="DishId" class="form-control" id="DishId" readonly/>
+            <label asp-for="DishId"></label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="DishName" class="form-control" id="DishName" />
+            <label asp-for="DishName"></label>
+            <span asp-validation-for="DishName" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="Price" class="form-control" id="Price" />
+            <label asp-for="Price"></label>
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <textarea asp-for="Description" class="form-control" id="Description" style="height: 100px;"></textarea>
+            <label asp-for="Description"></label>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select" id="CategoryId">
+                <option selected id="DefaultSelectCategory">Please select Category</option>
+            </select>
+            <label asp-for="CategoryId"></label>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        <div class="form-check mb-3">
+            <input class="form-check-input" asp-for="Visible" id="Visible" />
+            <label class="form-check-label" asp-for="Visible"></label>
+            <span asp-validation-for="Visible" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input type="file" asp-for="UploadedImage" class="form-control" id="UploadedImage" accept="image/*" />
+            <label asp-for="UploadedImage">Upload Image</label>
+            <span asp-validation-for="UploadedImage" class="text-danger"></span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <div class="mb-3">
+                <img src="@Model.ImagePath" alt="@Model.DishName" class="img-thumbnail" style="max-width: 200px;" />
+            </div>
+        }
+
+    </div>
+
+    @{
+        string saveButton = "<button type='submit' class='btn btn-primary'>Save</button>";
+    }
+
+    <partial name="Partials/_ModalFooter" model='@saveButton' />
+</form>

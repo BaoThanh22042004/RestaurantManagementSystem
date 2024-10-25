@@ -73,24 +73,23 @@ namespace WebApp.Controllers
 
 
 
-		[Route("Create")]
+		[HttpGet("Create")]
 		public async Task<IActionResult> Create()
 		{
 			var dishViewModel = new DishViewModel
 			{
 				CategoryOptions = await GetCategoryList()
 			};
-			return View("CreateDishView", dishViewModel);
+			return PartialView("_CreateDishModal", dishViewModel);
 		}
 
-		[Route("Create")]
-		[HttpPost]
+		[HttpPost("Create")]
 		public async Task<IActionResult> Create(DishViewModel dishViewModel)
 		{
 			if (!ModelState.IsValid)
 			{
 				dishViewModel.CategoryOptions = await GetCategoryList();
-				return View("CreateDishView", dishViewModel);
+				return PartialView("_CreateDishModal", dishViewModel);
 			}
 
 			try
@@ -114,18 +113,18 @@ namespace WebApp.Controllers
 			catch (ArgumentException e)
 			{
 				TempData["Error"] = e.Message;
-				return View("CreateDishView", dishViewModel);
+				return PartialView("_CreateDishModal", dishViewModel);
 			}
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while creating dish. Please try again later.";
-				return View("CreateDishView", dishViewModel);
+				return PartialView("_CreateDishModal", dishViewModel);
 			}
 
-			return RedirectToAction("Index");
-		}
+            return Json(new { success = true });
+        }
 
-		[Route("Details/{id}")]
+		[HttpGet("Details/{id}")]
 		public async Task<IActionResult> Details(int id)
 		{
 			var dish = await _dishRepository.GetByIDAsync(id);
@@ -136,10 +135,10 @@ namespace WebApp.Controllers
 
 			var dishViewModel = new DishViewModel(dish);
 			dishViewModel.CategoryOptions = await GetCategoryList();
-			return View("DetailsDishView", dishViewModel);
+			return PartialView("_DetailsDishModal", dishViewModel);
 		}
 
-		[Route("Edit/{id}")]
+		[HttpGet("Edit/{id}")]
 		public async Task<IActionResult> Edit(int id)
 		{
 			var dish = await _dishRepository.GetByIDAsync(id);
@@ -150,17 +149,16 @@ namespace WebApp.Controllers
 
 			var dishViewModel = new DishViewModel(dish);
 			dishViewModel.CategoryOptions = await GetCategoryList();
-			return View("EditDishView", dishViewModel);
+			return PartialView("_EditDishModal", dishViewModel);
 		}
 
-		[HttpPost]
-		[Route("Edit/{DishId}")]
+		[HttpPost("Edit/{DishId}")]
 		public async Task<IActionResult> Edit(DishViewModel dish, int DishId)
 		{
 			if (!ModelState.IsValid)
 			{
 				dish.CategoryOptions = await GetCategoryList();
-				return View("EditDishView", dish);
+				return PartialView("_DetailsDishModal", dish);
 			}
 
 			try
@@ -192,13 +190,13 @@ namespace WebApp.Controllers
             {
                 TempData["Error"] = "An error occurred while updating dish. Please try again later.";
                 dish.CategoryOptions = await GetCategoryList();
-                return View("EditDishView", dish);
+                return PartialView("_DetailsDishModal", dish);
             }
 
-			return RedirectToAction("Index");
-		}
+            return Json(new { success = true });
+        }
 
-		[Route("Delete/{id}")]
+		[HttpGet("Delete/{id}")]
 		public async Task<IActionResult> Delete(int id)
 		{
 			var dish = await _dishRepository.GetByIDAsync(id);
@@ -209,11 +207,10 @@ namespace WebApp.Controllers
 
 			var dishViewModel = new DishViewModel(dish);
 			dishViewModel.CategoryOptions = await GetCategoryList();
-			return View("DeleteDishView", dishViewModel);
+			return PartialView("_DeleteDishModal", dishViewModel);
 		}
 
-		[HttpPost]
-		[Route("Delete/{DishId}")]
+		[HttpPost("Delete/{DishId}")]
 		public async Task<IActionResult> DeleteConfirmed(int DishId)
 		{
 			try
@@ -227,7 +224,7 @@ namespace WebApp.Controllers
 				return RedirectToAction("Delete", new { id = DishId });
 			}
 
-			return RedirectToAction("Index");
-		}
+            return Json(new { success = true });
+        }
 	}
 }
