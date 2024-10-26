@@ -36,7 +36,7 @@ namespace Models
 
 		public DbSet<FeedBack> Feedbacks { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			var connectionString = new ConfigurationBuilder()
 				  .AddUserSecrets<DBContext>()
@@ -190,17 +190,12 @@ namespace Models
 						.WithMany(u => u.Payrolls)
 						.HasForeignKey(p => p.EmpId)
 						.OnDelete(DeleteBehavior.Restrict);
-            #endregion
+			#endregion
 
-            #region Feedback
-			modelBuilder.Entity<FeedBack>()
-                .HasOne(f => f.Customer)
-                .WithMany(u => u.FeedBacks)
-                .HasForeignKey(f => f.CustomerId)
-                .IsRequired(false);
-            #endregion
+			#region Feedback
+			#endregion
 
-            base.OnModelCreating(modelBuilder);
+			base.OnModelCreating(modelBuilder);
 		}
 	}
 }

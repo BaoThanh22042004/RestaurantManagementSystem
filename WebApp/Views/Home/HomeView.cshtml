@@ -84,7 +84,7 @@
 	}
 	<!-- END: Features -->
 	<!-- Contact -->
-	<div class="row p-4 align-items-center justify-content-around rounded-3 border shadow-lg">
+	<div class="row p-4 align-items-center justify-content-around rounded-3 border shadow-lg" id="feedbackStart">
 		<!-- Left Column: Restaurant Info -->
 		<div class="col-lg-6 p-3">
 			<h1 class="display-4 fw-bold lh-1 text-body-emphasis">Contact Us</h1>
@@ -104,32 +104,19 @@
 		<!-- Right Column: Contact Form -->
 		<div class="col-lg-5 p-3 p-lg-5 rounded-3 border shadow-lg">
 			<h2 class="fw-bold">Send Us a Message</h2>
-			<form>
-				<div class="mb-3">
-					<label for="name" class="form-label">Full Name</label>
-					<input type="text" class="form-control" id="name" placeholder="Your Name" required="">
-				</div>
-				<div class="mb-3">
-					<label for="email" class="form-label">Email Address</label>
-					<input type="email" class="form-control" id="email" placeholder="you@example.com" required="">
-				</div>
-				<div class="mb-3">
-					<label for="phone" class="form-label">Phone Number</label>
-					<input type="tel" class="form-control" id="phone" placeholder="(555) 123-4567">
-				</div>
-				<div class="mb-3">
-					<label for="subject" class="form-label">Subject</label>
-					<input type="text" class="form-control" id="subject" placeholder="Subject">
-				</div>
-				<div class="mb-3">
-					<label for="message" class="form-label">Message</label>
-					<textarea class="form-control" id="message" rows="5" placeholder="Your message here..." required="" style="height: 118px;"></textarea>
-				</div>
-				<button type="submit" class="btn btn-primary">Send Message</button>
-			</form>
+			<div id="feedbackForm"></div>
 		</div>
 	</div>
 	<!-- END: Contact -->
 </div>
 
+@section Scripts {
+	<script>
+		$(document).ready(function () {
+			$.get('@Url.Action("Create", "Feedback")', function (data) {
+				$("#feedbackForm").html(data);
+			});
+		});
+	</script>
+}
 

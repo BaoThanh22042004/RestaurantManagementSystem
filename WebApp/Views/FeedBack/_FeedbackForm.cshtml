@@ -1,0 +1,60 @@
+﻿@model FeedBackViewModel
+
+@if (TempData["Success"] != null)
+{
+	<div class="alert alert-success">
+		@TempData["Success"]
+	</div>
+}
+@if (TempData["Error"] != null)
+{
+	<div class="alert alert-danger">
+		@TempData["Error"]
+	</div>
+}
+
+<form id="form" asp-action="Create" asp-controller="Feedback">
+	<div class="mb-3">
+		<label asp-for="FullName" class="form-label"></label>
+		<input asp-for="FullName" class="form-control" placeholder="Your Name">
+		<span asp-validation-for="FullName" class="text-danger"></span>
+	</div>
+	<div class="mb-3">
+		<label asp-for="Email" class="form-label"></label>
+		<input asp-for="Email" class="form-control" placeholder="you@example.com">
+		<span asp-validation-for="Email" class="text-danger"></span>
+	</div>
+	<div class="mb-3">
+		<label asp-for="Phone" class="form-label"></label>
+		<input asp-for="Phone" class="form-control" placeholder="Your Phone">
+		<span asp-validation-for="Phone" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label asp-for="Subject" class="form-label"></label>
+		<input asp-for="Subject" class="form-control" placeholder="Subject">
+		<span asp-validation-for="Subject" class="text-danger"></span>
+	</div>
+
+	<div class="mb-3">
+		<label asp-for="Body" class="form-label"></label>
+		<textarea asp-for="Body" class="form-control" rows="5" placeholder="Message"></textarea>
+		<span asp-validation-for="Body" class="text-danger"></span>
+	</div>
+
+	<button type="submit" class="btn btn-primary">Send Message</button>
+</form>
+
+
+<script>
+	$('#form').on('submit', function (e) {
+		e.preventDefault();
+		var form = $(this);
+		$.post(form.attr("action"), form.serialize(), function (data) {
+			$("#feedbackForm").html(data);
+			document.getElementById('feedbackStart').scrollIntoView({
+				behavior: 'smooth'
+			});
+		});
+	});
+</script>
