@@ -6,10 +6,13 @@
 <h1 class="mb-4 text-center">Storage</h1>
 
 <div class="mb-4">
+    <button onclick="create()" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Add New Item
+    </button>
+    <a asp-controller="StorageLog" asp-action="Index" class="btn btn-info">Storage Log</a>
     <form class="d-flex justify-content-between align-items-center mb-3" method="get">
         <div>
-            <a asp-action="Create" class="btn btn-primary me-2">Add New Item</a>
-            <a asp-controller="StorageLog" asp-action="Index" class="btn btn-info">Storage Log</a>
+            
             @if (Model != null && Model.Any() && Model.First().HasSearched)
             {
                 <a asp-controller="Storage" asp-action="Index" class="btn btn-secondary ms-2">Back to List</a>
@@ -55,11 +58,15 @@
                                             <td>@Html.DisplayFor(modelItem => item.Unit)</td>
                                             <td>@Html.DisplayFor(modelItem => item.Quantity)</td>
                                             <td class="d-flex justify-content-end">
-                                                <div class="btn-group" role="group">
-                                                    <a asp-action="Details" asp-route-id="@item.ItemId" class="btn btn-sm btn-info">Details</a>
-                                                    <a asp-action="Edit" asp-route-id="@item.ItemId" class="btn btn-sm btn-primary">Edit</a>
-                                                    <a asp-action="Delete" asp-route-id="@item.ItemId" class="btn btn-sm btn-danger">Delete</a>
-                                                </div>
+                                                <button type="button" onclick="details(@item.ItemId)" class="btn btn-info btn-sm me-2">
+                                                    <i class="fas fa-info-circle"></i> Details
+                                                </button>
+                                                <button type="button" onclick="edit(@item.ItemId)" class="btn btn-primary btn-sm me-2">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                                <button type="button" onclick="deleteAction(@item.ItemId)" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash-alt"></i> Delete
+                                                </button>
                                             </td>
                                         </tr>
                                     }
@@ -72,3 +79,41 @@
         </div>
     }
 </div>
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="modalContent">
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        function create() {
+            var url = '@Url.Action("Create", "Storage")';
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function details(id) {
+            var url = '@Url.Action("Details", "Storage", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function edit(id) {
+            var url = '@Url.Action("Edit", "Storage", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function deleteAction(id) {
+            var url = '@Url.Action("Delete", "Storage", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+    </script>
+}

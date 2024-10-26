@@ -39,20 +39,20 @@ namespace WebApp.Controllers
 			return View("DishCategoryView", dishList);
 		}
 
-		[Route("Create")]
-		public IActionResult Create()
-		{
-			return View("CreateDishCategoryView");
-		}
+        [HttpGet("Create")]
+        public IActionResult Create()
+        {
+            return PartialView("_CreateDishCategoryModal");
+        }
 
-		[Route("Create")]
-		[HttpPost]
+        [HttpPost("Create")]
 		public async Task<IActionResult> Create(DishCategoryViewModel categoryViewModel)
 		{
+
 			if (!ModelState.IsValid)
 			{
-				return View("CreateDishCategoryView", categoryViewModel);
-			}
+                return PartialView("_CreateDishCategoryModal", categoryViewModel);
+            }
 
 			try
 			{
@@ -63,14 +63,19 @@ namespace WebApp.Controllers
 
 				await _dishCategoryRepository.InsertAsync(category);
 			}
-			catch (Exception)
+            catch (ArgumentException e)
+            {
+                TempData["Error"] = e.Message;
+                return PartialView("_CreateDishCategoryModal", categoryViewModel);
+            }
+            catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while creating the category. Please try again.";
-				return View("CreateDishCategoryView", categoryViewModel);
+                return PartialView("_CreateDishCategoryModal", categoryViewModel);
 			}
 
-			return RedirectToAction("Index");
-		}
+            return Json(new { success = true });
+        }
 
 		[Route("Details/{id}")]
 		public async Task<IActionResult> Details(int id)
@@ -81,7 +86,7 @@ namespace WebApp.Controllers
 				return NotFound();
 			}
 			var categoryViewModel = new DishCategoryViewModel(category);
-			return View("DetailsDishCategoryView", categoryViewModel);
+            return PartialView("_DetailsDishCategoryModal", categoryViewModel);
 		}
 
 		[Route("Edit/{id}")]
@@ -94,8 +99,8 @@ namespace WebApp.Controllers
 			}
 
 			var categoryViewModel = new DishCategoryViewModel(category);
-			return View("EditDishCategoryView", categoryViewModel);
-		}
+            return PartialView("_EditDishCategoryModal", categoryViewModel);
+        }
 
 		[HttpPost]
 		[Route("Edit/{id}")]
@@ -103,7 +108,7 @@ namespace WebApp.Controllers
 		{
 			if (!ModelState.IsValid)
 			{
-				return View("EditDishCategoryView", categoryViewModel);
+                return PartialView("_EditDishCategoryModal", categoryViewModel);
 			}
 
 			try
@@ -125,11 +130,11 @@ namespace WebApp.Controllers
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while updating the dish category. Please try again later.";
-				return View("EditDishCategoryView", categoryViewModel);
-			}
+                return PartialView("_EditDishCategoryModal", categoryViewModel);
+            }
 
-			return RedirectToAction("Index");
-		}
+            return Json(new { success = true });
+        }
 
 		[Route("Delete/{id}")]
 		public async Task<IActionResult> Delete(int id)
@@ -141,7 +146,7 @@ namespace WebApp.Controllers
 			}
 
 			var categoryViewModel = new DishCategoryViewModel(dishCategory);
-			return View("DeleteDishCategoryView", categoryViewModel);
+			return PartialView("_DeleteDishCategoryModal", categoryViewModel);
 		}
 
 		[HttpPost]
@@ -158,7 +163,7 @@ namespace WebApp.Controllers
 				return RedirectToAction("Delete", new { id = CategoryId });
 			}
 
-			return RedirectToAction("Index");
-		}
+            return Json(new { success = true });
+        }
 	}
 }

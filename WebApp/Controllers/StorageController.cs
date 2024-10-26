@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Identity.Client.Extensions.Msal;
 using Models.Entities;
-using Repositories;
 using Repositories.Interface;
-using System.Linq;
 using WebApp.Models;
 using Storage = Models.Entities.Storage;
 
 namespace WebApp.Controllers
 {
-    [Route("DashBoard/Storage")]
+	[Route("DashBoard/Storage")]
     [Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Chef)}, {nameof(Role.Accountant)}")]
     public class StorageController : Controller
     {
@@ -62,41 +59,18 @@ namespace WebApp.Controllers
             return View("StorageView", storageList);
         }
 
-
-
-        //[Route("Filter")]
-        //public async Task<IActionResult> Filter(List<int> selectedCategories)
-        //{
-        //    var storages = await _storageRepository.GetAllAsync();
-
-        //    var storageList = (selectedCategories == null || !selectedCategories.Any())
-        //        ? storages.Select(storage => new StorageViewModel(storage)).ToList()
-        //        : storages
-        //            .Where(d => selectedCategories.Contains(d.ItemId))
-        //            .Select(storage => new StorageViewModel(storage))
-        //            .ToList();
-
-        //    var allCategories = await GetCategoryList();
-
-        //    storageList.ForEach(storageViewModel => storageViewModel.CategoryOptions = allCategories);
-
-        //    return View("StorageView", storageList);
-        //}
-
-
-        [Route("Create")]
+        [HttpGet("Create")]
         public IActionResult Create()
         {
-            return View("CreateStorageView");
+            return PartialView("_CreateStorageModal");
         }
 
-        [Route("Create")]
-        [HttpPost]
+        [HttpPost("Create")]
         public async Task<IActionResult> Create(StorageViewModel storageViewModel)
         {
             if (!ModelState.IsValid)
             {
-                return View("CreateStorageView", storageViewModel);
+                return PartialView("_CreateStorageModal", storageViewModel);
             }
 
             try
@@ -113,10 +87,10 @@ namespace WebApp.Controllers
             catch (Exception)
             {
                 TempData["Error"] = "An error occurred while creating the storage item. Please try again.";
-                return View("CreateStorageView", storageViewModel);
+                return PartialView("_CreateStorageModal", storageViewModel);
             }
 
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
 
         [Route("Details/{id}")]
@@ -128,7 +102,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
             var storageViewModel = new StorageViewModel(storage);
-            return View("DetailsStorageView", storageViewModel);
+            return PartialView("_DetailsStorageModal", storageViewModel);
         }
 
         [Route("Edit/{id}")]
@@ -141,7 +115,7 @@ namespace WebApp.Controllers
             }
 
             var storageViewModel = new StorageViewModel(storage);
-            return View("EditStorageView", storageViewModel);
+            return PartialView("_EditStorageModal", storageViewModel);
         }
 
         [HttpPost]
@@ -150,7 +124,7 @@ namespace WebApp.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View("EditStorageView", storageViewModel);
+                return PartialView("_EditStorageModal", storageViewModel);
             }
 
             try
@@ -175,10 +149,10 @@ namespace WebApp.Controllers
             catch (Exception)
             {
                 TempData["Error"] = "An error occurred while updating the storage item. Please try again later.";
-                return View("EditStorageView", storageViewModel);
+                return PartialView("_EditStorageModal", storageViewModel);
             }
 
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
 
         [Route("Delete/{id}")]
@@ -191,8 +165,8 @@ namespace WebApp.Controllers
             }
 
             var storageViewModel = new StorageViewModel(storage);
-            return View("DeleteStorageView", storageViewModel);
-        }
+			return PartialView("_DeleteStorageModal", storageViewModel);
+		}
 
         [HttpPost]
         [Route("Delete/{ItemId}")]
@@ -208,7 +182,7 @@ namespace WebApp.Controllers
                 return RedirectToAction("Delete", new { id = ItemId });
             }
 
-            return RedirectToAction("Index");
-        }
+			return Json(new { success = true });
+		}
     }
 }

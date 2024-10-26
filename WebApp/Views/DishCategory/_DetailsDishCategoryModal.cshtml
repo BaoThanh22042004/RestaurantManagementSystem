@@ -1,0 +1,12 @@
+﻿@model DishCategoryViewModel
+<partial name="Partials/_ModalHeader" model='"Details Dish Category"' />
+
+<div class="modal-body" id="modalBody">
+    <dl>
+        <dt>@Html.DisplayNameFor(m => m.CategoryId)</dt>
+        <dd>@Model.CategoryId</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.CategoryName)</dt>
+        <dd>@Model.CategoryName</dd>
+    </dl>
+<partial name="Partials/_ModalFooter" model='""' />
