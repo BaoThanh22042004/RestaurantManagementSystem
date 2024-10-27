@@ -89,6 +89,30 @@ namespace WebApp.Controllers
 		}
 
 		[HttpPost]
+		public IActionResult RemoveItem(int dishId)
+		{
+			try
+			{
+				var cart = _cartManager.GetCartFromCookie(Request);
+				var cartItem = cart.ItemList.FirstOrDefault(d => d.Id == dishId);
+
+				if (cartItem != null)
+				{
+					cart.ItemList.Remove(cartItem);
+				}
+
+				_cartManager.SaveCartToCookie(cart, Response); 
+			}
+			catch (Exception)
+			{
+				TempData["Error"] = "An error occurred while removing the dish from the cart. Please try again later.";
+				return Json(new { success = false });
+			}
+
+			return Json(new { success = true });
+		}
+
+		[HttpPost]
 		public IActionResult ClearCart()
 		{
 			try

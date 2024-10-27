@@ -29,6 +29,10 @@
 									onclick="updateQuantity(@item.Id, true)">
 								+
 							</button>
+							 <button class="btn btn-outline-danger btn-sm ms-2" 
+                                    onclick="removeItem(@item.Id)">
+                                Remove
+                            </button>
 						</div>
 					</div>
 					<div>
@@ -80,6 +84,24 @@
 					console.error('Upload failed:', textStatus, errorThrown);
 				}
 			});
+		}
+
+		function removeItem(id) {
+            $.ajax({
+                url: '@Url.Action("RemoveItem", "Cart")',
+                type: 'POST',
+                data: { dishId: id },
+                success: function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        // Handle unsuccess
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) { // Log any errors
+                    console.error('Upload failed:', textStatus, errorThrown);
+                }
+            });
 		}
 	</script>
 }
