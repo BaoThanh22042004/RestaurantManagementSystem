@@ -22,86 +22,87 @@ namespace WebApp.Controllers
 			return View("CartView", cart);
 		}
 
-		public async Task<IActionResult> AddToCart(int dishId, string returnUrl)
+		[HttpPost]
+		public async Task<IActionResult> AddToCart(int dishId)
 		{
 			try
 			{
 				var dishes = await _dishRepository.GetAllAsync();
-				var dish = dishes.Where(d => d.DishId.Equals(dishId)).FirstOrDefault();
-				if (dish != null)
+				var dish = dishes.FirstOrDefault(d => d.DishId.Equals(dishId)) ?? throw new Exception();
+
+				var cart = _cartManager.GetCartFromCookie(Request);
+				var cartItem = cart.ItemList.FirstOrDefault(d => d.Id == dish.DishId);
+
+				if (cartItem != null)
 				{
-					var cart = _cartManager.GetCartFromCookie(Request);
-					bool isItemExist = cart.ItemList.Where(d => d.Id.Equals(dish.DishId)).Any();
-					if (isItemExist)
-					{
-						cart.ItemList.Where(d => d.Id.Equals(dish.DishId)).First().Quantity++;
-					}
-					else
-					{
-						CartItemViewModel cartItemViewModel = new CartItemViewModel(dish);
-						cart.ItemList.Add(cartItemViewModel);
-					}
-					_cartManager.SaveCartToCookie(cart, Response);
+					cartItem.Quantity++;
 				}
+				else
+				{
+					CartItemViewModel cartItemViewModel = new CartItemViewModel(dish);
+					cart.ItemList.Add(cartItemViewModel);
+				}
+
+				_cartManager.SaveCartToCookie(cart, Response);
 			}
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while adding dish to cart. Please try again later.";
-				return View("DishView");
+				return Json(new { success = false });
 			}
 
-			if (!string.IsNullOrEmpty(returnUrl))
-			{
-				return Redirect(returnUrl);
-			}
-			return RedirectToAction("Index", "Home");
+			return Json(new { success = true });
 		}
 
-		public async Task<IActionResult> UpdateQuantity(int dishId, string returnUrl, bool isIncrease)
+		public IActionResult UpdateQuantity(int dishId, bool isIncrease)
 		{
 			try
 			{
-				var dish = await _dishRepository.GetByIDAsync(dishId);
-				if (dish != null)
+				var cart = _cartManager.GetCartFromCookie(Request);
+				var cartItem = cart.ItemList.FirstOrDefault(d => d.Id == dishId);
+
+				if (cartItem != null)
 				{
-					var cart = _cartManager.GetCartFromCookie(Request);
-					var cartItem = cart.ItemList.FirstOrDefault(d => d.Id == dish.DishId);
-					if (cartItem != null)
+					if (isIncrease)
 					{
-						if (isIncrease)
-						{
-							cartItem.Quantity++;
-						}
-						else if (cartItem.Quantity > 1 && !isIncrease)
-						{
-							cartItem.Quantity--;
-						}
-						else if (cartItem.Quantity == 1 && !isIncrease)
-						{
-							cart.ItemList.Remove(cartItem);
-						}
-						_cartManager.SaveCartToCookie(cart, Response);
+						cartItem.Quantity++;
+					}
+					else if (cartItem.Quantity > 1)
+					{
+						cartItem.Quantity--;
+					}
+					else
+					{
+						cart.ItemList.Remove(cartItem);
 					}
 				}
+
+				_cartManager.SaveCartToCookie(cart, Response);
 			}
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while updating dish quantity. Please try again later.";
-				return View("CartView");
+				return Json(new { success = false });
 			}
-			if (!string.IsNullOrEmpty(returnUrl))
-			{
-				return Redirect(returnUrl);
-			}
-			return RedirectToAction("Index", "Home");
+
+			return Json(new { success = true });
 		}
 
+		[HttpPost]
 		public IActionResult ClearCart()
 		{
-			var cart = new CartViewModel();
-			_cartManager.SaveCartToCookie(cart, Response);
-			return RedirectToAction("Index", "Cart");
-		}
+			try
+			{
+				var cart = new CartViewModel();
+				_cartManager.SaveCartToCookie(cart, Response);
+			}
+			catch (Exception)
+			{
+				TempData["Error"] = "An error occurred while clearing cart. Please try again later.";
+				return Json(new { success = false });
+			}
 
+			return Json(new { success = true });
+		}
 	}
 }

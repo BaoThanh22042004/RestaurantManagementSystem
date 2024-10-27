@@ -31,11 +31,14 @@ namespace WebApp.Utilities
 		public string GetCartItemNumber(HttpRequest request)
 		{
 			var cart = GetCartFromCookie(request);
-			if (cart == null)
+			if (cart == null) return "0";
+
+			int count = 0;
+			foreach (var item in cart.ItemList)
 			{
-				return "0";
+				count += item.Quantity;
 			}
-			return cart.ItemList.Count > 99 ? "99+" : cart.ItemList.Count.ToString();
+			return count > 99 ? "99+" : count.ToString();
 		}
 	}
 }
