@@ -6,6 +6,7 @@ using WebApp.Utilities;
 
 namespace WebApp.Controllers
 {
+	[Route("/")]
 	public class HomeController : Controller
 	{
 		private readonly IDishRepository _dishRepository;
@@ -39,6 +40,7 @@ namespace WebApp.Controllers
 			return dishes.Select(d => new DishViewModel(d)).ToList();
 		}
 
+		[HttpGet("Menu")]
 		public async Task<IActionResult> Menu(MenuViewModel menuViewModel)
 		{
 			menuViewModel.Dishes ??= await GetDishList();
@@ -57,13 +59,14 @@ namespace WebApp.Controllers
 
 			if (menuViewModel.SelectedCategories.Count != 0)
 			{
-				menuViewModel.SelectedCategories.ForEach(selected => menuViewModel.Categories.Find(c => c.CategoryId.Equals(selected)).IsSelected =true);
+				menuViewModel.SelectedCategories.ForEach(selected => menuViewModel.Categories.Find(c => c.CategoryId.Equals(selected)).IsSelected = true);
 				menuViewModel.Dishes = menuViewModel.Dishes.Where(d => menuViewModel.SelectedCategories.Contains(d.CategoryId)).ToList();
 			}
 
 			return View("MenuView", menuViewModel);
 		}
 
+		[HttpGet("Menu/Details/{id}")]
 		public async Task<IActionResult> Details(int id)
 		{
 			var dish = await _dishRepository.GetByIDAsync(id);
@@ -82,8 +85,7 @@ namespace WebApp.Controllers
 				}
 			};
 
-
-			return PartialView("_DetailsDishModal", dishViewModel); 
+			return View("DetailsDishView", dishViewModel);
 		}
 	}
 }

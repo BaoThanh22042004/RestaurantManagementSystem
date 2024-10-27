@@ -55,7 +55,7 @@ namespace WebApp.Controllers
 			{
 				return NotFound();
 			}
-			var carousel = _informationManager.Information.Carousels[index];
+			var carousel = carousels[index];
 
 			return PartialView("_CarouselModal", carousel);
 		}
@@ -63,7 +63,8 @@ namespace WebApp.Controllers
 		[HttpPost("Carousel/{index}")]
 		public async Task<IActionResult> Carousel(int index, ContentItem carouselItem, IFormFile? file)
 		{
-			ModelState.MarkFieldSkipped(nameof(carouselItem.SecondaryHeading));
+			ModelState.ClearValidationState(nameof(carouselItem.SecondaryHeading));
+			ModelState.MarkFieldValid(nameof(carouselItem.SecondaryHeading));
 			if (!ModelState.IsValid)
 			{
 				return PartialView("_CarouselModal", carouselItem);
@@ -77,7 +78,7 @@ namespace WebApp.Controllers
 
 			if (file != null && file.Length > 0)
 			{
-				// Check if file is not image
+				// Check if file is not an image
 				if (!file.ContentType.Contains("image"))
 				{
 					ModelState.AddModelError(nameof(file), "File must be an image.");
@@ -103,7 +104,7 @@ namespace WebApp.Controllers
 			{
 				return NotFound();
 			}
-			var highlight = _informationManager.Information.Highlights[index];
+			var highlight = highlights[index];
 
 			return PartialView("_HighlightModal", highlight);
 		}
@@ -111,6 +112,8 @@ namespace WebApp.Controllers
 		[HttpPost("Highlight/{index}")]
 		public async Task<IActionResult> Highlight(int index, ContentItem highlightItem, IFormFile? file)
 		{
+			ModelState.ClearValidationState(nameof(highlightItem.SecondaryHeading));
+			ModelState.MarkFieldValid(nameof(highlightItem.SecondaryHeading));
 			if (!ModelState.IsValid)
 			{
 				return PartialView("_HighlightModal", highlightItem);
@@ -124,7 +127,7 @@ namespace WebApp.Controllers
 
 			if (file != null && file.Length > 0)
 			{
-				// Check if file is not image
+				// Check if file is not an image
 				if (!file.ContentType.Contains("image"))
 				{
 					ModelState.AddModelError(nameof(file), "File must be an image.");
@@ -150,7 +153,7 @@ namespace WebApp.Controllers
 			{
 				return NotFound();
 			}
-			var feature = _informationManager.Information.Features[index];
+			var feature = features[index];
 			return PartialView("_FeatureModal", feature);
 		}
 

@@ -21,20 +21,14 @@
 						<h5>@item.DishName</h5>
 						<div class="d-flex align-items-center">
 							<span class="me-3">Quantity: @item.Quantity</span>
-							<a class="btn btn-outline-secondary btn-sm me-2"
-							   asp-action="UpdateQuantity"
-							   asp-route-dishId="@item.Id"
-							   asp-route-isIncrease="false"
-							   asp-route-returnUrl="@ViewContext.HttpContext.Request.Path">
+							<button class="btn btn-outline-secondary btn-sm me-2"
+									onclick="updateQuantity(@item.Id, false)">
 								-
-							</a>
-							<a class="btn btn-outline-secondary btn-sm"
-							   asp-action="UpdateQuantity"
-							   asp-route-dishId="@item.Id"
-							   asp-route-isIncrease="true"
-							   asp-route-returnUrl="@ViewContext.HttpContext.Request.Path">
+							</button>
+							<button class="btn btn-outline-secondary btn-sm"
+									onclick="updateQuantity(@item.Id, true)">
 								+
-							</a>
+							</button>
 						</div>
 					</div>
 					<div>
@@ -45,8 +39,47 @@
 		</div>
 
 		<div class="mt-4 d-flex justify-content-between">
-			<a class="btn btn-danger" asp-action="ClearCart">Clear Cart</a>
+			<button class="btn btn-danger" onclick="clearCart()">Clear Cart</button>
 			<span class="fw-bold fs-5">Total: @Model.ItemList.Sum(item => item.Quantity * item.Price).ToString("C")</span>
 		</div>
 	}
 </div>
+
+@section Scripts {
+	<script>
+		function updateQuantity(id, increase) {
+			$.ajax({
+				url: '@Url.Action("UpdateQuantity", "Cart")',
+				type: 'POST',
+				data: { dishId: id, isIncrease: increase },
+				success: function (response) {
+					if (response.success) {
+						location.reload();
+					} else {
+						// Handle unsuccess
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) { // Log any errors
+					console.error('Upload failed:', textStatus, errorThrown);
+				}
+			});
+		}
+
+		function clearCart() {
+			$.ajax({
+				url: '@Url.Action("ClearCart", "Cart")',
+				type: 'POST',
+				success: function (response) {
+					if (response.success) {
+						location.reload();
+					} else {
+						// Handle unsuccess
+					}
+				},
+				error: function (jqXHR, textStatus, errorThrown) { // Log any errors
+					console.error('Upload failed:', textStatus, errorThrown);
+				}
+			});
+		}
+	</script>
+}

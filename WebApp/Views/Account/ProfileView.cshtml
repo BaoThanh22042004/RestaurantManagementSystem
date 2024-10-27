@@ -7,66 +7,68 @@
 	}
 }
 
-<h1 class="mb-4">Profile</h1>
-<div class="mb-3 text-success">@TempData["Success"]</div>
-<div class="mb-3 text-danger">@TempData["Error"]</div>
+<div class="container mt-3">
+	<h1 class="mb-4">Profile</h1>
+	<partial name="Partials/_AlertSuccess" model="@TempData["Success"]" />
+	<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 
-<form asp-action="Profile" method="post">
-	<div asp-validation-summary="All" id="ValidationSummary" class="text-danger mb-3"></div>
-	<div class="form-floating mb-3">
-		<input asp-for="Username" class="form-control" id="Username" />
-		<label asp-for="Username"></label>
-	</div>
-	<div class="form-floating mb-3">
-		<input asp-for="OldPassword" class="form-control" id="OldPassword" />
-		<label asp-for="OldPassword"></label>
-	</div>
-	<div class="form-floating mb-3">
-		<input asp-for="NewPassword" class="form-control" id="NewPassword" />
-		<label asp-for="NewPassword"></label>
-	</div>
-	<div class="form-floating mb-3">
-		<input asp-for="FullName" class="form-control" id="FullName" />
-		<label asp-for="FullName"></label>
-	</div>
-	<div class="form-floating mb-3">
-		<input asp-for="Email" class="form-control" id="Email" />
-		<label asp-for="Email"></label>
-	</div>
-	<div class="form-floating mb-3">
-		<input asp-for="Phone" class="form-control" id="Phone" />
-		<label asp-for="Phone"></label>
-	</div>
-
-	<div class="form-floating mb-3">
-		<input asp-for="Role" class="form-control" id="Role" />
-		<label asp-for="Role"></label>
-	</div>
-
-	@if (!User.IsInRole(nameof(Models.Entities.Role.Customer)))
-	{
+	<form asp-action="Profile" method="post">
+		<div asp-validation-summary="All" id="ValidationSummary" class="text-danger mb-3"></div>
 		<div class="form-floating mb-3">
-			<input asp-for="Salary" class="form-control" id="Salary" />
-			<label asp-for="Salary"></label>
+			<input asp-for="Username" class="form-control" id="Username" />
+			<label asp-for="Username"></label>
 		</div>
-	}
+		<div class="form-floating mb-3">
+			<input asp-for="OldPassword" class="form-control" id="OldPassword" />
+			<label asp-for="OldPassword"></label>
+		</div>
+		<div class="form-floating mb-3">
+			<input asp-for="NewPassword" class="form-control" id="NewPassword" />
+			<label asp-for="NewPassword"></label>
+		</div>
+		<div class="form-floating mb-3">
+			<input asp-for="FullName" class="form-control" id="FullName" />
+			<label asp-for="FullName"></label>
+		</div>
+		<div class="form-floating mb-3">
+			<input asp-for="Email" class="form-control" id="Email" />
+			<label asp-for="Email"></label>
+		</div>
+		<div class="form-floating mb-3">
+			<input asp-for="Phone" class="form-control" id="Phone" />
+			<label asp-for="Phone"></label>
+		</div>
 
-	<div class="d-flex gap-3">
-		<button id="EditButton" onclick="edit()" type="button" class="btn btn-primary">Edit</button>
-		<a asp-action="RedirectBasedOnRole" id="BackButton" class="btn btn-secondary">Back</a>
-		
-		<button type="submit" id="SaveButton" class="btn btn-primary d-none">Save</button>
-		<a asp-action="Profile" id="BackToProfile" class="btn btn-secondary d-none">Back</a>
-	</div>
-</form>
+		<div class="form-floating mb-3">
+			<input asp-for="Role" class="form-control" id="Role" />
+			<label asp-for="Role"></label>
+		</div>
+
+		@if (!User.IsInRole(nameof(Models.Entities.Role.Customer)))
+		{
+			<div class="form-floating mb-3">
+				<input asp-for="Salary" class="form-control" id="Salary" />
+				<label asp-for="Salary"></label>
+			</div>
+		}
+
+		<div class="d-flex gap-3">
+			<button id="EditButton" onclick="edit()" type="button" class="btn btn-primary">Edit</button>
+			<a asp-action="RedirectBasedOnRole" id="BackButton" class="btn btn-secondary">Back</a>
+
+			<button type="submit" id="SaveButton" class="btn btn-primary d-none">Save</button>
+			<a asp-action="Profile" id="BackToProfile" class="btn btn-secondary d-none">Back</a>
+		</div>
+	</form>
+</div>
 
 @section Scripts {
 	<script>
 		for (let input of document.getElementsByTagName("input")) {
 			input.setAttribute("readonly", true);
 		}
-		document.getElementById("OldPassword").classList.add("d-none");
-		document.getElementById("NewPassword").classList.add("d-none");
+		document.getElementById("OldPassword").closest("div").classList.add("d-none");
+		document.getElementById("NewPassword").closest("div").classList.add("d-none");
 
 		function edit() {
 			for (let input of document.getElementsByTagName("input")) {
@@ -80,9 +82,10 @@
 
 			document.getElementById("Username").setAttribute("readonly", true);
 			document.getElementById("Role").setAttribute("readonly", true);
+
 			document.getElementById("Salary").setAttribute("readonly", true);
-			document.getElementById("OldPassword").classList.remove("d-none");
-			document.getElementById("NewPassword").classList.remove("d-none");
+			document.getElementById("OldPassword").closest("div").classList.remove("d-none");
+			document.getElementById("NewPassword").closest("div").classList.remove("d-none");
 		}
 
 		if (document.getElementById("ValidationSummary").innerText != '') {

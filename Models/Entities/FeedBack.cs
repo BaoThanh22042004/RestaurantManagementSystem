@@ -1,38 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Models.Entities
 {
-    public enum FeedBackStatus
-    {
-        Pending,
-        Reviewed,
-        Resolved,
-        Dismissed,
-    }
-    public class FeedBack
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long FeedbackId { get; set; }
-        public int? CustomerId { get; set; }
+	public enum FeedBackStatus
+	{
+		Pending,
+		Reviewed,
+		Resolved,
+		Dismissed,
+	}
+	public class FeedBack
+	{
+		[Key]
+		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+		public long FeedbackId { get; set; }
 
-        [StringLength(255)]
-        public string Email { get; set; }
-        [StringLength(15)]
-        public string Phone { get; set; }
-        public string? Subject { get; set; }
+		[StringLength(255)]
+		public required string FullName { get; set; }
 
-        public string? Body { get; set; }
-        public DateTime? CreateAt { get; set; }
-        public required FeedBackStatus Status { get; set; }
+		[StringLength(255)]
+		public required string Email { get; set; }
+		[StringLength(15)]
+		public required string Phone { get; set; }
 
-        public User? Customer { get; set; } 
-    }
+		[StringLength(255)]
+		public required string Subject { get; set; }
+
+		[DataType(DataType.MultilineText)]
+		public required string Body { get; set; }
+
+		public required DateTime CreateAt { get; set; }
+
+		public required FeedBackStatus Status { get; set; }
+
+		[DataType(DataType.MultilineText)]
+		public string? Note { get; set; }
+	}
 }
 
