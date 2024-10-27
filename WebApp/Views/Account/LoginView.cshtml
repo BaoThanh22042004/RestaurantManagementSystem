@@ -9,8 +9,8 @@
 		<partial name="Partials/_LogoPartial" model='new string("64px")'/>
 	</div>
 	<h1 class="text-center mb-4">Login</h1>
-	<div class="text-success mb-3">@TempData["Success"]</div>
-	<div class="text-danger mb-3">@TempData["Error"]</div>
+	<partial name="Partials/_AlertSuccess" model="@TempData["Success"]" />
+	<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 	<div class="form-floating mb-3">
 		<input asp-for="Username" class="form-control" />
 		<label asp-for="Username"></label>

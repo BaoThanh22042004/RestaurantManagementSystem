@@ -17,10 +17,9 @@
 			<div class="carousel-item @(i == 0 ? "active" : "")">
 				<img src="@Model.Carousels[i].ImagePath"
 					 onerror="this.src='https://placehold.co/1024x512'"
-					 height="512"
 					 class="d-block w-100 object-fit-cover">
 
-				<div class="carousel-caption">
+				<div class="carousel-caption rounded-4 p-2">
 					<h5>@Model.Carousels[i].Heading</h5>
 					<p>@Model.Carousels[i].Description</p>
 				</div>
@@ -120,3 +119,15 @@
 	</script>
 }
 
+@section Styles {
+	<style>
+		.carousel-item img {
+			height: 65vh;
+			min-height: 300px;
+		}
+
+		.carousel-caption {
+			background-color: rgba(0,0,0,0.5);
+		}
+	</style>
+}
