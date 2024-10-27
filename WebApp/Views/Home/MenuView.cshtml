@@ -70,6 +70,9 @@
                                     <p class="card-text">@item.Description</p>
                                     <p class="card-text text-muted">@item.Price.ToString("C")</p>
                                 </div>
+                                <div class="card-footer bg-white border-top-0">
+                                <button class="btn btn-outline-primary w-100" onclick="addToCart(@item.DishId)">Add to Cart</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -95,6 +98,13 @@
                 $('#dishModal').modal('show');
             });
         }
+
+        function addToCart(id) {
+            var url = '@Url.Action("AddToCart", "Cart", new { dishId = "__dishId__", returnUrl = ViewContext.HttpContext.Request.Path })'.replace("__dishId__", id);
+            $.post(url, function (response) {
+            }).fail(function() {
+            });
+}
 
         document.getElementById('resetButton').addEventListener('click', function () {
             document.getElementById('keyword').value = '';
