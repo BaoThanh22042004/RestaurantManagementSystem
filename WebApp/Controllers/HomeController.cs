@@ -83,7 +83,7 @@ namespace WebApp.Controllers
 			};
 
 
-			return View("DetailsDishView", dishViewModel);
+			return PartialView("_DetailsDishModal", dishViewModel); 
 		}
 	}
 }

@@ -1,106 +1,107 @@
 ﻿@model MenuViewModel
 @{
-	ViewData["Title"] = "Dishes";
-	Layout = "_HomeLayout";
+    ViewData["Title"] = "Dishes";
+    Layout = "_HomeLayout";
 }
 
 <div class="container mt-5">
-	<h1 class="mb-4 text-center">Explore Our Menu</h1>
+    <h1 class="mb-4 text-center">Explore Our Menu</h1>
+    <div class="mb-3 text-success">@TempData["Success"]</div>
+    <div class="mb-3 text-danger">@TempData["Error"]</div>
 
-	<div class="text-end mb-4">
-		<a class="btn btn-outline-secondary" data-bs-toggle="collapse" href="#filterForm" role="button" aria-expanded="false" aria-controls="filterForm">
-			<i class="bi bi-filter-circle"></i> Filters
-		</a>
-	</div>
+    <div class="text-end mb-4">
+        <a class="btn btn-outline-secondary" data-bs-toggle="collapse" href="#filterForm" role="button" aria-expanded="false" aria-controls="filterForm">
+            <i class="bi bi-filter-circle"></i> Filters
+        </a>
+    </div>
 
-	<div class="collapse my-4" id="filterForm">
-		<form class="p-4 border rounded-4" method="get">
-			<div class="mb-3">
-				<label asp-for="Keyword" class="fw-bold mb-3">Keyword Search</label>
-				<input class="form-control" asp-for="Keyword" id="keyword" type="search" placeholder="Search by name">
-			</div>
+    <div class="collapse my-4" id="filterForm">
+        <form class="p-4 border rounded-4" method="get">
+            <div class="mb-3">
+                <label asp-for="Keyword" class="fw-bold mb-3">Keyword Search</label>
+                <input class="form-control" asp-for="Keyword" id="keyword" type="search" placeholder="Search by name">
+            </div>
 
-			<div class="mb-3">
-				<label class="form-label">Category</label><br />
-				<div class="form-check form-check-inline">
-					@foreach (var category in Model.Categories)
-					{
-						<div class="form-check form-check-inline">
-							<input class="form-check-input" type="checkbox" id="@category.CategoryName" name="SelectedCategories" value="@category.CategoryId" @(category.IsSelected ? "checked" : "")>
-							<label class="form-check-label" for="@category.CategoryName">@category.CategoryName</label>
-						</div>
-					}
-				</div>
-			</div>
+            <div class="mb-3">
+                <label class="form-label">Category</label><br />
+                <div class="form-check form-check-inline">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="@category.CategoryName" name="SelectedCategories" value="@category.CategoryId" @(category.IsSelected ? "checked" : "")>
+                            <label class="form-check-label" for="@category.CategoryName">@category.CategoryName</label>
+                        </div>
+                    }
+                </div>
+            </div>
 
-			<div class="d-flex justify-content-between mt-3">
-				<button type="button" class="btn btn-outline-secondary" id="resetButton">Reset</button>
-				<button type="submit" class="btn btn-primary">Apply</button>
-			</div>
-		</form>
-	</div>
+            <div class="d-flex justify-content-between mt-3">
+                <button type="button" class="btn btn-outline-secondary" id="resetButton">Reset</button>
+                <button type="submit" class="btn btn-primary">Apply</button>
+            </div>
+        </form>
+    </div>
 
-	@if (!Model.Dishes.Any())
-	{
-		<div class="text-center mt-5">
-			<h2>No dishes found.</h2>
-			<p class="text-muted">Try adjusting your filters or search.</p>
-		</div>
-	}
-	else
-	{
-		<div class="row">
-			@foreach (var category in Model.Dishes.GroupBy(dish => dish.CategoryName))
-			{
-				<div class="col-12 mt-4 mb-2">
-					<h3 class="text-secondary">@category.Key</h3>
-					<hr class="mb-3">
-				</div>
+    @if (!Model.Dishes.Any())
+    {
+        <div class="text-center mt-5">
+            <h2>No dishes found.</h2>
+            <p class="text-muted">Try adjusting your filters or search.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var category in Model.Dishes.GroupBy(dish => dish.CategoryName))
+            {
+                <div class="col-12 mt-4 mb-2">
+                    <h3 class="text-secondary">@category.Key</h3>
+                    <hr class="mb-3">
+                </div>
 
-				@foreach (var item in category)
-				{
-					<div class="col-lg-4 col-md-6 mb-4">
-						<div class="card border-0 rounded-4 shadow-sm h-100 text-center">
-							<a asp-action="Details" asp-route-id="@item.DishId" class="text-decoration-none">
-								<img src="@item.ImagePath" height="360" class="card-img-top rounded-top object-fit-cover w-100" alt="Image of @item.DishName" onerror="this.src='https://placehold.co/360x360'">
-								<div class="card-body">
-									<h5 class="card-title">@item.DishName</h5>
-									<p class="card-text">@item.Description</p>
-									<p class="card-text text-muted">@item.Price.ToString("C")</p>
-								</div>
-							</a>
-							<div class="card-footer bg-white border-top-0">
-								<a asp-controller="Cart" asp-action="AddToCart" asp-route-dishId="@item.DishId" asp-route-returnUrl="@ViewContext.HttpContext.Request.Path" class="btn btn-outline-primary w-100">Add to Cart</a>
-							</div>
-						</div>
-					</div>
-				}
-			}
-		</div>
-	}
+                @foreach (var item in category)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card border-0 rounded-4 shadow-sm h-100 text-center">
+                            <div onclick="detailsDish(@item.DishId)" class="text-decoration-none cursor-pointer">
+                                <img src="@item.ImagePath" height="360" class="card-img-top rounded-top object-fit-cover w-100" alt="Image of @item.DishName" onerror="this.src='https://placehold.co/360x360'">
+                                <div class="card-body">
+                                    <h5 class="card-title">@item.DishName</h5>
+                                    <p class="card-text">@item.Description</p>
+                                    <p class="card-text text-muted">@item.Price.ToString("C")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
 </div>
 
-@section Styles {
-	<style>
-		.card {
-			transition: transform 0.2s;
-		}
-		.card:hover {
-			transform: scale(1.03);
-		}
-	</style>
-}
+<div class="modal fade" id="dishModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="dishModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="modalContent">
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-	<script>
-		document.getElementById('resetButton').addEventListener('click', function () {
-			document.getElementById('keyword').value = '';
+    <script>
+        function detailsDish(id) {
+            var url = '@Url.Action("Details", "Home", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#dishModal').modal('show');
+            });
+        }
 
-			const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
-
-			checkboxes.forEach((checkbox) => {
-				checkbox.checked = false;
-			});
-		});
-	</script>
+        document.getElementById('resetButton').addEventListener('click', function () {
+            document.getElementById('keyword').value = '';
+            const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
+            checkboxes.forEach((checkbox) => {
+                checkbox.checked = false;
+            });
+        });
+    </script>
 }
