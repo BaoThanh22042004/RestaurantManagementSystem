@@ -1,0 +1,53 @@
+﻿@model ReservationViewModel
+
+<form method="post" asp-action="Delete" id="form">
+	<partial name="Partials/_ModalHeader" model='"Delete Dish Category"' />
+
+	<div class="modal-body" id="modalBody">
+
+		@if (@TempData["Error"] != null)
+		{
+			<div class="alert alert-danger" role="alert">
+				@TempData["Error"]
+			</div>
+		}
+		<input asp-for="ResId" type="hidden" />
+
+		<h3 class="mb-3">Are you sure you want to delete this account?</h3>
+
+        <dl>
+            <dt>@Html.DisplayNameFor(m => m.ResId)</dt>
+            <dd>@Model.ResId</dd>
+
+            <dt>@Html.DisplayName("Customer Full Name")</dt>
+            <dd>@Model.Customer?.FullName</dd>
+
+            <dt>@Html.DisplayName("Customer Phone")</dt>
+            <dd>@Model.Customer?.Phone</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.PartySize)</dt>
+            <dd>@Model.PartySize</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.ResDate)</dt>
+            <dd>@Model.ResDate.ToString("MM/dd/yyyy")</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.DepositAmount)</dt>
+            <dd>@Model.DepositAmount</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.ResTime)</dt>
+            <dd>@Model.ResTime.ToString("hh:mm tt")</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.Status)</dt>
+            <dd>@Model.Status</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.Notes)</dt>
+            <dd>@Model.Notes</dd>
+        </dl>
+	</div>
+
+	@{
+		string deleteButton = "<button type='submit' class='btn btn-danger'>Delete</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model='@deleteButton' />
+</form>

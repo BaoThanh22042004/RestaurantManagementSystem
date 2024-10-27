@@ -26,14 +26,14 @@ namespace WebApp.Controllers
             return View("ReservationView", reservationList);
         }
 
-        [Route("Create")]
+        [HttpGet("Create")]
         public async Task<IActionResult> Create()
         {
             var reservationViewModel = new ReservationViewModel()
             {
                 Customers = await GetCustomerList(),
             };
-            return View("CreateReservationView", reservationViewModel);
+            return PartialView("_CreateReservationModal", reservationViewModel);
         }
 
         private async Task<IEnumerable<User>> GetCustomerList()
@@ -41,14 +41,13 @@ namespace WebApp.Controllers
             return (await _userRepository.GetAllAsync()).Where(c => c.Role == Role.Customer);
         }
 
-        [Route("Create")]
-        [HttpPost]
+        [HttpPost("Create")]
         public async Task<IActionResult> Create(ReservationViewModel reservationViewModel)
         {
             if (!ModelState.IsValid)
             {
                 reservationViewModel.Customers = await GetCustomerList();
-                return View("CreateReservationView", reservationViewModel);
+                return PartialView("_CreateReservationModal", reservationViewModel);
             }
 
             try
@@ -69,9 +68,9 @@ namespace WebApp.Controllers
             catch (ArgumentException e)
             {
                 TempData["Error"] = e.Message;
-                return View("CreateReservationView", reservationViewModel);
+                return PartialView("_CreateReservationModal", reservationViewModel);
             }
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
 
         [Route("Details/{id}")]
@@ -87,7 +86,7 @@ namespace WebApp.Controllers
             {
                 Customers = await GetCustomerList()
             };
-            return View("DetailsReservationView", reservationViewModel);
+            return PartialView("_DetailsReservationModal", reservationViewModel);
         }
 
         [Route("Edit/{id}")]
@@ -103,7 +102,7 @@ namespace WebApp.Controllers
             {
                 Customers = await GetCustomerList()
             };
-            return View("EditReservationView", reservationViewModel);
+            return PartialView("_EditReservationModal", reservationViewModel);
         }
 
         [HttpPost]
@@ -113,7 +112,7 @@ namespace WebApp.Controllers
             if (!ModelState.IsValid)
             {
                 reservationViewModel.Customers = await GetCustomerList();
-                return View("EditReservationView", reservationViewModel);
+                return PartialView("_EditReservationModal", reservationViewModel);
             }
 
             try
@@ -138,7 +137,7 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
 
         [Route("Reservation/Delete/{id}")]
@@ -151,7 +150,7 @@ namespace WebApp.Controllers
             }
 
             var reservationViewModel = new ReservationViewModel(reservation) { Customers = await GetCustomerList() };
-            return View("DeleteReservationView", reservationViewModel);
+            return PartialView("_DeleteReservationModal", reservationViewModel);
         }
 
         [HttpPost]
@@ -168,7 +167,7 @@ namespace WebApp.Controllers
                 return RedirectToAction("Delete", new { id = ResId });
             }
 
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
     }
 }
