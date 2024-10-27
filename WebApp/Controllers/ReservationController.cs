@@ -59,12 +59,12 @@ namespace WebApp.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(ReservationViewModel reservationViewModel)
+        public async Task<IActionResult> Create(MakeReservationViewModel makeReservation)
         {
             if (!ModelState.IsValid)
             {
-                reservationViewModel.Customers = await GetCustomerList();
-                return PartialView("_CreateReservationModal", reservationViewModel);
+				makeReservation.Cart = _cartManager.GetCartFromCookie(Request);
+				return View("MakeReservationView", makeReservation);
             }
 
             try
@@ -85,11 +85,16 @@ namespace WebApp.Controllers
             }
             catch (Exception e)
             {
-                TempData["Error"] = e.Message;
-                return PartialView("_CreateReservationModal", reservationViewModel);
-            }
-            return Json(new { success = true });
-        }
+                TempData["Error"] = "An error occurred while creating the reservation. Please try again later.";
+				makeReservation.Cart = _cartManager.GetCartFromCookie(Request);
+				return View("MakeReservationView", makeReservation);
+			}
+
+			// Clear the cart
+			_cartManager.SaveCartToCookie(new CartViewModel(), Response);
+
+			return RedirectToAction("Index");
+		}
 
         [Route("Details/{id}")]
         public async Task<IActionResult> Details(long id)
