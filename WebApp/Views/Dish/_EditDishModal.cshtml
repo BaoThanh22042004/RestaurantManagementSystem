@@ -58,7 +58,7 @@
         @if (!string.IsNullOrEmpty(Model.ImagePath))
         {
             <div class="mb-3">
-                <img src="@Model.ImagePath" alt="@Model.DishName" class="img-thumbnail" style="max-width: 200px;" />
+                <img src="@Model.ImagePath" onerror=this.src ='https://placehold.co/360x360' alt="@Model.DishName" class="img-thumbnail" style="max-width: 200px;" />
             </div>
         }
 

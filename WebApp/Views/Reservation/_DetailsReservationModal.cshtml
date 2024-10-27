@@ -1,0 +1,34 @@
+﻿@model ReservationViewModel
+<partial name="Partials/_ModalHeader" model='"Details Reservation"' />
+
+<div class="modal-body" id="modalBody">
+    <dl>
+        <dt>@Html.DisplayNameFor(m => m.ResId)</dt>
+        <dd>@Model.ResId</dd>
+
+        <dt>@Html.DisplayName("Customer Full Name")</dt>
+        <dd>@Model.Customer?.FullName</dd>
+
+        <dt>@Html.DisplayName("Customer Phone")</dt>
+        <dd>@Model.Customer?.Phone</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.PartySize)</dt>
+        <dd>@Model.PartySize</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.ResDate)</dt>
+        <dd>@Model.ResDate.ToString("MM/dd/yyyy")</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.DepositAmount)</dt>
+        <dd>@Model.DepositAmount</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.ResTime)</dt>
+        <dd>@Model.ResTime.ToString("hh:mm tt")</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.Status)</dt>
+        <dd>@Model.Status</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.Notes)</dt>
+        <dd>@Model.Notes</dd>
+    </dl>
+
+    <partial name="Partials/_ModalFooter" model='""' />

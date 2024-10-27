@@ -4,9 +4,6 @@
 
 <div class="modal-body" id="modalBody">
 	<dl>
-		<dt>@Html.DisplayNameFor(m => m.DishId)</dt>
-		<dd>@Model.DishId</dd>
-
 		<dt>@Html.DisplayNameFor(m => m.DishName)</dt>
 		<dd>@Model.DishName</dd>
 
@@ -18,9 +15,6 @@
 
 		<dt>@Html.DisplayNameFor(m => m.CategoryName)</dt>
 		<dd>@Model.CategoryName</dd>
-
-		<dt>@Html.DisplayNameFor(m => m.Visible)</dt>
-		<dd>@Model.Visible</dd>
 
 		@if (!string.IsNullOrEmpty(Model.ImagePath))
 		{
