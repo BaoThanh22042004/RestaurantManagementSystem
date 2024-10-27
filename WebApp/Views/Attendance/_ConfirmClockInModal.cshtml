@@ -1,0 +1,30 @@
+﻿@model ScheduleViewModel
+
+<form method="post" asp-controller="Attendance" asp-action="RecordIn" id="form">
+	<partial name="Partials/_ModalHeader" model='"Clock In"' />
+
+	<div class="modal-body" id="modalBody">		
+		<input name="ScheId" value="@Model.ScheId"  type="hidden"/>
+		<h3>Are you sure you want to clock in?</h3>
+
+		@if (@TempData["Error"] != null)
+		{
+			<div class="alert alert-danger" role="alert">
+				@TempData["Error"]
+			</div>
+		}
+
+		<dl>
+			<dt>Schedule Date</dt>
+			<dd>@Model.ScheDate</dd>
+			<dt>Shift Name</dt>
+			<dd>@Model.ShiftName (@Model.StartTime - @Model.EndTime)</dd>
+		</dl>
+	</div>
+
+	@{
+		string clockInButton = "<button type='submit' class='btn btn-primary'>Clock In</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model='@clockInButton' />
+</form>

@@ -45,10 +45,27 @@ namespace WebApp.Controllers
             return View("AttendanceView", attendanceList);
         }
 
-        [Route("RecordIn/{ScheId}")]
+        [HttpGet("ConfirmClockIn")]
+        public async Task<IActionResult> ConfirmClockIn(long id) 
+        {
+            var scheduleEntity = await _scheduleRepository.GetByIDAsync(id);
+            var scheduleViewModel = new ScheduleViewModel(scheduleEntity);
+
+            return PartialView("_ConfirmClockInModal", scheduleViewModel);
+        }
+
+        [HttpGet("ConfirmClockOut")]
+        public async Task<IActionResult> ConfirmClockOut(long id)
+        {
+            var scheduleEntity = await _scheduleRepository.GetByIDAsync(id);
+            var scheduleViewModel = new ScheduleViewModel(scheduleEntity);
+
+            return PartialView("_ConfirmClockOutModal", scheduleViewModel);
+        }
+
+        [HttpPost("RecordIn")]
         public async Task<IActionResult> RecordIn(long ScheId)
         {
-
             try
             {
                 var attendance = new Attendance
@@ -63,12 +80,12 @@ namespace WebApp.Controllers
             catch (Exception)
             {
                 TempData["Error"] = "An error occurred while creating attendance. Please try again later.";
-                return RedirectToAction("Index", "Schedule");
-            }
-            return RedirectToAction("Index", "Schedule");
-        }
+                return PartialView("_ConfirmClockInModal");
+			}
+            return Json(new { success = true });
+		}
 
-        [Route("RecordOut/{ScheId}")]
+        [HttpPost("RecordOut")]
         public async Task<IActionResult> RecordOut(long ScheId)
         {
             try
@@ -101,9 +118,9 @@ namespace WebApp.Controllers
             catch (Exception)
             {
                 TempData["Error"] = "An error occurred while updating schedule. Please try again later.";
-                return RedirectToAction("Index","Schedule");
-            }
-            return RedirectToAction("Index", "Schedule");
+                return PartialView("_ConfirmClockOutModal");
+			}
+            return Json(new { success = true });
         }
     }
 }

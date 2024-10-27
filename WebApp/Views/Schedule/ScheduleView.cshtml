@@ -58,11 +58,11 @@ else
                         <div>
                             @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
                             {
-                                <a asp-controller="Attendance" class="btn btn-primary" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId">Clock In</a>
+                                <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)" >Clock In</button>
                             }
                             else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
                             {
-                                <a asp-controller="Attendance" class="btn btn-primary" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId">Clock Out</a>
+                                <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)" >Clock Out</button>
                             }
                         </div>
                     }
@@ -127,11 +127,11 @@ else
                                                 <div>
                                                     @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
                                                     {
-                                                        <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock In</a>
+                                                        <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)" >Clock In</button>
                                                     }
                                                     else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
                                                     {
-                                                        <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock Out</a>
+                                                        <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)" >Clock Out</button>
                                                     }
                                                 </div>
                                             </div>
@@ -188,11 +188,11 @@ else
                                                 <div>
                                                     @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
                                                     {
-                                                        <a asp-controller="Attendance" asp-action="RecordIn" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock In</a>
+                                                        <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)" >Clock In</button>
                                                     }
                                                     else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
                                                     {
-                                                        <a asp-controller="Attendance" asp-action="RecordOut" asp-route-ScheId="@sche.ScheId" class="btn btn-outline-primary">Clock Out</a>
+                                                        <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)" >Clock Out</button>
                                                     }
                                                 </div>
                                             </div>
@@ -321,6 +321,20 @@ else
         }
         function deleteAction(id) {
             var url = '@Url.Action("Delete", "Schedule", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function confirmClockIn(id) {
+            var url = '@Url.Action("ConfirmClockIn", "Attendance", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+        function confirmClockOut(id) {
+            var url = '@Url.Action("ConfirmClockOut", "Attendance", new { id = "__id__" })'.replace("__id__", id);
             $.get(url, function (response) {
                 $('#modalContent').html(response);
                 $('#modal').modal('show');
