@@ -2,24 +2,41 @@
 using Microsoft.AspNetCore.Mvc;
 using Models.Entities;
 using Repositories.Interface;
+using System.Security.Claims;
 using WebApp.Models;
+using WebApp.Utilities;
 
 namespace WebApp.Controllers
 {
-    [Route("Dashboard/Reservation")]
+    [Route("Reservation")]
     [Authorize(Roles = $"{nameof(Role.Manager)}")]
     public class ReservationController : Controller
     {
         private readonly IReservationRepository _reservationRepository;
         private readonly IUserRepository _userRepository;
+        private readonly CartManager _cartManager;
 
-        public ReservationController(IReservationRepository reservationRepository, IUserRepository userRepository)
+		public ReservationController(IReservationRepository reservationRepository, IUserRepository userRepository, CartManager cartManager)
         {
             _reservationRepository = reservationRepository;
             _userRepository = userRepository;
+			_cartManager = cartManager;
+		}
+
+		public IActionResult Index()
+        {
+            var cart = _cartManager.GetCartFromCookie(Request);
+            var makeReservation = new MakeReservationViewModel
+			{
+				Cart = cart,
+                ResDate = DateOnly.FromDateTime(DateTime.Now),
+                ResTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(1))
+			};
+			return View("MakeReservationView", makeReservation);
         }
 
-        public async Task<IActionResult> Index()
+		[HttpGet("List")]
+		public async Task<IActionResult> List()
         {
             var reservations = await _reservationRepository.GetAllAsync();
             var reservationList = reservations.Select(reservation => new ReservationViewModel(reservation));
@@ -41,38 +58,38 @@ namespace WebApp.Controllers
             return (await _userRepository.GetAllAsync()).Where(c => c.Role == Role.Customer);
         }
 
-        [Route("Create")]
-        [HttpPost]
-        public async Task<IActionResult> Create(ReservationViewModel reservationViewModel)
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create(MakeReservationViewModel makeReservation)
         {
             if (!ModelState.IsValid)
             {
-                reservationViewModel.Customers = await GetCustomerList();
-                return View("CreateReservationView", reservationViewModel);
+                makeReservation.Cart = _cartManager.GetCartFromCookie(Request);
+				return View("MakeReservationView", makeReservation);
             }
 
             try
             {
-                var reservation = new Reservation
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception();
+				var customerId = int.Parse(userId);
+				var reservation = new Reservation
                 {
-                    CustomerId = reservationViewModel.CustomerId,
-                    PartySize = reservationViewModel.PartySize,
-                    ResDate = reservationViewModel.ResDate,
-                    ResTime = reservationViewModel.ResTime,
-                    Status = reservationViewModel.Status,
-                    DepositAmount = reservationViewModel.DepositAmount,
-                    Notes = reservationViewModel.Notes,
+                    CustomerId = customerId,
+                    PartySize = makeReservation.PartySize,
+					ResDate = makeReservation.ResDate,
+                    ResTime = makeReservation.ResTime,
+                    Status = ReservationStatus.Confirmed,
+                    Notes = makeReservation.Notes,
                 };
 
                 await _reservationRepository.InsertAsync(reservation);
             }
-            catch (ArgumentException e)
+            catch (Exception e)
             {
-                TempData["Error"] = e.Message;
-                return View("CreateReservationView", reservationViewModel);
-            }
+                TempData["Error"] = "An error occurred while creating the reservation. Please try again later.";
+				return View("MakeReservationView", makeReservation);
+			}
             return RedirectToAction("Index");
-        }
+		}
 
         [Route("Details/{id}")]
         public async Task<IActionResult> Details(long id)

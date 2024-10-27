@@ -31,6 +31,20 @@
 							<a class="nav-link" asp-controller="Home" asp-action="Menu">Menu</a>
 						</li>
 						<li class="nav-item align-content-center">
+							<a class="btn btn-primary position-relative" asp-controller="Reservation" asp-action="Index">
+								Reservation
+								@{
+									var count = CartManager.GetCartItemNumber(ViewContext.HttpContext.Request);
+									if (count != "0")
+									{
+										<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+											@count
+										</span>
+									}
+								}
+							</a>
+						</li>
+						<li class="nav-item align-content-center">
 							<a class="nav-link" asp-controller="Cart" asp-action="Index">
 								<div class="position-relative" style="width: fit-content">
 									<i class="bi bi-cart4 fs-2"></i>
