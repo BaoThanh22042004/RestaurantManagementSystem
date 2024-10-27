@@ -34,14 +34,38 @@ namespace WebApp.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create(ShiftViewModel shiftViewModel)
 		{
-			
-			if (!ModelState.IsValid)
+            async Task<IActionResult> InvalidView(string? error = null)
+            {
+                if (error != null)
+                {
+                    TempData["Error"] = error;
+                }
+                return PartialView("_CreateShiftModal", shiftViewModel);
+            }
+
+            if (!ModelState.IsValid)
 			{
-				return PartialView("_CreateShiftModal", shiftViewModel);
-			}
+                return await InvalidView();
+            }
 
 			try
 			{
+				var startTime = shiftViewModel.StartTime;
+				var endTime = shiftViewModel.EndTime;
+                TimeSpan duration;
+                duration = endTime - startTime;
+                decimal workingHours = (decimal)duration.TotalHours;
+
+                if (workingHours < 1) 
+				{
+                    return await InvalidView("Cannot create a Shift with the total hour smaller than one hour!");
+                }
+
+				if (shiftViewModel.EndTime < shiftViewModel.StartTime) 
+				{
+                    return await InvalidView("Cannot create a Shift with the start time greater than end time!");
+                }
+
 				var shift = new Shift
 				{
 					ShiftName = shiftViewModel.ShiftName,
