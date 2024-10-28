@@ -8,84 +8,95 @@ using WebApp.Utilities;
 
 namespace WebApp.Controllers
 {
-    [Route("Reservation")]
-    [Authorize(Roles = $"{nameof(Role.Manager)}")]
-    public class ReservationController : Controller
-    {
-        private readonly IReservationRepository _reservationRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly CartManager _cartManager;
+	[Route("Reservation")]
+	[Authorize(Roles = $"{nameof(Role.Customer)}, {nameof(Role.Waitstaff)}, {nameof(Role.Manager)}")]
+	public class ReservationController : Controller
+	{
+		private readonly IReservationRepository _reservationRepository;
+		private readonly IUserRepository _userRepository;
+		private readonly CartManager _cartManager;
+		private readonly IOrderRepository _orderRepository;
 
-		public ReservationController(IReservationRepository reservationRepository, IUserRepository userRepository, CartManager cartManager)
-        {
-            _reservationRepository = reservationRepository;
-            _userRepository = userRepository;
+		public ReservationController(IReservationRepository reservationRepository, IUserRepository userRepository, CartManager cartManager, IOrderRepository orderRepository)
+		{
+			_reservationRepository = reservationRepository;
+			_userRepository = userRepository;
 			_cartManager = cartManager;
+			_orderRepository = orderRepository;
 		}
 
-		public IActionResult Index()
-        {
-            var cart = _cartManager.GetCartFromCookie(Request);
-            var makeReservation = new MakeReservationViewModel
+		[HttpGet]
+		public IActionResult MakeReservation()
+		{
+			var cart = _cartManager.GetCartFromCookie(Request);
+			var makeReservation = new MakeReservationViewModel
 			{
 				Cart = cart,
-                ResDate = DateOnly.FromDateTime(DateTime.Now),
-                ResTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(1))
+				ResDate = DateOnly.FromDateTime(DateTime.Now),
+				ResTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(1))
 			};
 			return View("MakeReservationView", makeReservation);
-        }
+		}
 
-		[HttpGet("List")]
-		public async Task<IActionResult> List()
-        {
-            var reservations = await _reservationRepository.GetAllAsync();
-            var reservationList = reservations.Select(reservation => new ReservationViewModel(reservation));
-            return View("ReservationView", reservationList);
-        }
-
-        [HttpGet("Create")]
-        public async Task<IActionResult> Create()
-        {
-            var reservationViewModel = new ReservationViewModel()
-            {
-                Customers = await GetCustomerList(),
-            };
-            return PartialView("_CreateReservationModal", reservationViewModel);
-        }
-
-        private async Task<IEnumerable<User>> GetCustomerList()
-        {
-            return (await _userRepository.GetAllAsync()).Where(c => c.Role == Role.Customer);
-        }
-
-        [HttpPost("Create")]
-        public async Task<IActionResult> Create(MakeReservationViewModel makeReservation)
-        {
-            if (!ModelState.IsValid)
-            {
+		[HttpPost]
+		public async Task<IActionResult> MakeReservation(MakeReservationViewModel makeReservation)
+		{
+			if (!ModelState.IsValid)
+			{
 				makeReservation.Cart = _cartManager.GetCartFromCookie(Request);
 				return View("MakeReservationView", makeReservation);
-            }
+			}
 
-            try
-            {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception();
+			try
+			{
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception();
 				var customerId = int.Parse(userId);
 				var reservation = new Reservation
-                {
-                    CustomerId = customerId,
-                    PartySize = makeReservation.PartySize,
+				{
+					CustomerId = customerId,
+					PartySize = makeReservation.PartySize,
 					ResDate = makeReservation.ResDate,
-                    ResTime = makeReservation.ResTime,
-                    Status = ReservationStatus.Confirmed,
-                    Notes = makeReservation.Notes,
-                };
+					ResTime = makeReservation.ResTime,
+					Status = ReservationStatus.Pending,
+					Notes = makeReservation.Notes,
+				};
 
-                await _reservationRepository.InsertAsync(reservation);
-            }
-            catch (Exception e)
-            {
-                TempData["Error"] = "An error occurred while creating the reservation. Please try again later.";
+				var resEntity = await _reservationRepository.InsertAsync(reservation);
+
+				var cart = _cartManager.GetCartFromCookie(Request);
+				if (cart != null && cart.ItemList.Count != 0)
+				{
+					// Create order
+					var order = new Order
+					{
+						CreatedAt = DateTime.Now,
+						Status = OrderStatus.Reservation,
+						ResId = resEntity.ResId,
+					};
+
+					var orderEntity = await _orderRepository.InsertAsync(order);
+
+					// Create order item
+					foreach (var item in cart.ItemList)
+					{
+						var orderItem = new OrderItem
+						{
+							OrderId = orderEntity.OrderId,
+							CreatedBy = customerId,
+							DishId = item.Id,
+							Quantity = item.Quantity,
+							Price = item.Price,
+							Status = OrderItemStatus.Reservation,
+						};
+
+						orderEntity.OrderItems.Add(orderItem);
+						await _orderRepository.UpdateAsync(orderEntity);
+					}
+				}
+			}
+			catch (Exception)
+			{
+				TempData["Error"] = "An error occurred while creating the reservation. Please try again later.";
 				makeReservation.Cart = _cartManager.GetCartFromCookie(Request);
 				return View("MakeReservationView", makeReservation);
 			}
@@ -93,104 +104,159 @@ namespace WebApp.Controllers
 			// Clear the cart
 			_cartManager.SaveCartToCookie(new CartViewModel(), Response);
 
-			return RedirectToAction("Index");
+			TempData["Success"] = "Reservation has been created successfully.";
+			return RedirectToAction("MakeReservation");
 		}
 
-        [Route("Details/{id}")]
-        public async Task<IActionResult> Details(long id)
-        {
-            var reservation = await _reservationRepository.GetByIDAsync(id);
-            if (reservation == null)
-            {
-                return NotFound();
-            }
+		[HttpGet("List")]
+		public async Task<IActionResult> List()
+		{
+			var reservations = await _reservationRepository.GetAllAsync();
+			var reservationList = reservations.Select(reservation => new ReservationViewModel(reservation));
+			return View("ReservationView", reservationList);
+		}
 
-            var reservationViewModel = new ReservationViewModel(reservation)
-            {
-                Customers = await GetCustomerList()
-            };
-            return PartialView("_DetailsReservationModal", reservationViewModel);
-        }
+		[HttpGet("Create")]
+		public async Task<IActionResult> Create()
+		{
+			var reservationViewModel = new ReservationViewModel()
+			{
+				Customers = await GetCustomerList(),
+				ResDate = DateOnly.FromDateTime(DateTime.Now),
+				ResTime = TimeOnly.FromDateTime(DateTime.Now.AddHours(1))
+			};
+			return PartialView("_CreateReservationModal", reservationViewModel);
+		}
 
-        [Route("Edit/{id}")]
-        public async Task<IActionResult> Edit(long id)
-        {
-            var reservation = await _reservationRepository.GetByIDAsync(id);
-            if (reservation == null)
-            {
-                return NotFound();
-            }
+		[HttpPost("Create")]
+		public async Task<IActionResult> Create(ReservationViewModel reservationViewModel)
+		{
+			if (!ModelState.IsValid)
+			{
+				reservationViewModel.Customers = await GetCustomerList();
+				return PartialView("_CreateReservationModal", reservationViewModel);
+			}
 
-            var reservationViewModel = new ReservationViewModel(reservation)
-            {
-                Customers = await GetCustomerList()
-            };
-            return PartialView("_EditReservationModal", reservationViewModel);
-        }
+			try
+			{
+				var reservation = new Reservation
+				{
+					CustomerId = reservationViewModel.CustomerId,
+					PartySize = reservationViewModel.PartySize,
+					ResDate = reservationViewModel.ResDate,
+					ResTime = reservationViewModel.ResTime,
+					Status = reservationViewModel.Status,
+					DepositAmount = reservationViewModel.DepositAmount,
+					Notes = reservationViewModel.Notes,
+				};
 
-        [HttpPost]
-        [Route("Edit/{ResId}")]
-        public async Task<IActionResult> Edit(ReservationViewModel reservationViewModel, long ResId)
-        {
-            if (!ModelState.IsValid)
-            {
-                reservationViewModel.Customers = await GetCustomerList();
-                return PartialView("_EditReservationModal", reservationViewModel);
-            }
+				await _reservationRepository.InsertAsync(reservation);
+			}
+			catch (Exception)
+			{
+				TempData["Error"] = "An error occurred while creating the reservation. Please try again later.";
+				reservationViewModel.Customers = await GetCustomerList();
+				return PartialView("_CreateReservationModal", reservationViewModel);
+			}
 
-            try
-            {
-                var reservationEntity = await _reservationRepository.GetByIDAsync(ResId);
-                if (reservationEntity == null)
-                {
-                    return NotFound();
-                }
+			return Json(new { success = true });
+		}
 
-                reservationEntity.CustomerId = reservationViewModel.CustomerId;
-                reservationEntity.PartySize = reservationViewModel.PartySize;
-                reservationEntity.ResDate = reservationViewModel.ResDate;
-                reservationEntity.ResTime = reservationViewModel.ResTime;
-                reservationEntity.Status = reservationViewModel.Status;
-                reservationEntity.DepositAmount = reservationViewModel.DepositAmount;
-                reservationEntity.Notes = reservationViewModel.Notes;
+		private async Task<IEnumerable<User>> GetCustomerList()
+		{
+			return (await _userRepository.GetAllAsync()).Where(c => c.Role == Role.Customer);
+		}
 
-                await _reservationRepository.UpdateAsync(reservationEntity);
-            }
-            catch (InvalidOperationException)
-            {
-                return NotFound();
-            }
-            return Json(new { success = true });
-        }
+		[HttpGet("Details/{id}")]
+		public async Task<IActionResult> Details(long id)
+		{
+			var reservation = await _reservationRepository.GetByIDAsync(id);
+			if (reservation == null)
+			{
+				return NotFound();
+			}
 
-        [Route("Reservation/Delete/{id}")]
-        public async Task<IActionResult> Delete(long id)
-        {
-            var reservation = await _reservationRepository.GetByIDAsync(id);
-            if (reservation == null)
-            {
-                return NotFound();
-            }
+			var reservationViewModel = new ReservationViewModel(reservation)
+			{
+				Customers = await GetCustomerList()
+			};
+			return PartialView("_DetailsReservationModal", reservationViewModel);
+		}
 
-            var reservationViewModel = new ReservationViewModel(reservation) { Customers = await GetCustomerList() };
-            return PartialView("_DeleteReservationModal", reservationViewModel);
-        }
+		[HttpGet("Edit/{id}")]
+		public async Task<IActionResult> Edit(long id)
+		{
+			var reservation = await _reservationRepository.GetByIDAsync(id);
+			if (reservation == null)
+			{
+				return NotFound();
+			}
 
-        [HttpPost]
-        [Route("Reservation/Delete/{ResId}")]
-        public async Task<IActionResult> DeleteConfirmed(long ResId)
-        {
-            try
-            {
-                await _reservationRepository.DeleteAsync(ResId);
-            }
-            catch (Exception)
-            {
-                TempData["Error"] = "An error occurred while deleting the reservation. Please try again later.";
-                return RedirectToAction("Delete", new { id = ResId });
-            }
+			var reservationViewModel = new ReservationViewModel(reservation);
+			
+			return PartialView("_EditReservationModal", reservationViewModel);
+		}
 
-            return Json(new { success = true });
-        }
-    }
+		[HttpPost("Edit/{ResId}")]
+		public async Task<IActionResult> Edit(ReservationViewModel reservationViewModel, long ResId)
+		{
+			if (!ModelState.IsValid)
+			{
+				return PartialView("_EditReservationModal", reservationViewModel);
+			}
+
+			try
+			{
+				var reservationEntity = await _reservationRepository.GetByIDAsync(ResId);
+				if (reservationEntity == null)
+				{
+					return NotFound();
+				}
+
+				reservationEntity.PartySize = reservationViewModel.PartySize;
+				reservationEntity.ResDate = reservationViewModel.ResDate;
+				reservationEntity.ResTime = reservationViewModel.ResTime;
+				reservationEntity.Status = reservationViewModel.Status;
+				reservationEntity.DepositAmount = reservationViewModel.DepositAmount;
+				reservationEntity.Notes = reservationViewModel.Notes;
+
+				await _reservationRepository.UpdateAsync(reservationEntity);
+			}
+			catch (Exception)
+			{
+				TempData["Error"] = "An error occurred while updating the reservation. Please try again later.";
+				return PartialView("_EditReservationModal", reservationViewModel);
+			}
+			return Json(new { success = true });
+		}
+
+		[HttpGet("Reservation/Delete/{id}")]
+		public async Task<IActionResult> Delete(long id)
+		{
+			var reservation = await _reservationRepository.GetByIDAsync(id);
+			if (reservation == null)
+			{
+				return NotFound();
+			}
+
+			var reservationViewModel = new ReservationViewModel(reservation) { Customers = await GetCustomerList() };
+			return PartialView("_DeleteReservationModal", reservationViewModel);
+		}
+
+		[HttpPost("Reservation/Delete/{ResId}")]
+		public async Task<IActionResult> DeleteConfirmed(long ResId)
+		{
+			try
+			{
+				await _reservationRepository.DeleteAsync(ResId);
+			}
+			catch (Exception)
+			{
+				TempData["Error"] = "An error occurred while deleting the reservation. Please try again later.";
+				return RedirectToAction("Delete", new { id = ResId });
+			}
+
+			return Json(new { success = true });
+		}
+	}
 }

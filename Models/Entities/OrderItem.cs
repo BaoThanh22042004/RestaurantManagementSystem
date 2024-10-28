@@ -6,6 +6,7 @@ namespace Models.Entities
 {
 	public enum OrderItemStatus
 	{
+		Reservation,
 		Pending,
 		Preparing,
 		Ready,

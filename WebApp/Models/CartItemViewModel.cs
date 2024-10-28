@@ -11,7 +11,7 @@ namespace WebApp.Models
 		public string DishName { get; set; }
 
 		[Display(Name = "Quantity")]
-		public int Quantity {  get; set; }
+		public short Quantity {  get; set; }
 
 		[Display(Name = "Price")]
         [DataType(DataType.Currency)]

@@ -5,7 +5,7 @@ using Repositories.Interface;
 
 namespace Repositories
 {
-    public class ReservationRepository : IReservationRepository, IDisposable
+	public class ReservationRepository : IReservationRepository, IDisposable
     {
         private readonly DBContext _context;
 
@@ -28,11 +28,12 @@ namespace Repositories
                 .FirstOrDefaultAsync(r => r.ResId == id);
         }
 
-        public async Task InsertAsync(Reservation reservation)
+        public async Task<Reservation> InsertAsync(Reservation reservation)
         {
-            await _context.Reservations.AddAsync(reservation);
+            var entityEntry = await _context.Reservations.AddAsync(reservation);
             await SaveAsync();
-        }
+            return entityEntry.Entity;
+		}
 
         public async Task DeleteAsync(long id)
         {

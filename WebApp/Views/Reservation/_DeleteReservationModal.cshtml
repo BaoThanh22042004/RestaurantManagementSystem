@@ -1,48 +1,60 @@
 ﻿@model ReservationViewModel
 
 <form method="post" asp-action="Delete" id="form">
+	<input asp-for="ResId" type="hidden" />
+
 	<partial name="Partials/_ModalHeader" model='"Delete Dish Category"' />
 
 	<div class="modal-body" id="modalBody">
 
-		@if (@TempData["Error"] != null)
-		{
-			<div class="alert alert-danger" role="alert">
-				@TempData["Error"]
-			</div>
-		}
-		<input asp-for="ResId" type="hidden" />
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
+		
+		<h3 class="mb-5">Are you sure you want to delete this account?</h3>
+		
+		<dl class="row">
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ResId)</dt>
+			<dd class="col-sm-8">@Model.ResId</dd>
+		</dl>
 
-		<h3 class="mb-3">Are you sure you want to delete this account?</h3>
+		<dl class="row">
+			<dt class="col-sm-4">Customer Full Name</dt>
+			<dd class="col-sm-8">@Model.Customer?.FullName</dd>
+		</dl>
 
-        <dl>
-            <dt>@Html.DisplayNameFor(m => m.ResId)</dt>
-            <dd>@Model.ResId</dd>
+		<dl class="row">
+			<dt class="col-sm-4">Customer Phone</dt>
+			<dd class="col-sm-8">@Model.Customer?.Phone</dd>
+		</dl>
 
-            <dt>@Html.DisplayName("Customer Full Name")</dt>
-            <dd>@Model.Customer?.FullName</dd>
+		<dl class="row">
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.PartySize)</dt>
+			<dd class="col-sm-8">@Model.PartySize</dd>
+		</dl>
 
-            <dt>@Html.DisplayName("Customer Phone")</dt>
-            <dd>@Model.Customer?.Phone</dd>
+		<dl class="row">
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ResDate)</dt>
+			<dd class="col-sm-8">@Model.ResDate.ToString("MM/dd/yyyy")</dd>
+		</dl>
 
-            <dt>@Html.DisplayNameFor(m => m.PartySize)</dt>
-            <dd>@Model.PartySize</dd>
+		<dl class="row">
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.DepositAmount)</dt>
+			<dd class="col-sm-8">@Model.DepositAmount</dd>
+		</dl>
 
-            <dt>@Html.DisplayNameFor(m => m.ResDate)</dt>
-            <dd>@Model.ResDate.ToString("MM/dd/yyyy")</dd>
+		<dl class="row">
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ResTime)</dt>
+			<dd class="col-sm-8">@Model.ResTime.ToString("hh:mm tt")</dd>
+		</dl>
 
-            <dt>@Html.DisplayNameFor(m => m.DepositAmount)</dt>
-            <dd>@Model.DepositAmount</dd>
+		<dl class="row">
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Status)</dt>
+			<dd class="col-sm-8">@Model.Status</dd>
+		</dl>
 
-            <dt>@Html.DisplayNameFor(m => m.ResTime)</dt>
-            <dd>@Model.ResTime.ToString("hh:mm tt")</dd>
-
-            <dt>@Html.DisplayNameFor(m => m.Status)</dt>
-            <dd>@Model.Status</dd>
-
-            <dt>@Html.DisplayNameFor(m => m.Notes)</dt>
-            <dd>@Model.Notes</dd>
-        </dl>
+		<dl class="row">
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Notes)</dt>
+			<dd class="col-sm-8">@Model.Notes</dd>
+		</dl>
 	</div>
 
 	@{

@@ -31,10 +31,11 @@ namespace Repositories
 										.FirstOrDefaultAsync(order => order.OrderId == id);
         }
 
-		public async Task InsertAsync(Order order)
+		public async Task<Order> InsertAsync(Order order)
 		{
-			await _context.Orders.AddAsync(order);
+			var entityEntry = await _context.Orders.AddAsync(order);
 			await SaveAsync();
+			return entityEntry.Entity;
 		}
 
 		public async Task DeleteAsync(long id)

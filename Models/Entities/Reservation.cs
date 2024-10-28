@@ -7,6 +7,7 @@ namespace Models.Entities
 {
 	public enum ReservationStatus
 	{
+		Pending,
 		Confirmed,
 		Completed,
 		Cancelled

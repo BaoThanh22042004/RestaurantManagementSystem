@@ -31,7 +31,7 @@
 							<a class="nav-link" asp-controller="Home" asp-action="Menu">Menu</a>
 						</li>
 						<li class="nav-item align-content-center">
-							<a class="btn btn-primary position-relative" asp-controller="Reservation" asp-action="Index">
+							<a class="btn btn-primary position-relative" asp-controller="Reservation" asp-action="MakeReservation">
 								Reservation
 								@{
 									var count = CartManager.GetCartItemNumber(ViewContext.HttpContext.Request);
@@ -44,7 +44,7 @@
 								}
 							</a>
 						</li>
-						<li class="nav-item align-content-center">
+						@* <li class="nav-item align-content-center">
 							<a class="nav-link" asp-controller="Cart" asp-action="Index">
 								<div class="position-relative" style="width: fit-content">
 									<i class="bi bi-cart4 fs-2"></i>
@@ -59,7 +59,7 @@
 									}
 								</div>
 							</a>
-						</li>
+						</li> *@
 						@if (User.Identity.IsAuthenticated)
 						{
 							<li class="nav-item align-content-center">

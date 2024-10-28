@@ -1,113 +1,121 @@
-﻿@model IEnumerable<ReservationViewModel>
-@{
-    ViewData["Title"] = "Reservation";
-    Layout = "_DashBoardLayout";
+﻿@functions {
+	string statusClass(Models.Entities.ReservationStatus status) => status switch
+	{
+		Models.Entities.ReservationStatus.Pending => "info",
+		Models.Entities.ReservationStatus.Confirmed => "primary",
+		Models.Entities.ReservationStatus.Completed => "success",
+		Models.Entities.ReservationStatus.Cancelled => "secondary",
+	};
 }
 
-<h1 class="mb-4 text-center">Reservations</h1>
+@model IEnumerable<ReservationViewModel>
+@{
+	ViewData["Title"] = "Reservation";
+	Layout = "_DashBoardLayout";
+}
 
 <div class="container">
-    <div class="mb-4 card p-4 shadow-sm">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <button onclick="create()" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Add New Reservation
-            </button>
-        </div>
+	<h1 class="mb-4 text-center">Reservations</h1>
 
-        @if (!Model.Any())
-        {
-            <div class="no-reservations-message text-center mt-5">
-                <h2 class="text-muted">No reservations available.</h2>
-            </div>
-        }
-    </div>
+	<div>
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<button onclick="create()" class="btn btn-primary">
+				Add New Reservation
+			</button>
+		</div>
 
-    @if (Model.Any())
-    {
-        <div class="table-responsive card p-4 shadow-sm mt-4">
-            <table class="table table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>@Html.DisplayNameFor(model => model.ResId)</th>
-                        <th>Full Name</th>
-                        <th>Phone</th>
-                        <th>@Html.DisplayNameFor(model => model.PartySize)</th>
-                        <th>@Html.DisplayNameFor(model => model.ResDate)</th>
-                        <th>@Html.DisplayNameFor(model => model.ResTime)</th>
-                        <th>@Html.DisplayNameFor(model => model.DepositAmount)</th>
-                        <th>@Html.DisplayNameFor(model => model.Status)</th>
-                        <th>@Html.DisplayNameFor(model => model.Notes)</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var reservation in Model)
-                    {
-                        <tr>
-                            <td>@Html.DisplayFor(modelItem => reservation.ResId)</td>
-                            <td>@Html.DisplayFor(modelItem => reservation.Customer.FullName)</td>
-                            <td>@Html.DisplayFor(modelItem => reservation.Customer.Phone)</td>
-                            <td>@Html.DisplayFor(modelItem => reservation.PartySize)</td>
-                            <td>@Html.DisplayFor(modelItem => reservation.ResDate)</td>
-                            <td>@Html.DisplayFor(modelItem => reservation.ResTime)</td>
-                            <td>@Html.DisplayFor(modelItem => reservation.DepositAmount)</td>
-                            <td>@Html.DisplayFor(modelItem => reservation.Status)</td>
-                            <td>@Html.DisplayFor(modelItem => reservation.Notes)</td>
-                            <td class="d-flex justify-content-end">
-                                <button type="button" onclick="details(@reservation.ResId)" class="btn btn-info btn-sm me-2">
-                                    <i class="fas fa-info-circle"></i> Details
-                                </button>
-                                <button type="button" onclick="edit(@reservation.ResId)" class="btn btn-primary btn-sm me-2">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                <button type="button" onclick="deleteAction(@reservation.ResId)" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash-alt"></i> Delete
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
+		@if (!Model.Any())
+		{
+			<div class="no-reservations-message text-center mt-5">
+				<h2 class="text-muted">No reservations available.</h2>
+			</div>
+		}
+	</div>
+
+	@if (Model.Any())
+	{
+		<div class="table-responsive mt-4">
+			<table class="table table-hover">
+				<thead class="table-dark">
+					<tr>
+						<th>@Html.DisplayNameFor(model => model.ResId)</th>
+						<th>Full Name</th>
+						<th>Phone</th>
+						<th>@Html.DisplayNameFor(model => model.PartySize)</th>
+						<th>@Html.DisplayNameFor(model => model.ResDate)</th>
+						<th>@Html.DisplayNameFor(model => model.ResTime)</th>
+						<th>@Html.DisplayNameFor(model => model.Status)</th>
+						<th class="text-end">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var reservation in Model)
+					{
+						<tr>
+							<td>@Html.DisplayFor(modelItem => reservation.ResId)</td>
+							<td>@Html.DisplayFor(modelItem => reservation.Customer.FullName)</td>
+							<td>@Html.DisplayFor(modelItem => reservation.Customer.Phone)</td>
+							<td>@Html.DisplayFor(modelItem => reservation.PartySize)</td>
+							<td>@Html.DisplayFor(modelItem => reservation.ResDate)</td>
+							<td>@Html.DisplayFor(modelItem => reservation.ResTime)</td>
+
+							<td><span class="badge text-bg-@statusClass(reservation.Status)">@reservation.Status</span></td>
+
+							<td class="d-flex justify-content-end">
+								<button type="button" onclick="details(@reservation.ResId)" class="btn btn-info btn-sm me-2">
+									<i class="fas fa-info-circle"></i> Details
+								</button>
+								<button type="button" onclick="edit(@reservation.ResId)" class="btn btn-primary btn-sm me-2">
+									<i class="fas fa-edit"></i> Edit
+								</button>
+								<button type="button" onclick="deleteAction(@reservation.ResId)" class="btn btn-danger btn-sm">
+									<i class="fas fa-trash-alt"></i> Delete
+								</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
 </div>
 
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" id="modalContent">
-        </div>
-    </div>
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content" id="modalContent">
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    <script>
-        function create() {
-            var url = '@Url.Action("Create", "Reservation")';
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-        function details(id) {
-            var url = '@Url.Action("Details", "Reservation", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-        function edit(id) {
-            var url = '@Url.Action("Edit", "Reservation", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-        function deleteAction(id) {
-            var url = '@Url.Action("Delete", "Reservation", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-    </script>
+	<script>
+		function create() {
+			var url = '@Url.Action("Create", "Reservation")';
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function details(id) {
+			var url = '@Url.Action("Details", "Reservation", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function edit(id) {
+			var url = '@Url.Action("Edit", "Reservation", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function deleteAction(id) {
+			var url = '@Url.Action("Delete", "Reservation", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+	</script>
 }

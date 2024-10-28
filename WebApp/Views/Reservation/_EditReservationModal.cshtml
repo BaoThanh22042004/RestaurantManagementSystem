@@ -1,90 +1,78 @@
 ﻿@model ReservationViewModel
 
 <form method="post" asp-action="Edit" id="form">
+
+	<input asp-for="ResId" type="hidden" />
+	<input asp-for="CustomerId" type="hidden" />
+
 	<partial name="Partials/_ModalHeader" model='"Edit Dish Category"' />
 
 	<div class="modal-body" id="modalBody">
 
-		@if (@TempData["Error"] != null)
-		{
-			<div class="alert alert-danger" role="alert">
-				@TempData["Error"]
-			</div>
-		}
+		<partial name="Partials/_AlertDanger" model='TempData["Error"]' />
+
+		<dl class="row">
+			<dt class="col-sm-4">Reservation ID</dt>
+			<dd class="col-sm-8">@Model.ResId</dd>
+		</dl>
+
+		<dl class="row">
+			<dt class="col-sm-4">Full Name</dt>
+			<dd class="col-sm-8">@Model.Customer?.FullName</dd>
+		</dl>
+
+		<dl class="row">
+			<dt class="col-sm-4">Phone Number</dt>
+			<dd class="col-sm-8">@Model.Customer?.Phone</dd>
+		</dl>
 
 		<div class="form-floating mb-3">
-			<div class="form-floating mb-3">
-				<input asp-for="ResId" type="hidden" />
-				<input asp-for="ResId" class="form-control" disabled />
-				<label asp-for="ResId"></label>
-			</div>
-            <div class="form-floating mb-3">
-                <select asp-for="CustomerId" asp-items='@new SelectList(Model.Customers,"UserId","FullName")' class="form-control" id="CustomerId">
-                    <option value="">Select a Customer</option>
-                </select>
-                <label asp-for="CustomerId"></label>
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
-            </div>
+			<input asp-for="PartySize" class="form-control" id="PartySize" />
+			<label asp-for="PartySize"></label>
+			<span asp-validation-for="PartySize" class="text-danger"></span>
+		</div>
 
-            <div>
-                Full Name: <span>@Model.Customer?.FullName</span><br />
-                Phone: <span>@Model.Customer?.Phone</span>
-            </div>
+		<div class="form-floating mb-3">
+			<input asp-for="ResDate" type="date" class="form-control" id="ResDate" />
+			<label asp-for="ResDate"></label>
+			<span asp-validation-for="ResDate" class="text-danger"></span>
+		</div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="PartySize" class="form-control" id="PartySize" />
-                <label asp-for="PartySize"></label>
-                <span asp-validation-for="PartySize" class="text-danger"></span>
-            </div>
+		<div class="form-floating mb-3">
+			<input asp-for="ResTime" type="time" class="form-control" id="ResTime" />
+			<label asp-for="ResTime"></label>
+			<span asp-validation-for="ResTime" class="text-danger"></span>
+		</div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="PartySize" class="form-control" id="PartySize" />
-                <label asp-for="PartySize"></label>
-                <span asp-validation-for="PartySize" class="text-danger"></span>
-            </div>
+		<div class="form-floating mb-3">
+			<input asp-for="DepositAmount" class="form-control" id="DepositAmount" />
+			<label asp-for="DepositAmount"></label>
+			<span asp-validation-for="DepositAmount" class="text-danger"></span>
+		</div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="ResDate" type="date" class="form-control" id="ResDate" />
-                <label asp-for="ResDate"></label>
-                <span asp-validation-for="ResDate" class="text-danger"></span>
-            </div>
+		<div class="form-floating mb-3">
 
-            <div class="form-floating mb-3">
-                <input asp-for="DepositAmount" class="form-control" id="DepositAmount" />
-                <label asp-for="DepositAmount"></label>
-                <span asp-validation-for="DepositAmount" class="text-danger"></span>
-            </div>
+			<select asp-for="Status" class="form-control">
+				@foreach (var status in Enum.GetValues(typeof(Models.Entities.ReservationStatus)))
+				{
+					<option value="@status">@status</option>
+				}
+			</select>
+			<label asp-for="Status"></label>
+			<span asp-validation-for="Status" class="text-danger"></span>
+		</div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="ResTime" type="time" class="form-control" id="ResTime" />
-                <label asp-for="ResTime"></label>
-                <span asp-validation-for="ResTime" class="text-danger"></span>
-            </div>
-
-            <div class="form-floating mb-3">
-
-                <select asp-for="Status" class="form-control">
-                    @foreach (var status in Enum.GetValues(typeof(Models.Entities.ReservationStatus)))
-                    {
-                        <option value="@status">@status</option>
-                    }
-                </select>
-                <label asp-for="Status"></label>
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-
-            <div class="form-floating mb-3">
-                <textarea asp-for="Notes" class="form-control" id="Notes"></textarea>
-                <label asp-for="Notes"></label>
-                <span asp-validation-for="Notes" class="text-danger"></span>
-            </div>
-
+		<div class="form-floating mb-3">
+			<textarea asp-for="Notes" class="form-control" id="Notes"></textarea>
+			<label asp-for="Notes"></label>
+			<span asp-validation-for="Notes" class="text-danger"></span>
 		</div>
 
 	</div>
+
 	@{
 		string saveButton = "<button type='submit' class='btn btn-primary'>Save</button>";
 	}
 
 	<partial name="Partials/_ModalFooter" model='@saveButton' />
-</form>	
+</form>
