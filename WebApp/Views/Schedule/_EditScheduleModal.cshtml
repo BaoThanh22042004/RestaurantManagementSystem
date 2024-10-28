@@ -5,12 +5,7 @@
 
     <div class="modal-body" id="modalBody">
 
-        @if (@TempData["Error"] != null)
-        {
-            <div class="alert alert-danger" role="alert">
-                @TempData["Error"]
-            </div>
-        }
+        <partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 
         <div class="form-floating mb-3">
             <input asp-for="ScheId" type="hidden" />
