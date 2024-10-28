@@ -118,20 +118,46 @@ namespace WebApp.Controllers
 		[Route("Edit/{ShiftId}")]
 		public async Task<IActionResult> Edit(ShiftViewModel shift, int ShiftId)
 		{
-			if (!ModelState.IsValid)
+            async Task<IActionResult> InvalidView(string? error = null)
+            {
+                if (error != null)
+                {
+                    TempData["Error"] = error;
+                }
+                return PartialView("_EditShiftModal", shift);
+            }
+
+            if (!ModelState.IsValid)
 			{
-				return PartialView("_EditShiftModal", shift);
+				return await InvalidView();
 			}
 
 			try
 			{
+
 				var shiftEntity = await _shiftRepository.GetByIDAsync(ShiftId);
 				if (shiftEntity == null)
 				{
 					return NotFound();
 				}
 
-				shiftEntity.ShiftName = shift.ShiftName;
+                var startTime = shift.StartTime;
+                var endTime = shift.EndTime;
+                TimeSpan duration;
+                duration = endTime - startTime;
+                decimal workingHours = (decimal)duration.TotalHours;
+
+                if (workingHours < 1)
+                {
+                    return await InvalidView("Cannot create a Shift with the total hour smaller than one hour!");
+                }
+
+                if (shift.EndTime < shift.StartTime)
+                {
+                    return await InvalidView("Cannot create a Shift with the start time greater than end time!");
+                }
+
+                shiftEntity.ShiftName = shift.ShiftName;
 				shiftEntity.StartTime = shift.StartTime;
 				shiftEntity.EndTime = shift.EndTime;
 

@@ -13,8 +13,8 @@ using WebApp.Utilities;
 namespace WebApp.Controllers
 {
     [Route("Dashboard/Schedule")]
-	[Authorize(Roles = $"{nameof(Role.Manager)},{nameof(Role.Waitstaff)}")]
-	public class ScheduleController : Controller
+    [Authorize(Policy = "Staff")]
+    public class ScheduleController : Controller
     {
         private readonly IScheduleRepository _scheduleRepository;
         private readonly IShiftRepository _shiftRepository;
@@ -175,11 +175,20 @@ namespace WebApp.Controllers
         [Route("Edit/{ScheId}")]
         public async Task<IActionResult> Edit(ScheduleViewModel schedule, int ScheId)
         {
-            if (!ModelState.IsValid)
+            async Task<IActionResult> InvalidView(string? error = null)
             {
+                if (error != null)
+                {
+                    TempData["Error"] = error;
+                }
                 schedule.ShiftOptions = await GetShiftList();
                 schedule.EmployeeOptions = await GetUserList();
                 return PartialView("_EditScheduleModal", schedule);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return await InvalidView();
             }
 
 			try
@@ -190,7 +199,21 @@ namespace WebApp.Controllers
 					return NotFound();
 				}
 
-				scheduleEntity.ScheDate = schedule.ScheDate;
+                if (schedule.ScheDate < DateOnly.FromDateTime(DateTime.Now))
+                {
+                    return await InvalidView("Cannot create a schedule with the date in the past!");
+                }
+                var schedules = await _scheduleRepository.GetAllAsync();
+                var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule));
+                foreach (var schelist in scheduleList.Where(d => d.ScheDate == schedule.ScheDate && d.EmpId == schedule.EmpId))
+                {
+                    if (schelist.ShiftId == schedule.ShiftId)
+                    {
+                        return await InvalidView("Cannot create a Schedule with the same Shift on the same Date!");
+                    }
+                }
+
+                scheduleEntity.ScheDate = schedule.ScheDate;
 				scheduleEntity.EmpId = schedule.EmpId;
 				scheduleEntity.ShiftId = schedule.ShiftId;
 
