@@ -16,12 +16,6 @@ namespace WebApp.Controllers
 			_cartManager = cartManager;
 		}
 
-		public IActionResult Index()
-		{
-			var cart = _cartManager.GetCartFromCookie(Request);
-			return View("CartView", cart);
-		}
-
 		[HttpPost]
 		public async Task<IActionResult> AddToCart(int dishId)
 		{
@@ -101,7 +95,7 @@ namespace WebApp.Controllers
 					cart.ItemList.Remove(cartItem);
 				}
 
-				_cartManager.SaveCartToCookie(cart, Response); 
+				_cartManager.SaveCartToCookie(cart, Response);
 			}
 			catch (Exception)
 			{
