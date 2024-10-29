@@ -18,29 +18,46 @@ namespace Repositories
 
 		public async Task<IEnumerable<User>> GetAllAsync()
 		{
-			return await _context.Users.AsNoTracking().ToListAsync();
+			string sqlGetAllUsers = "SELECT * FROM Users";
+			return await _context.Users.FromSqlRaw(sqlGetAllUsers).ToListAsync();
 		}
 
 		public async Task<User?> GetByIDAsync(int id)
 		{
-			return await _context.Users.FindAsync(id);
+			string sqlGetUserById = "SELECT * FROM Users WHERE UserId = {0}";
+			return await _context.Users.FromSqlRaw(sqlGetUserById, id).FirstOrDefaultAsync();
 		}
 
-		public async Task InsertAsync(User user)
+		public async Task<User> InsertAsync(User user)
 		{
-			var isContainUsername = await _context.Users.AnyAsync(u => u.Username == user.Username);
+			string sqlGetUserByUsername = "SELECT * FROM Users WHERE Username = {0}";
+			string sqlInsertUser = @"INSERT INTO Users (Username, Password, FullName, Email, Phone, Role, Salary, IsActive)
+								 VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7});
+								 SELECT * FROM Users WHERE UserId = SCOPE_IDENTITY();";
+
+			var isContainUsername = await _context.Users.FromSqlRaw(sqlGetUserByUsername, user.Username).AnyAsync();
 			if (isContainUsername)
 			{
 				throw new ArgumentException($"Username {user.Username} is already taken");
 			}
 			user.Password = HashPassword(user.Password);
-			await _context.Users.AddAsync(user);
-			await SaveAsync();
+			var insertedUsers = await _context.Users.FromSqlRaw(sqlInsertUser,
+				user.Username, user.Password, user.FullName, user.Email, user.Phone, user.Role, user.Salary, user.IsActive).ToListAsync();
+			var userInserted = insertedUsers.FirstOrDefault();
+
+			if (userInserted == null)
+			{
+				throw new Exception("Failed to insert user");
+			}
+
+			return userInserted;
 		}
 
 		public async Task DeleteAsync(int id)
 		{
-			var user = await _context.Users.FindAsync(id);
+			string sqlGetUserById = "SELECT * FROM Users WHERE UserId = {0}";
+
+			var user = await _context.Users.FromSqlRaw(sqlGetUserById, id).FirstOrDefaultAsync();
 			if (user == null)
 			{
 				throw new Exception($"User with id {id} not found");
@@ -50,34 +67,37 @@ namespace Repositories
 
 		public async Task DeleteAsync(User user)
 		{
-			if (_context.Entry(user).State == EntityState.Detached)
-			{
-				_context.Users.Attach(user);
-			}
-			_context.Users.Remove(user);
-			await SaveAsync();
+			string sqlDeleteUser = "DELETE FROM Users WHERE UserId = {0}";
+			await _context.Database.ExecuteSqlRawAsync(sqlDeleteUser, user.UserId);
 		}
 
 		public async Task UpdateAsync(User user, string? password = null)
 		{
+			string sqlUpdateUserDetails = @"UPDATE Users
+										   SET FullName = {0},
+											   Email = {1},
+											   Phone = {2},
+											   Role = {3},
+											   Salary = {4},
+											   IsActive = {5}
+										   WHERE UserId = {6}";
+			string sqlUpdateUserPassword = @"UPDATE Users
+											SET Password = {0}
+											WHERE UserId = {1}";
+
 			if (password != null)
 			{
-				user.Password = HashPassword(password);
+				await _context.Database.ExecuteSqlRawAsync(sqlUpdateUserPassword, HashPassword(password), user.UserId);
 			}
 
-			_context.Users.Attach(user);
-			_context.Entry(user).State = EntityState.Modified;
-			await SaveAsync();
-		}
-
-		public async Task SaveAsync()
-		{
-			await _context.SaveChangesAsync();
+			_context.Database.ExecuteSqlRaw(sqlUpdateUserDetails, user.FullName, user.Email, user.Phone, user.Role, user.Salary, user.IsActive, user.UserId);
 		}
 
 		public async Task<User?> ValidateLoginAsync(string username, string password)
 		{
-			var user = await _context.Users.AsNoTracking().Where(user => user.IsActive).SingleOrDefaultAsync(user => user.Username == username);
+			string sqlGetActiveUserByUsername = "SELECT * FROM Users WHERE Username = {0} AND IsActive = 1";
+
+			var user = await _context.Users.FromSqlRaw(sqlGetActiveUserByUsername, username).FirstOrDefaultAsync();
 			if (user == null || !VerifyPassword(password, user.Password))
 			{
 				return null;
@@ -107,7 +127,10 @@ namespace Repositories
 
 		public async Task<User?> GetByUsernameAsync(string username)
 		{
-			return await _context.Users.AsNoTracking().SingleOrDefaultAsync(user => user.Username == username);
+			string sqlGetUserByUsername = "SELECT * FROM Users WHERE Username = {0}";
+
+			var user = await _context.Users.FromSqlRaw(sqlGetUserByUsername, username).FirstOrDefaultAsync();
+			return user;
 		}
 
 		public void Dispose()
