@@ -1,0 +1,112 @@
+﻿@model OrderMenuViewModel
+
+<partial name="Partials/_ModalHeader" model='"Order Menu"' />
+
+<div class="container mt-5">
+    <div class="text-end mb-4">
+        <a class="btn btn-outline-secondary" data-bs-toggle="collapse" href="#filterForm" role="button" aria-expanded="false" aria-controls="filterForm">
+            <i class="bi bi-filter-circle"></i> Filters
+        </a>
+    </div>
+
+    <div class="collapse my-4" id="filterForm">
+        <form class="p-4 border rounded-4" method="get">
+            <div class="mb-3">
+                <label asp-for="Keyword" class="fw-bold mb-3">Keyword Search</label>
+                <input class="form-control" asp-for="Keyword" id="keyword" type="search" placeholder="Search by name">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Category</label><br />
+                <div class="form-check form-check-inline">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="@category.CategoryName" name="SelectedCategories" value="@category.CategoryId" @(category.IsSelected ? "checked" : "")>
+                            <label class="form-check-label" for="@category.CategoryName">@category.CategoryName</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-3">
+                <button type="button" class="btn btn-outline-secondary" id="resetButton">Reset</button>
+                <button type="submit" class="btn btn-primary">Apply</button>
+            </div>
+        </form>
+    </div>
+
+    @if (!Model.Dishes.Any())
+    {
+        <div class="text-center mt-5">
+            <h2>No dishes found.</h2>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var category in Model.Dishes.GroupBy(dish => dish.CategoryName))
+            {
+                <div class="col-12 mt-4 mb-2">
+                    <h3 class="text-secondary">@category.Key</h3>
+                    <hr class="mb-3">
+                </div>
+
+                @foreach (var item in category)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card border-0 rounded-4 shadow-sm h-100 d-flex flex-row" onclick="SelectedDish(@Model.OrderId,@item.DishId)">
+                            <img src="@item.ImagePath" width="200" height="150" class="rounded-start object-fit-cover" alt="Image of @item.DishName" onerror="this.src='https://placehold.co/200x150'">
+                            <div class="card-body d-flex flex-column justify-content-center">
+                                <h5 class="card-title">@item.DishName</h5>
+                                <p class="card-text text-muted">@item.Price.ToString("C")</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+
+<partial name="Partials/_ModalFooter" model='""' />
+
+<!-- Modal -->
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="modalContent">
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card img:hover {
+            cursor: pointer;
+        }
+    </style>
+}
+
+
+<script>
+    document.getElementById('resetButton').addEventListener('click', function () {
+        document.getElementById('keyword').value = '';
+
+        const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
+
+        checkboxes.forEach((checkbox) => {
+            checkbox.checked = false;
+        });
+    });
+
+    function SelectedDish(orderId, dishId) {
+        var url = '@Url.Action("AddOrderItem", "Order", new { orderId = "__orderId__", dishId = "__dishId__" })'
+            .replace("__orderId__", orderId)
+            .replace("__dishId__", dishId)
+
+        $.get(url, function (response) {
+            $('#modalContent').html(response);
+            $('#modal').modal('show');
+        });
+    }
+</script>

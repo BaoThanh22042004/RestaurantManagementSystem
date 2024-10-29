@@ -35,8 +35,7 @@ namespace WebApp.Models
         [StringLength(500, ErrorMessage = "Notes cannot exceed 500 characters.")]
         public string? Notes { get; set; }
 
-        public IEnumerable<DishViewModel>? Dishes { get; set; }
-
+        public string? DishName { get; set; }
         public IEnumerable<SelectListItem>? StatusOptions { get; set; }
 
         public OrderItemViewModel() 
@@ -49,6 +48,7 @@ namespace WebApp.Models
             OrItemId = orderItem.OrItemId;
             OrderId = orderItem.OrderId;
             DishId = orderItem.DishId;
+            DishName = orderItem.Dish?.DishName;
             CreatedBy = orderItem.CreatedBy;
             Quantity = orderItem.Quantity;
             Price = orderItem.Price;

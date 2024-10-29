@@ -8,7 +8,7 @@ namespace WebApp.Models
     {
         public long OrderId { get; set; }
 
-        [Display(Name = "Table Number")]
+        [Display(Name = "Table Id")]
         public int? TableId { get; set; }
 
         [Required(ErrorMessage = "Created At date is required.")]
@@ -31,7 +31,7 @@ namespace WebApp.Models
 
         }
 
-        public OrderViewModel(Order order, List<SelectListItem> dishes = null)
+        public OrderViewModel(Order order)
         {
             OrderId = order.OrderId;
             TableId = order.TableId;

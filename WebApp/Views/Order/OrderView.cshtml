@@ -25,11 +25,38 @@
                 <td>@order.TableId</td>
                 <td>@order.CreatedAt.ToString("g")</td>
                 <td>@order.Status.ToString()</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-info">Details</a>                 
-                        <a asp-action="Delete" asp-route-id="@order.OrderId" class="btn btn-danger">Delete</a>                 
+                <td>                 
+                    <button onclick="detailsOrder(@order.OrderId)" class="btn btn-primary">Detail</button>
+                    <button onclick="deleteOrder(@order.OrderId)" class="btn btn-primary">Delete</button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+<div class="modal fade" id="dishModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="dishModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="modalContent">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function detailsOrder(id) {
+            var url = '@Url.Action("Details", "Order", new { orderId = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#dishModal').modal('show');
+            });
+        }
+
+        function deleteOrder(id) {
+            var url = '@Url.Action("Delete", "Order", new { orderId = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#dishModal').modal('show');
+            });
+        }
+    </script>
+}

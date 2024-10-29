@@ -1,0 +1,109 @@
+﻿@model WebApp.Models.OrderViewModel
+
+<partial name="Partials/_ModalHeader" model='"Details Order"' />
+
+<div class="card">
+    @if (@TempData["Error"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["Error"]
+        </div>
+    }
+    <div class="card-body">
+        <h4 class="card-title">Order Information</h4>
+        <dl class="row">
+            <dt class="col-sm-3">Order ID</dt>
+            <dd class="col-sm-9">
+                <span>@Model.OrderId</span>
+            </dd>
+
+            <dt class="col-sm-3">Table Number</dt>
+            <dd class="col-sm-9">
+                <span>@Model.TableId</span>
+            </dd>
+
+            <dt class="col-sm-3">Reservation ID</dt>
+            <dd class="col-sm-9">
+                <span>@Model.ResId</span>
+            </dd>
+
+            <dt class="col-sm-3">Created At</dt>
+            <dd class="col-sm-9">
+                <span>@(Model.CreatedAt != DateTime.MinValue ? Model.CreatedAt.ToString("g") : "Not Set")</span>
+            </dd>
+
+            <dt class="col-sm-3">Order Status</dt>
+            <dd class="col-sm-9">
+                <span>@Model.Status</span>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<h4>Order Items</h4>
+
+@if (Model.OrderItems != null && Model.OrderItems.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Dish Name</th>
+                <th>Quantity</th>
+                <th>Create By</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.OrderItems.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <span>@Model.OrderItems[i].DishName</span>
+                    </td>
+                    <td>
+                        <span>@Model.OrderItems[i].Quantity</span>
+                    </td>
+                    <td>
+                        <span>@Model.OrderItems[i].CreatedBy</span>
+                    </td>
+                    <td>
+                        <span>@Model.OrderItems[i].Price?.ToString("C")</span>
+                    </td>
+                    <td>
+                        <span>@Model.OrderItems[i].Status</span>
+                    </td>
+                    <td>
+                        <span>@(string.IsNullOrEmpty(Model.OrderItems[i].Notes) ? "none" : Model.OrderItems[i].Notes)</span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@{
+    string Button = $"<button class='btn btn-primary' onclick='editOrder({Model.OrderId})'>Edit Order Item</button>    <button class='btn btn-primary' onclick='menuOrder({Model.OrderId})'>Menu</button>";
+}
+
+<partial name="Partials/_ModalFooter" model='Button' />
+
+
+<script>
+    function editOrder(id) {
+        var url = '@Url.Action("Edit", "Order", new { orderId = "__id__" })'.replace("__id__", id);
+        $.get(url, function (response) {
+            $('#modalContent').html(response);
+            $('#dishModal').modal('show');
+        });
+    }
+
+     function menuOrder(id) {
+        var url = '@Url.Action("OrderItemMenu", "Order", new {orderId = "__orderId__"})'.replace("__orderId__", id);
+        $.get(url, function (response) {
+            $('#modalContent').html(response);
+            $('#dishModal').modal('show');
+        });
+    }
+</script>
