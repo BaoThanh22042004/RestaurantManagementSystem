@@ -6,10 +6,9 @@ namespace Repositories.Interface
 	{
 		Task<IEnumerable<DishCategory>> GetAllAsync();
 		Task<DishCategory?> GetByIDAsync(int id);
-		Task InsertAsync(DishCategory dishCategory);
+		Task<DishCategory> InsertAsync(DishCategory dishCategory);
 		Task DeleteAsync(int id);
 		Task DeleteAsync(DishCategory dishCategory);
 		Task UpdateAsync(DishCategory dishCategory);
-		Task SaveAsync();
 	}
 }

@@ -15,50 +15,64 @@ namespace Repositories
 		}
 		public async Task<IEnumerable<DishCategory>> GetAllAsync()
 		{
-			return await _context.DishCategories.AsNoTracking().ToListAsync();
+			string sqlGetAllDishCategories = "SELECT * FROM DishCategories";
+			return await _context.DishCategories.FromSqlRaw(sqlGetAllDishCategories).ToListAsync();
 		}
 
 		public async Task<DishCategory?> GetByIDAsync(int id)
 		{
-			return await _context.DishCategories.FindAsync(id);
+			string sqlGetDishCategoryById = "SELECT * FROM DishCategories WHERE CatId = {0}";
+			return await _context.DishCategories.FromSqlRaw(sqlGetDishCategoryById, id).FirstOrDefaultAsync();
 		}
 
-		public async Task InsertAsync(DishCategory dishCategory)
+		public async Task<DishCategory> InsertAsync(DishCategory dishCategory)
 		{
-			await _context.DishCategories.AddAsync(dishCategory);
-			await SaveAsync();
+			string sqlGetDishCategoryByName = "SELECT * FROM DishCategories WHERE CatName = {0}";
+			string sqlInsertDishCategory = @"INSERT INTO DishCategories (CatName)
+											VALUES ({0});
+											SELECT * FROM DishCategories WHERE CatId = SCOPE_IDENTITY();";
+
+			var isContainDishCategory = await _context.DishCategories.FromSqlRaw(sqlGetDishCategoryByName, dishCategory.CatName).AnyAsync();
+			if (isContainDishCategory)
+			{
+				throw new ArgumentException($"Dish Category {dishCategory.CatName} is already exist");
+			}
+
+			var insertedDishCategories = await _context.DishCategories.FromSqlRaw(sqlInsertDishCategory, dishCategory.CatName).ToListAsync();
+
+			var dishCategoryInserted = insertedDishCategories.FirstOrDefault();
+
+			if (dishCategoryInserted == null)
+			{
+				throw new Exception("Failed to insert dish category");
+			}
+
+			return dishCategoryInserted;
 		}
 
 		public async Task DeleteAsync(int id)
 		{
-			var dishCategory = await _context.DishCategories.FindAsync(id);
+			string sqlGetDishCategoryById = "SELECT * FROM DishCategories WHERE CatId = {0}";
+
+			var dishCategory = await _context.DishCategories.FromSqlRaw(sqlGetDishCategoryById, id).FirstOrDefaultAsync();
 			if (dishCategory == null)
 			{
-				throw new Exception($"Dish Category with id {id} not found");
+				throw new ArgumentException($"Dish Category with id {id} not found");
 			}
+
 			await DeleteAsync(dishCategory);
 		}
 
 		public async Task DeleteAsync(DishCategory dishCategory)
 		{
-			if (_context.Entry(dishCategory).State == EntityState.Detached)
-			{
-				_context.DishCategories.Attach(dishCategory);
-			}
-			_context.DishCategories.Remove(dishCategory);
-			await SaveAsync();
+			string sqlDeleteDishCategory = "DELETE FROM DishCategories WHERE CatId = {0}";
+			await _context.Database.ExecuteSqlRawAsync(sqlDeleteDishCategory, dishCategory.CatId);
 		}
 
 		public async Task UpdateAsync(DishCategory dishCategory)
 		{
-			_context.DishCategories.Attach(dishCategory);
-			_context.Entry(dishCategory).State = EntityState.Modified;
-			await SaveAsync();
-		}
-
-		public async Task SaveAsync()
-		{
-			await _context.SaveChangesAsync();
+			string sqlUpdateDishCategory = "UPDATE DishCategories SET CatName = {0} WHERE CatId = {1}";
+			await _context.Database.ExecuteSqlRawAsync(sqlUpdateDishCategory, dishCategory.CatName, dishCategory.CatId);
 		}
 
 		public void Dispose()
