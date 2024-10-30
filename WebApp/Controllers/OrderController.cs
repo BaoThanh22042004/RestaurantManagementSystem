@@ -223,6 +223,7 @@ namespace WebApp.Controllers
 
             var order = await _orderRepository.GetByIDAsync(orderItem.OrderId);
             order.OrderItems.Add(item);
+            await _orderItemRepository.InsertAsync(item);
             await _orderRepository.UpdateAsync(order);
 
             return RedirectToAction("Details", new { orderItem.OrderId });
@@ -277,6 +278,7 @@ namespace WebApp.Controllers
                     var Item = order.OrderItems.FirstOrDefault(i => i.OrItemId == viewModelItem.OrItemId);
                     Item.Status = viewModelItem.Status;
                     Item.Notes = viewModelItem.Notes;
+                    await _orderItemRepository.UpdateAsync(Item);
                 }
 
                 await _orderRepository.UpdateAsync(order);

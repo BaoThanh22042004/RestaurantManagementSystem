@@ -10,6 +10,5 @@ namespace Repositories.Interface
 		Task DeleteAsync(long id);
 		Task DeleteAsync(OrderItem orderItem);
 		Task UpdateAsync(OrderItem orderItem);
-		Task SaveAsync();
 	}
 }
