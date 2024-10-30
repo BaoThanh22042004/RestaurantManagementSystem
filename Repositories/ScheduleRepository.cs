@@ -16,11 +16,12 @@ namespace Repositories
 
 		public async Task<IEnumerable<Schedule>> GetAllAsync()
 		{
-			return await _context.Schedules
+			string sqlGetAllSchedules = "SELECT * FROM Schedules";
+			return await _context.Schedules.FromSqlRaw(sqlGetAllSchedules)
 				.Include(s => s.Shift)
 				.Include(s => s.Employee)
 				.Include(s => s.Attendance)
-				.AsNoTracking().ToListAsync();
+				.ToListAsync();
 		}
 
 		public async Task<Schedule?> GetByIDAsync(long id)
@@ -32,10 +33,11 @@ namespace Repositories
 				.FirstOrDefaultAsync(s => s.ScheId == id);
 		}
 
-		public async Task InsertAsync(Schedule schedule)
+		public async Task<Schedule> InsertAsync(Schedule schedule)
 		{
 			await _context.Schedules.AddAsync(schedule);
 			await SaveAsync();
+			return schedule;
 		}
 
 		public async Task DeleteAsync(long id)
