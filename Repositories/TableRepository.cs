@@ -16,52 +16,56 @@ namespace Repositories
 
 		public async Task<IEnumerable<Table>> GetAllAsync()
 		{
-			return await _context.Tables.AsNoTracking().ToListAsync();
+			string sqlGetAllTables = "SELECT * FROM Tables";
+			var tables = await _context.Tables.FromSqlRaw(sqlGetAllTables).ToListAsync();
+			return tables;
 		}
 
 		public async Task<Table?> GetByIDAsync(int id)
 		{
-			return await _context.Tables.FindAsync(id);
+			string sqlGetTableById = "SELECT * FROM Tables WHERE TableId = {0}";
+			var table = await _context.Tables.FromSqlRaw(sqlGetTableById, id).FirstOrDefaultAsync();
+			return table;
 		}
 
-		public async Task InsertAsync(Table table)
+		public async Task<Table> InsertAsync(Table table)
 		{
-			await _context.Tables.AddAsync(table);
-			await SaveAsync();
+			string sqlInsertTable = @"INSERT INTO Tables ([TableName] ,[Capacity] ,[Status] ,[ResTime] ,[Notes])
+											VALUES ({0}, {1}, {2}, {3}, {4});
+											SELECT * FROM Tables WHERE TableId = SCOPE_IDENTITY();";
+
+			var insertedTables = await _context.Tables.FromSqlRaw(sqlInsertTable, table.TableName, table.Capacity, table.Status, table.ResTime, table.Notes).FirstOrDefaultAsync();
+			if (insertedTables == null)
+			{
+				throw new Exception("Failed to insert table");
+			}
+			return insertedTables;
 		}
 
 		public async Task DeleteAsync(int id)
 		{
-			var table = await _context.Tables.FindAsync(id);
+			string sqlGetTableById = "SELECT * FROM Tables WHERE TableId = {0}";
+
+			var table = await _context.Tables.FromSqlRaw(sqlGetTableById, id).FirstOrDefaultAsync();
 			if (table == null)
 			{
 				throw new Exception($"Table with id {id} not found");
 			}
+
 			await DeleteAsync(table);
 		}
 
 		public async Task DeleteAsync(Table table)
 		{
-			if (_context.Entry(table).State == EntityState.Detached)
-			{
-				_context.Tables.Attach(table);
-			}
-			_context.Tables.Remove(table);
-			await SaveAsync();
+			string sqlDeleteTable = "DELETE FROM Tables WHERE TableId = {0}";
+			await _context.Database.ExecuteSqlRawAsync(sqlDeleteTable, table.TableId);
 		}
 
 		public async Task UpdateAsync(Table table)
 		{
-			_context.Tables.Attach(table);
-			_context.Entry(table).State = EntityState.Modified;
-			await SaveAsync();
-		}
-
-		public async Task SaveAsync()
-		{
-			await _context.SaveChangesAsync();
-		}
-
+			string sqlUpdateTable = @"UPDATE Tables SET TableName = {0}, Capacity = {1}, Status = {2}, ResTime = {3}, Notes = {4} WHERE TableId = {5}";
+			await _context.Database.ExecuteSqlRawAsync(sqlUpdateTable, table.TableName, table.Capacity, table.Status, table.ResTime, table.Notes, table.TableId);
+		}+
 		public void Dispose()
 		{
 			_context.Dispose();
