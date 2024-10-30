@@ -10,6 +10,5 @@ namespace Repositories.Interface
 		Task DeleteAsync(int id);
 		Task DeleteAsync(Dish dish);
 		Task UpdateAsync(Dish dish);
-		Task SaveAsync();
 	}
 }

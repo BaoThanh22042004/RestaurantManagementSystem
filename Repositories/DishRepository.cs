@@ -16,27 +16,78 @@ namespace Repositories
 
 		public async Task<IEnumerable<Dish>> GetAllAsync()
 		{
-			return await _context.Dishes.Include(dish => dish.Category)
-										.AsNoTracking().ToListAsync();
+			string sqlGetAllDishes = "SELECT * FROM Dishes";
+			string sqlGetDishCategoriesByIds = "SELECT * FROM DishCategories WHERE CatId IN ({0})";
+
+			// Get all dishes
+			var dishes = await _context.Dishes.FromSqlRaw(sqlGetAllDishes).ToListAsync();
+
+			// Include categories
+			var categoryIds = dishes.Select(d => d.CategoryId).Distinct().ToList();
+			var categories = await _context.DishCategories
+											.FromSqlRaw(string.Format(sqlGetDishCategoriesByIds, string.Join(",", categoryIds)))
+											.ToDictionaryAsync(c => c.CatId);
+			foreach (var dish in dishes)
+			{
+				if (categories.TryGetValue(dish.CategoryId, out var category))
+				{
+					dish.Category = category;
+				}
+			}
+
+			return dishes;
 		}
 
 		public async Task<Dish?> GetByIDAsync(int id)
 		{
-			return await _context.Dishes
-				.Include(dish => dish.Category)
-				.FirstOrDefaultAsync(dish => dish.DishId.Equals(id));
+			string sqlGetDishById = "SELECT * FROM Dishes WHERE DishId = {0}";
+			string sqlGetDishCategoryById = "SELECT * FROM DishCategories WHERE CatId = {0}";
+
+			// Get dish by ID
+			var dish = await _context.Dishes.FromSqlRaw(sqlGetDishById, id).FirstOrDefaultAsync();
+
+			if (dish == null)
+			{
+				return null;
+			}
+
+			// Include category
+			var category = await _context.DishCategories
+										.FromSqlRaw(sqlGetDishCategoryById, dish.CategoryId)
+										.FirstOrDefaultAsync();
+			if (category != null)
+			{
+				dish.Category = category;
+			}
+
+			return dish;
 		}
 
 		public async Task<Dish> InsertAsync(Dish dish)
 		{
-			var entityEntry = await _context.Dishes.AddAsync(dish);
-			await SaveAsync();
-			return entityEntry.Entity;
+			string sqlInsertDish = @"INSERT INTO Dishes (DishName, Price, Description, Visible, CategoryId)
+									VALUES ({0}, {1}, {2}, {3}, {4});
+									SELECT * FROM Dishes WHERE DishId = SCOPE_IDENTITY();";
+
+			var insertedDishes = await _context.Dishes.FromSqlRaw(sqlInsertDish,
+				dish.DishName, dish.Price, dish.Description, dish.Visible, dish.CategoryId).ToListAsync();
+			
+			var dishInserted = insertedDishes.FirstOrDefault();
+
+			if (dishInserted == null)
+			{
+				throw new Exception("Failed to insert dish");
+			}
+
+			return dishInserted;
 		}
 
 		public async Task DeleteAsync(int id)
 		{
-			var dish = await _context.Dishes.FindAsync(id);
+			string sqlGetDishById = "SELECT * FROM Dishes WHERE DishId = {0}";
+
+			var dish = await _context.Dishes.FromSqlRaw(sqlGetDishById, id).FirstOrDefaultAsync();
+
 			if (dish == null)
 			{
 				throw new Exception($"Dish with id {id} not found");
@@ -46,24 +97,18 @@ namespace Repositories
 
 		public async Task DeleteAsync(Dish dish)
 		{
-			if (_context.Entry(dish).State == EntityState.Detached)
-			{
-				_context.Dishes.Attach(dish);
-			}
-			_context.Dishes.Remove(dish);
-			await SaveAsync();
+			string sqlDeleteDish = "DELETE FROM Dishes WHERE DishId = {0}";
+			await _context.Database.ExecuteSqlRawAsync(sqlDeleteDish, dish.DishId);
 		}
 
 		public async Task UpdateAsync(Dish dish)
 		{
-			_context.Dishes.Attach(dish);
-			_context.Entry(dish).State = EntityState.Modified;
-			await SaveAsync();
-		}
+			string sqlUpdateDish = @"UPDATE Dishes
+									SET DishName = {0}, Price = {1}, Description = {2}, Visible = {3}, CategoryId = {4}
+									WHERE DishId = {5}";
 
-		public async Task SaveAsync()
-		{
-			await _context.SaveChangesAsync();
+			await _context.Database.ExecuteSqlRawAsync(sqlUpdateDish,
+				dish.DishName, dish.Price, dish.Description, dish.Visible, dish.CategoryId, dish.DishId);
 		}
 
 		public void Dispose()

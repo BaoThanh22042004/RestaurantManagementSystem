@@ -90,7 +90,7 @@ namespace Repositories
 				await _context.Database.ExecuteSqlRawAsync(sqlUpdateUserPassword, HashPassword(password), user.UserId);
 			}
 
-			_context.Database.ExecuteSqlRaw(sqlUpdateUserDetails, user.FullName, user.Email, user.Phone, user.Role, user.Salary, user.IsActive, user.UserId);
+			await _context.Database.ExecuteSqlRawAsync(sqlUpdateUserDetails, user.FullName, user.Email, user.Phone, user.Role, user.Salary, user.IsActive, user.UserId);
 		}
 
 		public async Task<User?> ValidateLoginAsync(string username, string password)
