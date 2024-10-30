@@ -222,7 +222,7 @@ namespace WebApp.Controllers
 
 				await _reservationRepository.UpdateAsync(reservationEntity);
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
 				TempData["Error"] = "An error occurred while updating the reservation. Please try again later.";
 				return PartialView("_EditReservationModal", reservationViewModel);

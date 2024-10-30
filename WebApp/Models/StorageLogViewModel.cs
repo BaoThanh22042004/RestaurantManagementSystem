@@ -63,8 +63,7 @@ namespace WebApp.Models
             Description = storageLog.Description;
             ItemId = storageLog.ItemId;
             ItemName = storageLog.StorageItem.ItemName;
-            CreatorName = storageLog.Creator.FullName;
+            // CreatorName = storageLog.Creator.FullName;
         }
-
     }
 }
