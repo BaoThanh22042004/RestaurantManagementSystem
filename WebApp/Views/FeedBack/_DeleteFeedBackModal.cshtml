@@ -1,0 +1,53 @@
+﻿@model WebApp.Models.FeedBackViewModel
+
+<form method="post" asp-action="Delete" id="form">
+	<partial name="Partials/_ModalHeader" model='"Delete Feedback"' />
+
+	<div class="modal-body" id="modalBody">
+
+		@if (@TempData["Error"] != null)
+		{
+			<div class="alert alert-danger" role="alert">
+				@TempData["Error"]
+			</div>
+		}
+		<input asp-for="FeedbackId" type="hidden" />
+
+		<h3 class="mb-3">Are you sure you want to delete this feedback?</h3>
+
+		<dl class="row">
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.FeedbackId)</dt>
+			<dd class="col-sm-8">@Model.FeedbackId</dd>
+
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.CreateAt)</dt>
+			<dd class="col-sm-8">@Model.CreateAt</dd>
+
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.FullName)</dt>
+			<dd class="col-sm-8">@Model.FullName</dd>
+
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Email)</dt>
+			<dd class="col-sm-8">@Model.Email</dd>
+
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Phone)</dt>
+			<dd class="col-sm-8">@Model.Phone</dd>
+
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Subject)</dt>
+			<dd class="col-sm-8">@Model.Subject</dd>
+
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Body)</dt>
+			<dd class="col-sm-8">@Model.Body</dd>
+
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Status)</dt>
+			<dd class="col-sm-8">@Model.Status</dd>
+
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Note)</dt>
+			<dd class="col-sm-8">@(Model.Note ?? "N/A")</dd>
+		</dl>
+	</div>
+
+	@{
+		string deleteButton = "<button type='submit' class='btn btn-danger'>Delete</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model='@deleteButton' />
+</form>
