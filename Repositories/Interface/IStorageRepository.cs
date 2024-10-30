@@ -6,10 +6,9 @@ namespace Repositories.Interface
 	{
 		Task<IEnumerable<Storage>> GetAllAsync();
 		Task<Storage?> GetByIDAsync(int id);
-		Task InsertAsync(Storage storage);
+		Task<Storage> InsertAsync(Storage storage);
 		Task DeleteAsync(int id);
 		Task DeleteAsync(Storage storage);
 		Task UpdateAsync(Storage storage);
-		Task SaveAsync();
 	}
 }
