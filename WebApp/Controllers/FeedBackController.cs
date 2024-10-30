@@ -81,8 +81,8 @@ namespace WebApp.Controllers
 			}
 
 			var feedBackViewModel = new FeedBackViewModel(feedback);
-			return View("DetailsFeedBackView", feedBackViewModel);
-		}
+			return PartialView("_DetailsFeedBackModal", feedBackViewModel);
+        }
 
 		[Route("Edit/{id}")]
 		public async Task<IActionResult> Edit(long id)
@@ -94,8 +94,8 @@ namespace WebApp.Controllers
 			}
 
 			var feedBackViewModel = new FeedBackViewModel(feedback);
-			return View("EditFeedBackView", feedBackViewModel);
-		}
+			return PartialView("_EditFeedBackModal", feedBackViewModel);	
+        }
 
 		[Route("Edit/{id}")]
 		[HttpPost]
@@ -106,8 +106,8 @@ namespace WebApp.Controllers
 				!ModelState.GetValidationState(nameof(feedBackViewModel.Note))
 				.Equals(ModelValidationState.Valid))
 			{
-				return View("EditFeedBackView", feedBackViewModel);
-			}
+                return PartialView("_EditFeedBackModal", feedBackViewModel);
+            }
 
 			try
 			{
@@ -126,11 +126,11 @@ namespace WebApp.Controllers
 			catch (Exception)
 			{
 				TempData["Error"] = "An error occurred while updating the feedback. Please try again later.";
-				return View("EditFeedBackView", feedBackViewModel);
-			}
+                return PartialView("_EditFeedBackModal", feedBackViewModel);
+            }
 
-			return RedirectToAction("Index");
-		}
+            return Json(new { success = true });
+        }
 
 		[Route("Delete/{id}")]
 		public async Task<IActionResult> Delete(long id)
@@ -142,7 +142,7 @@ namespace WebApp.Controllers
 			}
 
 			var feedBackViewModel = new FeedBackViewModel(feedback);
-			return View("DeleteFeedBackView", feedBackViewModel);
+			return PartialView("_DeleteFeedBackModal", feedBackViewModel);
 		}
 
 		[HttpPost]
@@ -158,8 +158,7 @@ namespace WebApp.Controllers
 				TempData["Error"] = "An error occurred while deleting feedback. Please try again later.";
 				return RedirectToAction("Delete", new { FeedbackId });
 			}
-
-			return RedirectToAction("Index");
+			return Json(new { success = true });
 		}
 
 		private FeedBackViewModel GetUserFeedBackViewModel()

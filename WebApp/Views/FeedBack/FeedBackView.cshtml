@@ -7,7 +7,7 @@
 
 <h1 class="mb-4">Feedback List</h1>
 
-<!-- Thông báo lỗi hoặc thành công nếu có -->
+<!-- Notifications for errors or success messages -->
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger">
@@ -20,11 +20,6 @@
         @TempData["Success"]
     </div>
 }
-
-<!-- <div class="mb-3">
-    <a asp-action="Create" class="btn btn-success">Add New Feedback</a>
-</div> -->
-
 
 <table class="table table-hover">
     <thead>
@@ -47,14 +42,10 @@
                 <td>@feedback.Status</td>
                 <td>@feedback.CreateAt.ToString("g")</td>
                 <td>
-                    <!-- Nút Details -->
-                    <a asp-action="Details" asp-route-id="@feedback.FeedbackId" class="btn btn-info btn-sm">Details</a>
-
-                    <!-- Nút Edit -->
-                    <a asp-action="Edit" asp-route-id="@feedback.FeedbackId" class="btn btn-primary btn-sm">Edit</a>
-
-                    <!-- Nút Delete -->
-                    <a asp-action="Delete" asp-route-id="@feedback.FeedbackId" class="btn btn-danger btn-sm">Delete</a>
+                    <!-- Buttons to trigger modals for each action -->
+                    <button class="btn btn-info btn-sm" onclick="details(@feedback.FeedbackId)">Details</button>
+                    <button class="btn btn-primary btn-sm" onclick="edit(@feedback.FeedbackId)">Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteAction(@feedback.FeedbackId)">Delete</button>
                 </td>
             </tr>
         }
@@ -66,4 +57,40 @@
     <div class="alert alert-info">
         No feedbacks found.
     </div>
+}
+
+<!-- Modal Structure -->
+<div class="modal fade" id="feedbackModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="feedbackModalContent">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function details(id) {
+            var url = '@Url.Action("Details", "Feedback", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#feedbackModalContent').html(response);
+                $('#feedbackModal').modal('show');
+            });
+        }
+
+        function edit(id) {
+            var url = '@Url.Action("Edit", "Feedback", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#feedbackModalContent').html(response);
+                $('#feedbackModal').modal('show');
+            });
+        }
+
+        function deleteAction(id) {
+            var url = '@Url.Action("Delete", "Feedback", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#feedbackModalContent').html(response);
+                $('#feedbackModal').modal('show');
+            });
+        }
+    </script>
 }
