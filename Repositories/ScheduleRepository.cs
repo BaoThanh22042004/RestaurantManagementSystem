@@ -17,32 +17,126 @@ namespace Repositories
 		public async Task<IEnumerable<Schedule>> GetAllAsync()
 		{
 			string sqlGetAllSchedules = "SELECT * FROM Schedules";
-			return await _context.Schedules.FromSqlRaw(sqlGetAllSchedules)
-				.Include(s => s.Shift)
-				.Include(s => s.Employee)
-				.Include(s => s.Attendance)
-				.ToListAsync();
+			string sqlGetAllAttendances = "SELECT * FROM Attendances";
+
+			//string sqlGetShiftsByIds = "SELECT * FROM Shifts WHERE ShiftId IN ({0})";
+			var schedules = await _context.Schedules.FromSqlRaw(sqlGetAllSchedules).ToListAsync();
+			var attendances = await _context.Attendances.FromSqlRaw(sqlGetAllAttendances).ToListAsync();
+
+			//Include Shift
+			string sqlGetShiftsByIds = "SELECT * FROM Shifts WHERE ShiftId IN ({0})";
+
+			var shiftIds = schedules.Select(s => s.ShiftId).Distinct().ToList();
+
+			var shifts = await _context.Shifts.FromSqlRaw(string.Format(sqlGetShiftsByIds, string.Join(",", shiftIds))).ToDictionaryAsync( s => s.ShiftId);
+
+			//Include User
+			string sqlGetUsersByIds = "SELECT * FROM Users WHERE UserId IN ({0})";
+
+			var userIds = schedules.Select(s => s.EmpId).Distinct().ToList();
+
+			var users = await _context.Users.FromSqlRaw(string.Format(sqlGetUsersByIds, string.Join(",", userIds))).ToDictionaryAsync(u => u.UserId);
+
+			//Include Attendance
+			string sqlGetAttendancesByIds = "SELECT * FROM Attendances WHERE ScheId IN ({0})";
+
+			var scheIds = attendances.Select( a => a.ScheId).Distinct().ToList();
+
+			var scheOfAttendances = await _context.Attendances.FromSqlRaw(string.Format(sqlGetAttendancesByIds, string.Join(",", scheIds))).ToDictionaryAsync(s => s.ScheId);
+
+
+			foreach (var schedule in schedules) {
+				if (shifts.TryGetValue(schedule.ShiftId, out var shift)) 
+				{ 
+					schedule.Shift = shift;
+				}
+				if (users.TryGetValue(schedule.EmpId, out var user)) 
+				{
+					schedule.Employee = user;
+				}
+			}
+
+			foreach (var attendance in attendances) 
+			{
+				if (scheOfAttendances.TryGetValue(attendance.ScheId, out var schedule)) 
+				{
+					schedule.Schedule = attendance.Schedule ;
+				}
+			}
+
+			return schedules;
 		}
 
 		public async Task<Schedule?> GetByIDAsync(long id)
 		{
-			return await _context.Schedules
-				.Include(s => s.Shift)
-                .Include(s => s.Employee)
-                .Include(s => s.Attendance)
-				.FirstOrDefaultAsync(s => s.ScheId == id);
+			string sqlGetScheduleById = "SELECT * FROM Schedules WHERE ScheId = {0}";
+			string sqlGetShiftById = "SELECT * FROM Shifts WHERE ShiftId = {0}";
+			string sqlGetUserById = "SELECT * FROM Users WHERE UserId = {0}";
+			string sqlGetAttendanceById = "SELECT * FROM Attendances WHERE ScheId = {0}";
+
+			// Get schedule by ID
+			var schedule = await _context.Schedules.FromSqlRaw(sqlGetScheduleById, id).FirstOrDefaultAsync();
+			if (schedule == null) 
+			{ 
+				return null;
+			}
+
+			//Include Shift
+			var shift = await _context.Shifts
+										.FromSqlRaw(sqlGetShiftById, schedule.ShiftId)
+										.FirstOrDefaultAsync();
+			if (shift != null)
+			{
+				schedule.Shift = shift;
+			}
+
+			//Include Employee
+			var employee = await _context.Users
+										.FromSqlRaw(sqlGetUserById, schedule.EmpId)
+										.FirstOrDefaultAsync();
+			if (employee != null)
+			{
+				schedule.Employee = employee;
+			}
+
+			//Include Attendance
+			var attendance = await _context.Attendances
+										.FromSqlRaw(sqlGetAttendanceById, schedule.ScheId)
+										.FirstOrDefaultAsync();
+			if (attendance != null)
+			{
+				schedule.Attendance = attendance;
+			}
+
+			return schedule;
 		}
 
 		public async Task<Schedule> InsertAsync(Schedule schedule)
 		{
-			await _context.Schedules.AddAsync(schedule);
-			await SaveAsync();
-			return schedule;
+			string sqlInsertSchedule = @"INSERT INTO Schedules (ScheDate, EmpId, ShiftId)
+									VALUES ({0}, {1}, {2});
+									SELECT * FROM Schedules WHERE ScheId = SCOPE_IDENTITY();";
+
+			var insertedSchedules = await _context.Schedules.FromSqlRaw(sqlInsertSchedule,
+				schedule.ScheDate,schedule.EmpId,schedule.ShiftId).ToListAsync();
+
+			var scheduleInserted = insertedSchedules.FirstOrDefault();
+
+			if (scheduleInserted == null)
+			{
+				throw new Exception("Failed to insert schedule");
+			}
+
+			return scheduleInserted;
 		}
 
 		public async Task DeleteAsync(long id)
 		{
-			var schedule = await _context.Schedules.FindAsync(id);
+
+			string sqlGetScheduleById = "SELECT * FROM Schedules WHERE ScheId = {0}";
+
+			var schedule = await _context.Schedules.FromSqlRaw(sqlGetScheduleById, id).FirstOrDefaultAsync();
+		
 			if (schedule == null)
 			{
 				throw new Exception($"Schedule with id {id} not found");
@@ -52,24 +146,18 @@ namespace Repositories
 
 		public async Task DeleteAsync(Schedule schedule)
 		{
-			if (_context.Entry(schedule).State == EntityState.Detached)
-			{
-				_context.Schedules.Attach(schedule);
-			}
-			_context.Schedules.Remove(schedule);
-			await SaveAsync();
+			string sqlDeleteSchedule = "DELETE FROM Schedules WHERE ScheId = {0}";
+			await _context.Database.ExecuteSqlRawAsync(sqlDeleteSchedule, schedule.ScheId);
 		}
 
 		public async Task UpdateAsync(Schedule schedule)
 		{
-			_context.Schedules.Attach(schedule);
-			_context.Entry(schedule).State = EntityState.Modified;
-			await SaveAsync();
-		}
+			string sqlUpdateSchedule = @"UPDATE Schedules
+									SET ScheDate = {0}, EmpId = {1}, ShiftId = {2}
+									WHERE ScheId = {3}";
 
-		public async Task SaveAsync()
-		{
-			await _context.SaveChangesAsync();
+			await _context.Database.ExecuteSqlRawAsync(sqlUpdateSchedule,schedule.ScheDate,schedule.EmpId,schedule.ShiftId,schedule.ScheId);
+
 		}
 
 		public void Dispose()
