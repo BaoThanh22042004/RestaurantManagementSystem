@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Models;
 using Models.Entities;
 using Repositories.Interface;
@@ -16,23 +17,41 @@ namespace Repositories
 
 		public async Task<IEnumerable<Shift>> GetAllAsync()
 		{
-			return await _context.Shifts.AsNoTracking().ToListAsync();
+			string sqlGetAllShifts = "SELECT * FROM Shifts";
+
+			return await _context.Shifts.FromSqlRaw(sqlGetAllShifts).ToListAsync();
+			
 		}
 
 		public async Task<Shift?> GetByIDAsync(int id)
 		{
-			return await _context.Shifts.FindAsync(id);
+			string sqlGetShiftById = "SELECT * FROM Shifts WHERE ShiftId = {0}";
+			return await _context.Shifts.FromSqlRaw(sqlGetShiftById, id).FirstOrDefaultAsync();
 		}
 
-		public async Task InsertAsync(Shift shift)
+		public async Task<Shift> InsertAsync(Shift shift)
 		{
-			await _context.Shifts.AddAsync(shift);
-			await SaveAsync();
+			string sqlShiftInsert = @"INSERT INTO Shifts (ShiftName,StartTime,EndTime)
+											VALUES ({0}, {1}, {2});
+											SELECT * FROM Shifts WHERE ShiftId = SCOPE_IDENTITY();";
+
+			var insertedShift = await _context.Shifts.FromSqlRaw(sqlShiftInsert, shift.ShiftName, shift.StartTime,shift.EndTime).ToListAsync();
+
+			var shiftInserted = insertedShift.FirstOrDefault();
+
+			if (shiftInserted == null)
+			{
+				throw new Exception("Failed to insert shift");
+			}
+
+			return shiftInserted;
 		}
 
 		public async Task DeleteAsync(int id)
 		{
-			var shift = await _context.Shifts.FindAsync(id);
+			string sqlGetShiftById = "SELECT * FROM Shifts WHERE ShiftId = {0}";
+
+			var shift = await _context.Shifts.FromSqlRaw(sqlGetShiftById,id).FirstOrDefaultAsync();
 			if (shift == null)
 			{
 				throw new Exception($"Shift with id {id} not found");
@@ -42,24 +61,19 @@ namespace Repositories
 
 		public async Task DeleteAsync(Shift shift)
 		{
-			if (_context.Entry(shift).State == EntityState.Detached)
-			{
-				_context.Shifts.Attach(shift);
-			}
-			_context.Shifts.Remove(shift);
-			await SaveAsync();
+			string sqlDeleteShift = "DELETE FROM Shifts WHERE ShiftId = {0}";
+			await _context.Database.ExecuteSqlRawAsync(sqlDeleteShift, shift.ShiftId);
 		}
 
 		public async Task UpdateAsync(Shift shift)
 		{
-			_context.Shifts.Attach(shift);
-			_context.Entry(shift).State = EntityState.Modified;
-			await SaveAsync();
-		}
-
-		public async Task SaveAsync()
-		{
-			await _context.SaveChangesAsync();
+			string sqlUpdateShift = @"UPDATE Shifts 
+											SET 
+											ShiftName = {0},
+											StartTime = {1},
+											EndTime = {2}
+											WHERE ShiftId = {3}";
+			await _context.Database.ExecuteSqlRawAsync(sqlUpdateShift, shift.ShiftName, shift.StartTime, shift.EndTime, shift.ShiftId);
 		}
 
 		public void Dispose()

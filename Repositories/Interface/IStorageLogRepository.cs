@@ -6,10 +6,9 @@ namespace Repositories.Interface
 	{
 		Task<IEnumerable<StorageLog>> GetAllAsync();
 		Task<StorageLog?> GetByIDAsync(long id);
-		Task InsertAsync(StorageLog storageLog);
+		Task<StorageLog> InsertAsync(StorageLog storageLog);
 		Task DeleteAsync(long id);
 		Task DeleteAsync(StorageLog storageLog);
 		Task UpdateAsync(StorageLog storageLog);
-		Task SaveAsync();
 	}
 }

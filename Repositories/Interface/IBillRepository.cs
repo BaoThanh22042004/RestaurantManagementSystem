@@ -6,10 +6,9 @@ namespace Repositories.Interface
 	{
 		Task<IEnumerable<Bill>> GetAllAsync();
 		Task<Bill?> GetByIDAsync(long id);
-		Task InsertAsync(Bill bill);
+		Task<Bill> InsertAsync(Bill bill);
 		Task DeleteAsync(long id);
 		Task DeleteAsync(Bill bill);
 		Task UpdateAsync(Bill bill);
-		Task SaveAsync();
 	}
 }

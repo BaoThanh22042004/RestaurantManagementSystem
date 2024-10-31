@@ -10,6 +10,5 @@ namespace Repositories.Interface
 		Task DeleteAsync(long id);
 		Task DeleteAsync(Reservation reservation);
 		Task UpdateAsync(Reservation reservation);
-		Task SaveAsync();
 	}
 }

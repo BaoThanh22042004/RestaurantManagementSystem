@@ -7,7 +7,6 @@ namespace WebApp.Models
 {
     public class AttendanceViewModel
     {
-
         public long? AttendId { get; set; }
 
         [Required(ErrorMessage = "Schedule is required.")]
@@ -31,7 +30,9 @@ namespace WebApp.Models
         [Display(Name = "Attendance Status")]
         public AttendanceStatus Status { get; set; }
 
-        public AttendanceViewModel()
+        public string EmployeeName { get; set; }
+
+		public AttendanceViewModel()
         {
         }
 
@@ -44,6 +45,8 @@ namespace WebApp.Models
             CheckOut = attendance.CheckOut;
             WorkingHours = attendance.WorkingHours;
             Status = attendance.Status;
-        }
+			EmployeeName = attendance.Schedule.Employee.FullName;
+
+		}
     }
 }

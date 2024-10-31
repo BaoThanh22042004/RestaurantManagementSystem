@@ -118,7 +118,11 @@ namespace WebApp.Controllers
                     OrderItems = new List<OrderItem>()
                 };
                 await _orderRepository.InsertAsync(order);
-            }
+
+                var table = await _tableRepository.GetByIDAsync(orderViewModel.TableId.Value);
+				table.Status = TableStatus.Occupied;
+				await _tableRepository.UpdateAsync(table);
+			}
             catch (ArgumentException e)
             {
                 TempData["Error"] = e.Message;
