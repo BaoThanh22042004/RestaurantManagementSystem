@@ -258,8 +258,7 @@ namespace WebApp.Controllers
             return PartialView("_EditOrderModal", orderViewModel);
         }
 
-        [HttpPost]
-        [Route("Edit/{orderId}")]
+        [HttpPost("Edit/{orderId}")]
         public async Task<IActionResult> Edit(OrderViewModel orderViewModel, long orderId)
         {
             if (!ModelState.IsValid)
@@ -270,7 +269,7 @@ namespace WebApp.Controllers
                     item.StatusOptions = await GetOrderItemStatusList();
                     item.DishName = await GetDishNameByDishId(item.DishId);
                 }
-                return PartialView("_DetailsOrderModal", orderViewModel);
+                return PartialView("_EditOrderModal", orderViewModel);
             }
 
             try
@@ -305,7 +304,7 @@ namespace WebApp.Controllers
                 return PartialView("_EditOrderModal", orderViewModel);
             }
             return Json(new { success = true });
-        }
+        }   
 
         [Route("Delete/{orderId}")]
         public async Task<IActionResult> Delete(long orderId)
