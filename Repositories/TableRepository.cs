@@ -34,12 +34,13 @@ namespace Repositories
 											VALUES ({0}, {1}, {2}, {3}, {4});
 											SELECT * FROM Tables WHERE TableId = SCOPE_IDENTITY();";
 
-			var insertedTables = await _context.Tables.FromSqlRaw(sqlInsertTable, table.TableName, table.Capacity, table.Status, table.ResTime, table.Notes).FirstOrDefaultAsync();
-			if (insertedTables == null)
+			var insertedTables = await _context.Tables.FromSqlRaw(sqlInsertTable, table.TableName, table.Capacity, table.Status, table.ResTime, table.Notes).ToListAsync();
+			var insertedTable = insertedTables.FirstOrDefault();
+			if (insertedTable == null)
 			{
 				throw new Exception("Failed to insert table");
 			}
-			return insertedTables;
+			return insertedTable;
 		}
 
 		public async Task DeleteAsync(int id)
@@ -65,7 +66,7 @@ namespace Repositories
 		{
 			string sqlUpdateTable = @"UPDATE Tables SET TableName = {0}, Capacity = {1}, Status = {2}, ResTime = {3}, Notes = {4} WHERE TableId = {5}";
 			await _context.Database.ExecuteSqlRawAsync(sqlUpdateTable, table.TableName, table.Capacity, table.Status, table.ResTime, table.Notes, table.TableId);
-		}+
+		}
 		public void Dispose()
 		{
 			_context.Dispose();
