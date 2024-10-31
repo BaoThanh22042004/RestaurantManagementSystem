@@ -1,0 +1,52 @@
+﻿@model PayrollViewModel
+
+<form method="post" asp-action="Delete" id="form">
+    <partial name="Partials/_ModalHeader" model='"Delete Payroll"' />
+
+    <div class="modal-body" id="modalBody">
+        <p>Are you sure you want to delete this payroll record?</p>
+
+        <div class="form-floating mb-3">
+            <input asp-for="PayrollId" type="hidden" />
+            <input asp-for="PayrollId" class="form-control" disabled />
+            <label asp-for="PayrollId">Payroll ID</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="CreatedBy" class="form-control" disabled />
+            <label asp-for="CreatedBy">Created By</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="CreatedAt" class="form-control" type="datetime-local" disabled />
+            <label asp-for="CreatedAt">Created At</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="EmpId" class="form-control" disabled />
+            <label asp-for="EmpId">Employee ID</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="Month" class="form-control" type="number" disabled />
+            <label asp-for="Month">Month</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="Year" class="form-control" type="number" disabled />
+            <label asp-for="Year">Year</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="Salary" class="form-control" type="number" disabled />
+            <label asp-for="Salary">Salary</label>
+        </div>
+
+    </div>
+
+    @{
+        string deleteButton = "<button type='submit' class='btn btn-danger'>Delete</button>";     
+    }
+
+    <partial name="Partials/_ModalFooter" model='@($"{deleteButton}")' />
+</form>

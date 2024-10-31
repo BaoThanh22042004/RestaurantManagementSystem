@@ -9,26 +9,26 @@ namespace WebApp.Models
 
         [Required(ErrorMessage = "Created By is required.")]
         [Display(Name = "Created By")]
-        public int? CreatedBy { get; set; }
+        public int CreatedBy { get; set; }
 
         [Required(ErrorMessage = "Created At is required.")]
         [Display(Name = "Created At")]
         [DataType(DataType.DateTime)]
-        public DateTime? CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         [Required(ErrorMessage = "Employee ID is required.")]
         [Display(Name = "Employee ID")]
-        public int? EmpId { get; set; }
+        public int EmpId { get; set; }
 
         [Required(ErrorMessage = "Month is required.")]
         [Range(1, 12, ErrorMessage = "Month must be between 1 and 12.")]
         [Display(Name = "Month")]
-        public byte? Month { get; set; }
+        public byte Month { get; set; }
 
         [Required(ErrorMessage = "Year is required.")]
         [Range(1900, 9999, ErrorMessage = "Year must be a valid year.")]
         [Display(Name = "Year")]
-        public short? Year { get; set; }
+        public short Year { get; set; }
 
         [Required(ErrorMessage = "Working Hours is required.")]
         [Range(0, 9999.99, ErrorMessage = "Working Hours must be between 0 and 9999.99.")]
@@ -38,12 +38,12 @@ namespace WebApp.Models
         [Required(ErrorMessage = "Salary is required.")]
         [Range(0, 99999999.99, ErrorMessage = "Salary must be between 0 and 99999999.99.")]
         [Display(Name = "Salary")]
-        public decimal? Salary { get; set; }
+        public decimal Salary { get; set; }
 
         [Required(ErrorMessage = "Status is required.")]
         [EnumDataType(typeof(PayrollStatus), ErrorMessage = "Invalid status.")]
         [Display(Name = "Status")]
-        public PayrollStatus? Status { get; set; }
+        public PayrollStatus Status { get; set; }
 
         [Display(Name = "Payment Date")]
         [DataType(DataType.Date)]
@@ -62,7 +62,7 @@ namespace WebApp.Models
             WorkingHours = payroll.WorkingHours;
             Salary = payroll.Salary;
             Status = payroll.Status;
-            PaymentDate = payroll.PaymentDate; // DateOnly? type, no conversion needed
+            PaymentDate = payroll.PaymentDate;
         }
     }
 }
