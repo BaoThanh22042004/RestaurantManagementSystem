@@ -1,16 +1,12 @@
 ﻿@model StorageViewModel
 
 <form method="post" asp-action="Create" id="form">
-	<partial name="Partials/_ModalHeader" model='"Create Storage"' />
+	<partial name="Partials/_ModalHeader" model='"Create Item"' />
 
 	<div class="modal-body" id="modalBody">
 
-		@if (@TempData["Error"] != null)
-		{
-			<div class="alert alert-danger" role="alert">
-				@TempData["Error"]
-			</div>
-		}
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
+
 		<div class="form-floating mb-3">
 			<input asp-for="ItemName" class="form-control" id="ItemName" />
 			<label asp-for="ItemName">Item Name</label>

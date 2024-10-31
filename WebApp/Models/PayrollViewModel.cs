@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Models.Entities;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace WebApp.Models
 {
@@ -17,8 +18,9 @@ namespace WebApp.Models
         public DateTime CreatedAt { get; set; }
 
         [Required(ErrorMessage = "Employee ID is required.")]
-        [Display(Name = "Employee ID")]
+        [Display(Name = "Employee")]
         public int EmpId { get; set; }
+
 
         [Required(ErrorMessage = "Month is required.")]
         [Range(1, 12, ErrorMessage = "Month must be between 1 and 12.")]
@@ -48,6 +50,10 @@ namespace WebApp.Models
         [Display(Name = "Payment Date")]
         [DataType(DataType.Date)]
         public DateOnly? PaymentDate { get; set; }
+        public string? EmployeeName { get;  set; }
+
+        public IEnumerable<SelectListItem>? EmployeeList { get; set; }
+        public User? Employee { get; set; }
 
         public PayrollViewModel() { }
 
@@ -63,6 +69,7 @@ namespace WebApp.Models
             Salary = payroll.Salary;
             Status = payroll.Status;
             PaymentDate = payroll.PaymentDate;
+            Employee = payroll.Employee;
         }
     }
 }

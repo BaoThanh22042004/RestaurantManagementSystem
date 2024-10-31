@@ -4,49 +4,44 @@
     <partial name="Partials/_ModalHeader" model='"Delete Payroll"' />
 
     <div class="modal-body" id="modalBody">
-        <p>Are you sure you want to delete this payroll record?</p>
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @TempData["Error"]
+            </div>
+        }
 
-        <div class="form-floating mb-3">
-            <input asp-for="PayrollId" type="hidden" />
-            <input asp-for="PayrollId" class="form-control" disabled />
-            <label asp-for="PayrollId">Payroll ID</label>
-        </div>
+        <input asp-for="PayrollId" type="hidden" />
 
-        <div class="form-floating mb-3">
-            <input asp-for="CreatedBy" class="form-control" disabled />
-            <label asp-for="CreatedBy">Created By</label>
-        </div>
+        <h3 class="mb-3">Are you sure you want to delete this payroll?</h3>
 
-        <div class="form-floating mb-3">
-            <input asp-for="CreatedAt" class="form-control" type="datetime-local" disabled />
-            <label asp-for="CreatedAt">Created At</label>
-        </div>
+        <dl>
+            <dt>@Html.DisplayNameFor(m => m.EmpId)</dt>
+            <dd>@Model.Employee?.FullName</dd>
 
-        <div class="form-floating mb-3">
-            <input asp-for="EmpId" class="form-control" disabled />
-            <label asp-for="EmpId">Employee ID</label>
-        </div>
+            <dt>@Html.DisplayNameFor(m => m.Month)</dt>
+            <dd>@Model.Month</dd>
 
-        <div class="form-floating mb-3">
-            <input asp-for="Month" class="form-control" type="number" disabled />
-            <label asp-for="Month">Month</label>
-        </div>
+            <dt>@Html.DisplayNameFor(m => m.Year)</dt>
+            <dd>@Model.Year</dd>
 
-        <div class="form-floating mb-3">
-            <input asp-for="Year" class="form-control" type="number" disabled />
-            <label asp-for="Year">Year</label>
-        </div>
+            <dt>@Html.DisplayNameFor(m => m.WorkingHours)</dt>
+            <dd>@Model.WorkingHours</dd>
 
-        <div class="form-floating mb-3">
-            <input asp-for="Salary" class="form-control" type="number" disabled />
-            <label asp-for="Salary">Salary</label>
-        </div>
+            <dt>@Html.DisplayNameFor(m => m.Salary)</dt>
+            <dd>@Model.Salary</dd>
 
+            <dt>@Html.DisplayNameFor(m => m.Status)</dt>
+            <dd>@Model.Status</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.PaymentDate)</dt>
+            <dd>@(Model.PaymentDate?.ToString("yyyy-MM-dd") ?? "N/A")</dd>
+        </dl>
     </div>
 
     @{
-        string deleteButton = "<button type='submit' class='btn btn-danger'>Delete</button>";     
+        string deleteButton = "<button type='submit' class='btn btn-danger'>Delete</button>";
     }
 
-    <partial name="Partials/_ModalFooter" model='@($"{deleteButton}")' />
+    <partial name="Partials/_ModalFooter" model='@deleteButton' />
 </form>

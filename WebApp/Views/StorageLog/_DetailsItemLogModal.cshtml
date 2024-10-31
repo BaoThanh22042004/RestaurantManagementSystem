@@ -1,0 +1,80 @@
+﻿@model StorageLogViewModel
+
+<partial name="Partials/_ModalHeader" model='"Details Item Log"' />
+
+<div class="modal-body" id="modalBody">
+	<dl class="row">
+
+		<dt class="col-sm-4">
+			@Html.DisplayNameFor(model => model.LogId)
+		</dt>
+		<dd class="col-sm-8">
+			@Html.DisplayFor(model => model.LogId)
+		</dd>
+
+		<dt class="col-sm-4">
+			@Html.DisplayNameFor(model => model.CreatorName)
+		</dt>
+		<dd class="col-sm-8">
+			@Html.DisplayFor(model => model.CreatorName) (@Model.CreatedBy)
+		</dd>
+
+		<dt class="col-sm-4">
+			@Html.DisplayNameFor(model => model.CreatedAt)
+		</dt>
+		<dd class="col-sm-8">
+			@Html.DisplayFor(model => model.CreatedAt)
+		</dd>
+
+		<dt class="col-sm-4">
+			Item ID
+		</dt>
+		<dd class="col-sm-8">
+			@Html.DisplayFor(model => model.ItemId)
+		</dd>
+
+		<dt class="col-sm-4">
+			@Html.DisplayNameFor(model => model.ItemName)
+		</dt>
+		<dd class="col-sm-8">
+			@Html.DisplayFor(model => model.ItemName)
+		</dd>
+
+		<dt class="col-sm-4">
+			@Html.DisplayNameFor(model => model.Action)
+		</dt>
+		<dd class="col-sm-8">
+			@Html.DisplayFor(model => model.Action)
+		</dd>
+
+		<dt class="col-sm-4">
+			@Html.DisplayNameFor(model => model.ChangeQuantity)
+		</dt>
+		<dd class="col-sm-8">
+			@Html.DisplayFor(model => model.ChangeQuantity)
+		</dd>
+
+		<dt class="col-sm-4">
+			@Html.DisplayNameFor(model => model.RemainQuantity)
+		</dt>
+		<dd class="col-sm-8">
+			@Html.DisplayFor(model => model.RemainQuantity)
+		</dd>
+
+		<dt class="col-sm-4">
+			@Html.DisplayNameFor(model => model.Cost)
+		</dt>
+		<dd class="col-sm-8">
+			@(Model.Cost == null ? "N/A" : Model.Cost)
+		</dd>
+
+		<dt class="col-sm-4">
+			@Html.DisplayNameFor(model => model.Description)
+		</dt>
+		<dd class="col-sm-8">
+			@(Model.Description ?? "N/A")
+		</dd>
+	</dl>
+</div>
+
+<partial name="Partials/_ModalFooter" model='""' />

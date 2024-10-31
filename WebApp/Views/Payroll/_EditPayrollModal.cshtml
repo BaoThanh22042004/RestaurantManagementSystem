@@ -4,7 +4,6 @@
     <partial name="Partials/_ModalHeader" model='"Edit Payroll"' />
 
     <div class="modal-body" id="modalBody">
-
         @if (TempData["Error"] != null)
         {
             <div class="alert alert-danger" role="alert">
@@ -12,73 +11,52 @@
             </div>
         }
 
-        <div class="form-floating mb-3">
-            <input asp-for="PayrollId" type="hidden" />
-            <input asp-for="PayrollId" class="form-control" disabled />
-            <label asp-for="PayrollId"></label>
-        </div>
+        <input asp-for="PayrollId" type="hidden" />
+
+
+        <input asp-for="CreatedBy" class="form-control" type="hidden" id="CreatedBy" />
+
+
+        <input asp-for="CreatedAt" class="form-control" type="hidden" id="CreatedAt"  />
+
+
+
+        <input asp-for="EmpId" class="form-control" type="hidden" id="EmpId"  />
+
+
+        <input asp-for="Month" class="form-control" id="Month" type="hidden" min="1" max="12"  />
+
+
+
+        <input asp-for="Year" class="form-control" id="Year" type="hidden"  />
+
+
+
+        <input asp-for="WorkingHours" class="form-control" id="WorkingHours" type="hidden" step="0.01"  />
+
+
+
+        <input asp-for="Salary" class="form-control" id="Salary" type="hidden" step="0.01"  />
+
 
         <div class="form-floating mb-3">
-            <input asp-for="CreatedBy" class="form-control" id="CreatedBy" />
-            <label asp-for="CreatedBy"></label>
-            <span asp-validation-for="CreatedBy" class="text-danger"></span>
-        </div>
-
-        <div class="form-floating mb-3">
-            <input asp-for="CreatedAt" class="form-control" id="CreatedAt" type="datetime-local" />
-            <label asp-for="CreatedAt"></label>
-            <span asp-validation-for="CreatedAt" class="text-danger"></span>
-        </div>
-
-        <div class="form-floating mb-3">
-            <input asp-for="EmpId" class="form-control" id="EmpId" />
-            <label asp-for="EmpId"></label>
-            <span asp-validation-for="EmpId" class="text-danger"></span>
-        </div>
-
-        <div class="form-floating mb-3">
-            <input asp-for="Month" class="form-control" id="Month" type="number" min="1" max="12" />
-            <label asp-for="Month"></label>
-            <span asp-validation-for="Month" class="text-danger"></span>
-        </div>
-
-        <div class="form-floating mb-3">
-            <input asp-for="Year" class="form-control" id="Year" type="number" min="1900" max="9999" />
-            <label asp-for="Year"></label>
-            <span asp-validation-for="Year" class="text-danger"></span>
-        </div>
-
-        <div class="form-floating mb-3">
-            <input asp-for="WorkingHours" class="form-control" id="WorkingHours" type="number" step="0.01" />
-            <label asp-for="WorkingHours"></label>
-            <span asp-validation-for="WorkingHours" class="text-danger"></span>
-        </div>
-
-        <div class="form-floating mb-3">
-            <input asp-for="Salary" class="form-control" id="Salary" type="number" step="0.01" />
-            <label asp-for="Salary"></label>
-            <span asp-validation-for="Salary" class="text-danger"></span>
-        </div>
-
-        <div class="form-floating mb-3">
-            <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<Models.Entities.PayrollStatus>()" id="Status">
-                <option selected id="DefaultSelectStatus">Select Status</option>
+            <select asp-for="Status" asp-items="Html.GetEnumSelectList<Models.Entities.PayrollStatus>()" class="form-select" id="Status" required>
+                <option selected disabled>Please select Status</option>
             </select>
             <label asp-for="Status"></label>
             <span asp-validation-for="Status" class="text-danger"></span>
         </div>
 
         <div class="form-floating mb-3">
-            <input asp-for="PaymentDate" class="form-control" id="PaymentDate" type="date" />
-            <label asp-for="PaymentDate"></label>
+            <input asp-for="PaymentDate" class="form-control" type="date" id="PaymentDate" />
+            <label asp-for="PaymentDate">Payment Date</label>
             <span asp-validation-for="PaymentDate" class="text-danger"></span>
         </div>
-
     </div>
 
     @{
-        string saveButton = "<button type='submit' class='btn btn-primary'>Save</button>";
+        string editButton = "<button type='submit' class='btn btn-primary'>Save Changes</button>";
     }
 
-    <partial name="Partials/_ModalFooter" model='@saveButton' />
+    <partial name="Partials/_ModalFooter" model='@editButton' />
 </form>
