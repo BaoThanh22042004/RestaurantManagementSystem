@@ -2,7 +2,7 @@
 
 <form method="post" asp-action="Delete" id="form">
 <partial name="Partials/_ModalHeader" model='"Delete Dish"' />
-
+    <div class="modal-body" id="modalBody">
 <div class="card">
     @if (@TempData["Error"] != null)
     {
@@ -87,7 +87,7 @@
         </tbody>
     </table>
 }
-
+</div>
 @{
     string deleteButton = "<button type='submit' class='btn btn-danger'>Delete</button>";
 }

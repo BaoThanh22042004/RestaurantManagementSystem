@@ -3,6 +3,7 @@
 <form method="post" asp-action="AddOrderItem" id="form">
     <partial name="Partials/_ModalHeader" model='"Add Dish"' />
 
+    <div class="modal-body" id="modalBody">
     <input type="hidden" asp-for="DishId" id="selectedDishId" />
     <input type="hidden" asp-for="OrderId" />
 
@@ -17,11 +18,20 @@
         <textarea class="form-control" asp-for="Notes" rows="3" placeholder="Optional notes for the order item"></textarea>
         <span asp-validation-for="Notes" class="text-danger"></span>
     </div>
-
-
+    </div>
     @{
-        string Button = "<button type='submit' class='btn btn-primary'>Save</button>";
+        string Button = $"<button type='submit' class='btn btn-primary'>Save</button> <button class='btn btn-primary' onclick='menuOrder({Model.OrderId})'>Back</button>";
     }
 
     <partial name="Partials/_ModalFooter" model='@Button' />
 </form>
+
+<script>
+    function menuOrder(id) {
+        var url = '@Url.Action("OrderItemMenu", "Order", new { orderId = "__orderId__" })'.replace("__orderId__", id);
+        $.get(url, function (response) {
+            $('#modalContent').html(response);
+            $('#Modal').modal('show');
+        });
+    }
+</script>
