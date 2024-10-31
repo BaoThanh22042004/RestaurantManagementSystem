@@ -33,12 +33,12 @@
 
 <h1 class="mb-4 text-center">Details Item</h1>
 
-<div class="d-flex justify-content-between rounded border shadow-sm p-3 mb-2">
-	<div>
+<div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
+	<div class="d-inline-block">
 		<button onclick="importItem(@Model.ItemId)" class="btn btn-success">Import</button>
 		<button onclick="exportItem(@Model.ItemId)" class="btn btn-danger">Export</button>
 	</div>
-	<div>
+	<div class="d-inline-block">
 		<a asp-controller="Storage" asp-action="Index" class="btn btn-secondary">Back to Storage</a>
 	</div>
 </div>
@@ -60,31 +60,33 @@
 </div>
 
 <div class="rounded border shadow-sm p-3">
-	<table class="table table-hover">
-		<thead class="table-dark">
-			<tr>
-				<th>@Html.DisplayNameFor(model => model.Logs.First().LogId)</th>
-				<th>@Html.DisplayNameFor(model => model.Logs.First().Action)</th>
-				<th>@Html.DisplayNameFor(model => model.Logs.First().ChangeQuantity)</th>
-				<th>@Html.DisplayNameFor(model => model.Logs.First().RemainQuantity)</th>
-				<th>@Html.DisplayNameFor(model => model.Logs.First().CreatedAt)</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var log in Model.Logs)
-			{
-				<tr class="clickable" onclick="details(@log.LogId)">
-					<td>@Html.DisplayFor(modelItem => log.LogId)</td>
-					<td>
-						<span class="badge rounded-pill text-bg-@GetColorClass(log.Action)">@log.Action</span>
-					</td>
-					<td>@Html.Raw(GetSymbol(log.Action))@log.ChangeQuantity</td>
-					<td>@Html.DisplayFor(modelItem => log.RemainQuantity)</td>
-					<td>@Html.DisplayFor(modelItem => log.CreatedAt)</td>
+	<div class="table-responsive">
+		<table class="table table-hover">
+			<thead class="table-dark">
+				<tr>
+					<th>@Html.DisplayNameFor(model => model.Logs.First().LogId)</th>
+					<th>@Html.DisplayNameFor(model => model.Logs.First().Action)</th>
+					<th>@Html.DisplayNameFor(model => model.Logs.First().ChangeQuantity)</th>
+					<th>@Html.DisplayNameFor(model => model.Logs.First().RemainQuantity)</th>
+					<th>@Html.DisplayNameFor(model => model.Logs.First().CreatedAt)</th>
 				</tr>
-			}
-		</tbody>
-	</table>
+			</thead>
+			<tbody>
+				@foreach (var log in Model.Logs)
+				{
+					<tr class="clickable" onclick="details(@log.LogId)">
+						<td>@Html.DisplayFor(modelItem => log.LogId)</td>
+						<td>
+							<span class="badge rounded-pill text-bg-@GetColorClass(log.Action)">@log.Action</span>
+						</td>
+						<td>@Html.Raw(GetSymbol(log.Action))@log.ChangeQuantity</td>
+						<td>@Html.DisplayFor(modelItem => log.RemainQuantity)</td>
+						<td>@Html.DisplayFor(modelItem => log.CreatedAt)</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
 </div>
 
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
