@@ -43,6 +43,7 @@
                 <th>Price</th>
                 <th>Status</th>
                 <th>Notes</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
@@ -55,6 +56,9 @@
                     <td>@item.Price?.ToString("C")</td>
                     <td>@item.Status.ToString()</td>
                     <td>@(string.IsNullOrEmpty(item.Notes) ? "None" : item.Notes)</td>
+                     <td>
+                         <button class="btn btn-danger" onclick="deleteOrderItem(@Model.OrderId, @item.OrItemId)">Delete</button>
+                     </td>
                 </tr>
             }
         </tbody>
@@ -66,7 +70,7 @@ else
 }
 </div>
 @{
-    string Button = $"<button class='btn btn-primary' onclick='editOrder({Model.OrderId})'>Edit Order Item</button>    <button class='btn btn-primary' onclick='menuOrder({Model.OrderId})'>Menu</button>";
+    string Button = $"<button class='btn btn-primary' onclick='editOrder({Model.OrderId})'>Edit Order Item</button> <button class='btn btn-primary' onclick='menuOrder({Model.OrderId})'>Menu</button>";
 }
 
 <partial name="Partials/_ModalFooter" model='Button' />
@@ -88,4 +92,24 @@ else
             $('#Modal').modal('show');
         });
     }
+   function deleteOrderItem(orderId, orderItemId) {
+
+    if (confirm('Are you sure you want to delete this order item?')) {
+        var url = '@Url.Action("DeleteOrderItemConfirmed", "Order", new { orderId = "__orderId__", orderItemId = "__orderItemId__" })'
+            .replace("__orderId__", orderId)
+            .replace("__orderItemId__", orderItemId);
+        
+        $.post(url, function (response) {
+            if (response.success) {
+                alert('Order item deleted successfully.');
+                location.reload(); 
+            } else {
+                alert('Error deleting order item: ' + response.error);
+            }
+        }).fail(function () {
+            alert('An error occurred while deleting the order item. Please try again later.');
+        });
+    }
+}
+
 </script>
