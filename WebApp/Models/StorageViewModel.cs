@@ -22,7 +22,9 @@ namespace WebApp.Models
         [Display(Name = "Quantity")]
         public decimal Quantity { get; set; }
 
-        public StorageViewModel(Storage storage)
+        public StorageViewModel() { }
+
+		public StorageViewModel(Storage storage)
         {
             ItemId = storage.ItemId;
             ItemName = storage.ItemName;
