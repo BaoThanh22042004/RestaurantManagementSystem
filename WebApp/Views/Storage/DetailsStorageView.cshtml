@@ -1,0 +1,131 @@
+﻿@functions {
+	string GetColorClass(Models.Entities.Action action)
+	{
+		switch (action)
+		{
+			case Models.Entities.Action.Import:
+				return "success";
+			case Models.Entities.Action.Export:
+				return "danger";
+			default:
+				return "";
+		}
+	}
+	string GetSymbol(Models.Entities.Action action)
+	{
+		switch (action)
+		{
+			case Models.Entities.Action.Import:
+				return "<i class='bi bi-plus'></i>";
+			case Models.Entities.Action.Export:
+				return "<i class='bi bi-dash'></i>";
+			default:
+				return "";
+		}
+	}
+}
+
+@model StorageWithLogViewModel
+@{
+	ViewData["Title"] = "Details Item";
+	Layout = "_DashboardLayout";
+}
+
+<h1 class="mb-4 text-center">Details Item</h1>
+
+<div class="d-flex justify-content-between rounded border shadow-sm p-3 mb-2">
+	<div>
+		<button onclick="importItem(@Model.ItemId)" class="btn btn-success">Import</button>
+		<button onclick="exportItem(@Model.ItemId)" class="btn btn-danger">Export</button>
+	</div>
+	<div>
+		<a asp-controller="Storage" asp-action="Index" class="btn btn-secondary">Back to Storage</a>
+	</div>
+</div>
+
+<div class="rounded border shadow-sm p-3 mb-2">
+	<dl>
+		<dt>@Html.DisplayNameFor(m => m.ItemId)</dt>
+		<dd>@Model.ItemId</dd>
+
+		<dt>@Html.DisplayNameFor(m => m.ItemName)</dt>
+		<dd>@Model.ItemName</dd>
+
+		<dt>@Html.DisplayNameFor(m => m.Unit)</dt>
+		<dd>@Model.Unit</dd>
+
+		<dt>@Html.DisplayNameFor(m => m.Quantity)</dt>
+		<dd>@Model.Quantity</dd>
+	</dl>
+</div>
+
+<div class="rounded border shadow-sm p-3">
+	<table class="table table-hover">
+		<thead class="table-dark">
+			<tr>
+				<th>@Html.DisplayNameFor(model => model.Logs.First().LogId)</th>
+				<th>@Html.DisplayNameFor(model => model.Logs.First().Action)</th>
+				<th>@Html.DisplayNameFor(model => model.Logs.First().ChangeQuantity)</th>
+				<th>@Html.DisplayNameFor(model => model.Logs.First().RemainQuantity)</th>
+				<th>@Html.DisplayNameFor(model => model.Logs.First().CreatedAt)</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var log in Model.Logs)
+			{
+				<tr class="clickable" onclick="details(@log.LogId)">
+					<td>@Html.DisplayFor(modelItem => log.LogId)</td>
+					<td>
+						<span class="badge rounded-pill text-bg-@GetColorClass(log.Action)">@log.Action</span>
+					</td>
+					<td>@Html.Raw(GetSymbol(log.Action))@log.ChangeQuantity</td>
+					<td>@Html.DisplayFor(modelItem => log.RemainQuantity)</td>
+					<td>@Html.DisplayFor(modelItem => log.CreatedAt)</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
+
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content" id="modalContent">
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		function importItem(id) {
+			var url = '@Url.Action("Import", "StorageLog", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+
+		function exportItem(id) {
+			var url = '@Url.Action("Export", "StorageLog", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+
+		function details(logId) {
+			var url = '@Url.Action("Details", "StorageLog", new { id = "__id__" })'.replace("__id__", logId);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+	</script>
+}
+
+@section Styles {
+	<style>
+		.clickable {
+			cursor: pointer;
+		}
+	</style>
+}

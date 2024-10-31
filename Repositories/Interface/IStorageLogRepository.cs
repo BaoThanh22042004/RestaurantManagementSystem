@@ -10,5 +10,6 @@ namespace Repositories.Interface
 		Task DeleteAsync(long id);
 		Task DeleteAsync(StorageLog storageLog);
 		Task UpdateAsync(StorageLog storageLog);
+		Task<IEnumerable<StorageLog>> GetAllByItemIdAsync(int id);
 	}
 }

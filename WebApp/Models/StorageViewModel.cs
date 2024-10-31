@@ -21,19 +21,7 @@ namespace WebApp.Models
 
         [Display(Name = "Quantity")]
         public decimal Quantity { get; set; }
-        public IEnumerable<SelectListItem>? CategoryOptions { get; set; }
-        public string? CategoryName { get; set; }
-        //public List<int>? SelectedCategories { get; set; }
 
-        public bool HasSearched { get; set; }
-
-        // Default constructor
-        public StorageViewModel()
-        {
-
-        }
-
-        // Constructor that maps from the Storage model (entity)
         public StorageViewModel(Storage storage)
         {
             ItemId = storage.ItemId;

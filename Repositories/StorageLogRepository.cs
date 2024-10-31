@@ -43,16 +43,17 @@ namespace Repositories
         {
             string sqlGetStorageLogById = "SELECT * FROM StorageLogs WHERE LogId = {0}";
             string sqlGetStorageById = "SELECT * FROM Storages WHERE ItemId = {0}";
+            string sqlGetUserById = "SELECT * FROM Users WHERE UserId = {0}";
 
-
-            var storageLog = await _context.StorageLogs.FromSqlRaw(sqlGetStorageLogById, id).FirstOrDefaultAsync();
+			var storageLog = await _context.StorageLogs.FromSqlRaw(sqlGetStorageLogById, id).FirstOrDefaultAsync();
 
             if (storageLog == null)
             {
                 return null;
             }
 
-            var storage = await _context.Storages
+			// Include storage item
+			var storage = await _context.Storages
                 .FromSqlRaw(sqlGetStorageById, storageLog.ItemId)
                 .FirstOrDefaultAsync();
 
@@ -61,7 +62,17 @@ namespace Repositories
                 storageLog.StorageItem = storage;
             }
 
-            return storageLog;
+			// Include creator
+            var user = await _context.Users
+				.FromSqlRaw(sqlGetUserById, storageLog.CreatedBy)
+				.FirstOrDefaultAsync();
+			
+            if (user != null)
+			{
+				storageLog.Creator = user;
+			}
+
+			return storageLog;
         }
 
 
@@ -115,5 +126,11 @@ namespace Repositories
             _context.Dispose();
             GC.SuppressFinalize(this);
         }
-    }
+
+		public async Task<IEnumerable<StorageLog>> GetAllByItemIdAsync(int id)
+		{
+			string sqlGetAllStorageLogsByItemId = "SELECT * FROM StorageLogs WHERE ItemId = {0}";
+			return await _context.StorageLogs.FromSqlRaw(sqlGetAllStorageLogsByItemId, id).ToListAsync();
+		}
+	}
 }

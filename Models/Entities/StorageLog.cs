@@ -8,7 +8,6 @@ namespace Models.Entities
     {
         Import,
         Export,
-        Cancel
     }
 
     public class StorageLog

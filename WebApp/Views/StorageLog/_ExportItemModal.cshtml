@@ -1,0 +1,30 @@
+﻿@model StorageLogViewModel
+
+<form method="post" asp-action="Export" asp-controller="StorageLog" id="form">
+	<partial name="Partials/_ModalHeader" model='"Export Item"' />
+
+	<input asp-for="ItemId" type="hidden" />
+	<input asp-for="Action" type="hidden" />
+
+	<div class="modal-body" id="modalBody">
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
+
+		<div class="form-floating mb-3">
+			<input asp-for="ChangeQuantity" class="form-control" />
+			<label asp-for="ChangeQuantity"></label>
+			<span asp-validation-for="ChangeQuantity" class="text-danger"></span>
+		</div>
+
+		<div class="form-floating mb-3">
+			<textarea asp-for="Description" class="form-control"></textarea>
+			<label asp-for="Description"></label>
+			<span asp-validation-for="Description" class="text-danger"></span>
+		</div>
+	</div>
+
+	@{
+		var exportButton = "<button type='submit' class='btn btn-primary'>Export</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model="exportButton" />
+</form>
