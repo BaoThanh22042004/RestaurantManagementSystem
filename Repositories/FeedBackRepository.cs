@@ -32,11 +32,11 @@ namespace Repositories
 										 VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7})
 										 SELECT * FROM Feedbacks WHERE FeedbackId = SCOPE_IDENTITY()";
 
-			var insertedFeedback = await _context.Feedbacks.FromSqlRaw(sqlInsertFeedback,
+			var insertedFeedbacks = await _context.Feedbacks.FromSqlRaw(sqlInsertFeedback,
 																		feedBack.FullName, feedBack.Email, feedBack.Phone,
 																		feedBack.Subject, feedBack.Body, feedBack.CreateAt,
-																		feedBack.Status, feedBack.Note).FirstOrDefaultAsync();
-
+																		feedBack.Status, feedBack.Note).ToListAsync();
+			var insertedFeedback = insertedFeedbacks.FirstOrDefault();
 			if (insertedFeedback == null)
 			{
 				throw new Exception("Failed to insert feedback");
