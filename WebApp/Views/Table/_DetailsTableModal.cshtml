@@ -38,20 +38,20 @@
             $('#modal').modal('show');
         });
     }
-             function edit(id) {
-                                var url = '@Url.Action("Edit", "Table", new { id = "__id__" })'.replace("__id__", id);
-                                $.get(url, function (response) {
-                                    $('#modalContent').html(response);
-                                    $('#modal').modal('show');
-                                });
-                            }
+    function edit(id) {
+        var url = '@Url.Action("Edit", "Table", new { id = "__id__" })'.replace("__id__", id);
+        $.get(url, function (response) {
+            $('#modalContent').html(response);
+            $('#modal').modal('show');
+        });
+    }
 
-                            function createOrder(id) {
-                                    var url = '@Url.Action("Create", "Order", new { tableId = "__id__" })'.replace("__id__", id);
-                                $.get(url, function (response) {
-                                    $('#modalContent').html(response);
-                                    $('#modal').modal('show');
-                                });
-                            }
+    function createOrder(id) {
+        var url = '@Url.Action("Create", "Order", new { tableId = "__id__" })'.replace("__id__", id);
+        $.get(url, function (response) {
+            $('#modalContent').html(response);
+            $('#modal').modal('show');
+        });
+    }
 
 </script>

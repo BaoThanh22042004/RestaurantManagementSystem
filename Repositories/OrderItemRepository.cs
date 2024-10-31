@@ -19,24 +19,21 @@ namespace Repositories
 			string sqlGetAllOrderItems = "SELECT * FROM OrderItems";
 			string sqlGetDishesByIds = "SELECT * FROM Dishes WHERE DishId IN ({0})";
 
-			var orderItems = await _context.OrderItems.FromSqlRaw(sqlGetAllOrderItems).ToListAsync();
+            var orderItems = await _context.OrderItems.FromSqlRaw(sqlGetAllOrderItems).ToListAsync();
+            // Include dishes
+            var dishIds = orderItems.Select(oi => oi.DishId);
+            var dishes = await _context.Dishes.FromSqlRaw(string.Format(sqlGetDishesByIds, string.Join(',', dishIds))).ToDictionaryAsync(d => d.DishId);
 
-			// Include dishes
-			var dishIds = orderItems.Select(oi => oi.DishId).Distinct().ToList();
-			if (dishIds.Count != 0)
-			{
-				var dishes = await _context.Dishes.FromSqlRaw(sqlGetDishesByIds, string.Join(',', dishIds)).ToDictionaryAsync(d => d.DishId);
-				foreach (var orderItem in orderItems)
-				{
-					if (dishes.TryGetValue(orderItem.DishId, out var dish))
-					{
-						orderItem.Dish = dish;
-					}
-				}
-			}
+            foreach (var orderItem in orderItems)
+            {
+                if (dishes.TryGetValue(orderItem.DishId, out var dish))
+                {
+                    orderItem.Dish = dish;
+                }
+            }
 
-			return orderItems;
-		}
+            return orderItems;
+        }
 
 		public async Task<OrderItem?> GetByIDAsync(long id)
 		{

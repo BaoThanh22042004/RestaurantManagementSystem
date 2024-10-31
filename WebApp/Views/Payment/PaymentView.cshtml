@@ -1,0 +1,53 @@
+﻿@model IEnumerable<PaymentViewModel>
+@{
+    ViewData["Title"] = "Payment";
+    Layout = "_DashBoardLayout";
+}
+
+<h1 class="mb-4 text-center">Payments</h1>
+<table class="table">
+    <thead class="table-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.BillId)</th>
+            <th>@Html.DisplayNameFor(model => model.OrderId)</th>
+            <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
+            <th>@Html.DisplayNameFor(model => model.TotalAmount)</th>
+            <th>@Html.DisplayNameFor(model => model.PaymentMethod)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var payment in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => payment.BillId)</td>
+                <td>@Html.DisplayFor(modelItem => payment.OrderId)</td>
+                <td>@Html.DisplayFor(modelItem => payment.CreatedAt)</td>
+                <td>@Html.DisplayFor(modelItem => payment.TotalAmount)</td>
+                <td>@Html.DisplayFor(modelItem => payment.PaymentMethod)</td>
+                <td>
+                    <button class="btn btn-info" onclick="details(@payment.BillId)">Details</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="modalContent">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+                function details(id) {
+            var url = '@Url.Action("Details", "Payment", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+                    });
+        }
+    </script>
+}

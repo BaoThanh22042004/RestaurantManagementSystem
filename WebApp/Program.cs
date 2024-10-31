@@ -35,10 +35,11 @@ namespace WebApp
             builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
             builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
             builder.Services.AddScoped<IPayrollRepository, PayrollRepository>();
+            builder.Services.AddScoped<IBillRepository, BillRepository>();
 
 
-			// Register Singleton services
-			builder.Services.AddSingleton<UserClaimManager>();
+            // Register Singleton services
+            builder.Services.AddSingleton<UserClaimManager>();
             builder.Services.AddSingleton<InformationManager>();
             builder.Services.AddSingleton<FileUploadManager>();
 			builder.Services.AddSingleton<CartManager>();

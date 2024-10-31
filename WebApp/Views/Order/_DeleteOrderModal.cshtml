@@ -80,7 +80,7 @@
                         <span>@Model.OrderItems[i].Status</span>
                     </td>
                     <td>
-                        <span>@Model.OrderItems[i].Notes</span>
+                        <span>@(string.IsNullOrEmpty(Model.OrderItems[i].Notes) ? "None" : Model.OrderItems[i].Notes)</span>
                     </td>
                 </tr>
             }

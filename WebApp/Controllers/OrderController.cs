@@ -332,6 +332,16 @@ namespace WebApp.Controllers
         {
             try
             {
+                var order = await _orderRepository.GetByIDAsync(orderId);
+                if (order == null)
+                {
+                    return NotFound();
+                }
+                if (order.OrderItems.Any())
+                {
+                    TempData["Error"] = "Cannot delete the order because it contains order items.";
+                    return RedirectToAction("Delete", new { orderId });
+                }
                 await _orderRepository.DeleteAsync(orderId);
             }
             catch (Exception)
@@ -342,6 +352,33 @@ namespace WebApp.Controllers
 
             return Json(new { success = true });
         }
-    }
 
+        [HttpPost]
+        [Route("Details/{orderId}/DeleteOrderItem/{orderItemId}")]
+        public async Task<IActionResult> DeleteOrderItemConfirmed(long orderId, long orderItemId)
+        {
+            try
+            {
+                var orderItem = await _orderItemRepository.GetByIDAsync(orderItemId);
+                if (orderItem == null)
+                {
+                    return Json(new { success = false, error = "Order item not found." });
+                }
+
+                if (orderItem.Status != OrderItemStatus.Pending) 
+                {
+                    return Json(new { success = false, error = "Cannot delete this order item because its status is not Pending." });
+                }
+
+                await _orderItemRepository.DeleteAsync(orderItemId);
+
+                return Json(new { success = true});
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "An error occurred while deleting the order item. Please try again later.";
+                return Json(new { success = false, error = TempData["Error"] });
+            }
+        }
+    }
 }
