@@ -1,34 +1,25 @@
 ﻿@model StorageViewModel
 
 <form method="post" asp-action="Edit" id="form">
-	<partial name="Partials/_ModalHeader" model='"Edit Storage"' />
+	<partial name="Partials/_ModalHeader" model='"Edit Item"' />
 
 	<div class="modal-body" id="modalBody">
 
-		@if (@TempData["Error"] != null)
-		{
-			<div class="alert alert-danger" role="alert">
-				@TempData["Error"]
-			</div>
-		}
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
+
+		<input asp-for="ItemId" type="hidden" />
+		<input asp-for="Quantity" type="hidden" />
 
 		<div class="form-floating mb-3">
-			<div class="form-floating mb-3">
-				<input asp-for="ItemId" type="hidden" />
-				<input asp-for="ItemId" class="form-control" disabled />
-				<label asp-for="ItemId"></label>
-			</div>
-			<div class="form-floating mb-3">
-				<input asp-for="ItemName" class="form-control" id="ItemName" />
-				<label asp-for="ItemName">Item Name</label>
-				<span asp-validation-for="ItemName" class="text-danger"></span>
-			</div>
+			<input asp-for="ItemName" class="form-control" id="ItemName" />
+			<label asp-for="ItemName">Item Name</label>
+			<span asp-validation-for="ItemName" class="text-danger"></span>
+		</div>
 
-			<div class="form-floating mb-3">
-				<input asp-for="Unit" class="form-control" id="Unit" />
-				<label asp-for="Unit">Unit</label>
-				<span asp-validation-for="Unit" class="text-danger"></span>
-			</div>
+		<div class="form-floating mb-3">
+			<input asp-for="Unit" class="form-control" id="Unit" />
+			<label asp-for="Unit">Unit</label>
+			<span asp-validation-for="Unit" class="text-danger"></span>
 		</div>
 
 	</div>

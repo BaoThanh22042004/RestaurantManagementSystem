@@ -5,12 +5,11 @@
 
 	<div class="modal-body" id="modalBody">
 
-		@if (@TempData["Error"] != null)
-		{
-			<div class="alert alert-danger" role="alert">
-				@TempData["Error"]
-			</div>
-		}
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
+
+		<div class="mb-3">
+			<img class="rounded mx-auto d-block object-fit-cover" width="360" height="360" id="preview" src="" onerror="this.src='https://placehold.co/360x360'" />
+		</div>
 
 		<div class="form-floating mb-3">
 			<input asp-for="DishName" class="form-control" id="DishName" />
@@ -44,18 +43,14 @@
 			<span asp-validation-for="Visible" class="text-danger"></span>
 		</div>
 
-		<div class="form-floating mb-3">
-			<input type="file" asp-for="UploadedImage" class="form-control" id="UploadedImage" accept="image/*" />
-			<label asp-for="UploadedImage">Upload Image</label>
+		<div class="mb-3">
+			<div class="input-group">
+				<label asp-for="UploadedImage" class="input-group-text">Upload Image</label>
+				<input type="file" asp-for="UploadedImage" class="form-control" id="UploadedImage" accept="image/*" onchange="previewImage(event)" />
+			</div>
 			<span asp-validation-for="UploadedImage" class="text-danger"></span>
 		</div>
 
-		@if (!string.IsNullOrEmpty(Model.ImagePath))
-		{
-			<div class="mb-3">
-				<img src="@Model.ImagePath" onerror=this.src ='https://placehold.co/360x360' alt="@Model.DishName" class="img-thumbnail" style="max-width: 200px;" />
-			</div>
-		}
 	</div>
 
 	@{

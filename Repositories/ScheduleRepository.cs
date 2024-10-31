@@ -17,50 +17,43 @@ namespace Repositories
 		public async Task<IEnumerable<Schedule>> GetAllAsync()
 		{
 			string sqlGetAllSchedules = "SELECT * FROM Schedules";
-			string sqlGetAllAttendances = "SELECT * FROM Attendances";
-
-			//string sqlGetShiftsByIds = "SELECT * FROM Shifts WHERE ShiftId IN ({0})";
-			var schedules = await _context.Schedules.FromSqlRaw(sqlGetAllSchedules).ToListAsync();
-			var attendances = await _context.Attendances.FromSqlRaw(sqlGetAllAttendances).ToListAsync();
-
-			//Include Shift
 			string sqlGetShiftsByIds = "SELECT * FROM Shifts WHERE ShiftId IN ({0})";
-
-			var shiftIds = schedules.Select(s => s.ShiftId).Distinct().ToList();
-
-			var shifts = await _context.Shifts.FromSqlRaw(string.Format(sqlGetShiftsByIds, string.Join(",", shiftIds))).ToDictionaryAsync( s => s.ShiftId);
-
-			//Include User
 			string sqlGetUsersByIds = "SELECT * FROM Users WHERE UserId IN ({0})";
-
-			var userIds = schedules.Select(s => s.EmpId).Distinct().ToList();
-
-			var users = await _context.Users.FromSqlRaw(string.Format(sqlGetUsersByIds, string.Join(",", userIds))).ToDictionaryAsync(u => u.UserId);
-
-			//Include Attendance
 			string sqlGetAttendancesByIds = "SELECT * FROM Attendances WHERE ScheId IN ({0})";
 
-			var scheIds = attendances.Select( a => a.ScheId).Distinct().ToList();
+			var schedules = await _context.Schedules.FromSqlRaw(sqlGetAllSchedules).ToListAsync();
 
-			var scheOfAttendances = await _context.Attendances.FromSqlRaw(string.Format(sqlGetAttendancesByIds, string.Join(",", scheIds))).ToDictionaryAsync(s => s.ScheId);
-
-
-			foreach (var schedule in schedules) {
-				if (shifts.TryGetValue(schedule.ShiftId, out var shift)) 
-				{ 
+			//Include Shift
+			var shiftIds = schedules.Select(s => s.ShiftId).Distinct().ToList();
+			var shifts = await _context.Shifts.FromSqlRaw(string.Format(sqlGetShiftsByIds, string.Join(",", shiftIds))).ToDictionaryAsync(s => s.ShiftId);
+			foreach (var schedule in schedules)
+			{
+				if (shifts.TryGetValue(schedule.ShiftId, out var shift))
+				{
 					schedule.Shift = shift;
 				}
-				if (users.TryGetValue(schedule.EmpId, out var user)) 
+			}
+
+			//Include User
+			var userIds = schedules.Select(s => s.EmpId).Distinct().ToList();
+			var users = await _context.Users.FromSqlRaw(string.Format(sqlGetUsersByIds, string.Join(",", userIds))).ToDictionaryAsync(u => u.UserId);
+			foreach (var schedule in schedules)
+			{
+				if (users.TryGetValue(schedule.EmpId, out var user))
 				{
 					schedule.Employee = user;
 				}
 			}
 
-			foreach (var attendance in attendances) 
+			//Include Attendance
+
+			var scheIds = schedules.Select(s => s.ScheId).Distinct().ToList();
+			var scheOfAttendances = await _context.Attendances.FromSqlRaw(string.Format(sqlGetAttendancesByIds, string.Join(",", scheIds))).ToDictionaryAsync(s => s.ScheId);
+			foreach (var schedule in schedules)
 			{
-				if (scheOfAttendances.TryGetValue(attendance.ScheId, out var schedule)) 
+				if (scheOfAttendances.TryGetValue(schedule.ScheId, out var attendance))
 				{
-					schedule.Schedule = attendance.Schedule ;
+					schedule.Attendance = attendance;
 				}
 			}
 
@@ -76,33 +69,27 @@ namespace Repositories
 
 			// Get schedule by ID
 			var schedule = await _context.Schedules.FromSqlRaw(sqlGetScheduleById, id).FirstOrDefaultAsync();
-			if (schedule == null) 
-			{ 
+			if (schedule == null)
+			{
 				return null;
 			}
 
 			//Include Shift
-			var shift = await _context.Shifts
-										.FromSqlRaw(sqlGetShiftById, schedule.ShiftId)
-										.FirstOrDefaultAsync();
+			var shift = await _context.Shifts.FromSqlRaw(sqlGetShiftById, schedule.ShiftId).FirstOrDefaultAsync();
 			if (shift != null)
 			{
 				schedule.Shift = shift;
 			}
 
 			//Include Employee
-			var employee = await _context.Users
-										.FromSqlRaw(sqlGetUserById, schedule.EmpId)
-										.FirstOrDefaultAsync();
+			var employee = await _context.Users.FromSqlRaw(sqlGetUserById, schedule.EmpId).FirstOrDefaultAsync();
 			if (employee != null)
 			{
 				schedule.Employee = employee;
 			}
 
 			//Include Attendance
-			var attendance = await _context.Attendances
-										.FromSqlRaw(sqlGetAttendanceById, schedule.ScheId)
-										.FirstOrDefaultAsync();
+			var attendance = await _context.Attendances.FromSqlRaw(sqlGetAttendanceById, schedule.ScheId).FirstOrDefaultAsync();
 			if (attendance != null)
 			{
 				schedule.Attendance = attendance;
@@ -118,7 +105,7 @@ namespace Repositories
 									SELECT * FROM Schedules WHERE ScheId = SCOPE_IDENTITY();";
 
 			var insertedSchedules = await _context.Schedules.FromSqlRaw(sqlInsertSchedule,
-				schedule.ScheDate,schedule.EmpId,schedule.ShiftId).ToListAsync();
+				schedule.ScheDate, schedule.EmpId, schedule.ShiftId).ToListAsync();
 
 			var scheduleInserted = insertedSchedules.FirstOrDefault();
 
@@ -136,7 +123,7 @@ namespace Repositories
 			string sqlGetScheduleById = "SELECT * FROM Schedules WHERE ScheId = {0}";
 
 			var schedule = await _context.Schedules.FromSqlRaw(sqlGetScheduleById, id).FirstOrDefaultAsync();
-		
+
 			if (schedule == null)
 			{
 				throw new Exception($"Schedule with id {id} not found");
@@ -156,7 +143,7 @@ namespace Repositories
 									SET ScheDate = {0}, EmpId = {1}, ShiftId = {2}
 									WHERE ScheId = {3}";
 
-			await _context.Database.ExecuteSqlRawAsync(sqlUpdateSchedule,schedule.ScheDate,schedule.EmpId,schedule.ShiftId,schedule.ScheId);
+			await _context.Database.ExecuteSqlRawAsync(sqlUpdateSchedule, schedule.ScheDate, schedule.EmpId, schedule.ShiftId, schedule.ScheId);
 
 		}
 

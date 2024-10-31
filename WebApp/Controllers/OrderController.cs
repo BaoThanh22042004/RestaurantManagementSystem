@@ -95,7 +95,7 @@ namespace WebApp.Controllers
                 TableOptions = await GetTableStatusList()
             };
 
-            return View("CreateOrderView", order);
+            return PartialView("_CreateOrderModal", order);
         }
 
         [HttpPost]
@@ -105,7 +105,8 @@ namespace WebApp.Controllers
             if (!ModelState.IsValid)
             {
                 orderViewModel.TableOptions = await GetTableStatusList();
-                return View("CreateOrderView", orderViewModel);
+                return PartialView("_CreateOrderModal", orderViewModel);
+
             }
             try
             {
@@ -118,19 +119,25 @@ namespace WebApp.Controllers
                     OrderItems = new List<OrderItem>()
                 };
                 await _orderRepository.InsertAsync(order);
-            }
+
+                var table = await _tableRepository.GetByIDAsync(orderViewModel.TableId.Value);
+				table.Status = TableStatus.Occupied;
+				await _tableRepository.UpdateAsync(table);
+			}
             catch (ArgumentException e)
             {
                 TempData["Error"] = e.Message;
-                return View("CreateOrderView", orderViewModel);
+                return PartialView("_CreateOrderModal", orderViewModel);
+
             }
             catch (Exception e)
             {
                 TempData["Error"] = "An error occurred while creating the order. Please try again later.";
-                return View("CreateOrderView", orderViewModel);
-            }
+                return PartialView("_CreateOrderModal", orderViewModel);
 
-            return RedirectToAction("Index");
+            }
+            return Json(new { success = true });
+
         }
 
         [Route("Details/{orderId}")]
@@ -251,8 +258,7 @@ namespace WebApp.Controllers
             return PartialView("_EditOrderModal", orderViewModel);
         }
 
-        [HttpPost]
-        [Route("Edit/{orderId}")]
+        [HttpPost("Edit/{orderId}")]
         public async Task<IActionResult> Edit(OrderViewModel orderViewModel, long orderId)
         {
             if (!ModelState.IsValid)
@@ -263,7 +269,7 @@ namespace WebApp.Controllers
                     item.StatusOptions = await GetOrderItemStatusList();
                     item.DishName = await GetDishNameByDishId(item.DishId);
                 }
-                return PartialView("_DetailsOrderModal", orderViewModel);
+                return PartialView("_EditOrderModal", orderViewModel);
             }
 
             try
@@ -298,7 +304,7 @@ namespace WebApp.Controllers
                 return PartialView("_EditOrderModal", orderViewModel);
             }
             return Json(new { success = true });
-        }
+        }   
 
         [Route("Delete/{orderId}")]
         public async Task<IActionResult> Delete(long orderId)

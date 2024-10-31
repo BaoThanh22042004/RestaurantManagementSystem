@@ -35,7 +35,7 @@ namespace Models
 		public DbSet<Payroll> Payrolls { get; set; }
 
 		public DbSet<FeedBack> Feedbacks { get; set; }
-
+		
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			var connectionString = new ConfigurationBuilder()

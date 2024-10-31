@@ -1,75 +1,102 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Entities;
-using Repositories.Interface;
-using WebApp.Models;
+using Repositories.Interface; 
+using WebApp.Models; 
+using System.Threading.Tasks;
+using System;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Repositories;
 
 namespace WebApp.Controllers
 {
     [Route("Dashboard/Payroll")]
-    [Authorize(Roles = $"{nameof(Role.Manager)}")]
+    [Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Waitstaff)}")]
     public class PayrollController : Controller
     {
         private readonly IPayrollRepository _payrollRepository;
+        private readonly IUserRepository _userRepository;
 
-        public PayrollController(IPayrollRepository payrollRepository)
+
+        public PayrollController(IPayrollRepository payrollRepository, IUserRepository userRepository)
         {
             _payrollRepository = payrollRepository;
+            _userRepository = userRepository;
+
         }
 
-        // GET: Payroll/Index
         public async Task<IActionResult> Index()
         {
             var payrolls = await _payrollRepository.GetAllAsync();
             var payrollList = payrolls.Select(payroll => new PayrollViewModel(payroll));
             return View("PayrollView", payrollList);
         }
-
-        // GET: Payroll/Create
-        [Route("Create")]
-        public IActionResult Create()
+        [HttpGet("Create")]
+        public async Task<IActionResult> Create()
         {
-            return View("CreatePayrollView");
+            var employees = await _userRepository.GetAllAsync();
+
+            var payrollViewModel = new PayrollViewModel
+            {
+                EmployeeList = employees.Select(u => new SelectListItem
+                {
+                    Value = u.UserId.ToString(),
+                    Text = u.FullName
+                }).ToList()
+            };
+
+            return PartialView("_CreatePayrollModal", payrollViewModel);
         }
 
-        // POST: Payroll/Create
-        [Route("Create")]
-        [HttpPost]
+
+        [HttpPost("Create")]
         public async Task<IActionResult> Create(PayrollViewModel payrollViewModel)
         {
             if (!ModelState.IsValid)
             {
-                return View("CreatePayrollView", payrollViewModel);
+                return PartialView("_CreatePayrollModal", payrollViewModel);
             }
 
             try
             {
+                
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                if (!int.TryParse(userIdString, out int userId))
+                {
+                    
+                    ModelState.AddModelError(string.Empty, "Invalid user ID.");
+                    return PartialView("_CreatePayrollModal", payrollViewModel);
+                }
+
+                var user = await _userRepository.GetByIDAsync(userId);
                 var payroll = new Payroll
                 {
-                    CreatedBy = payrollViewModel.CreatedBy ?? throw new Exception("CreatedBy is required"),
-                    CreatedAt = payrollViewModel.CreatedAt ?? DateTime.Now,
-                    EmpId = payrollViewModel.EmpId ?? throw new Exception("Employee ID is required"),
-                    Month = payrollViewModel.Month ?? throw new Exception("Month is required"),
-                    Year = payrollViewModel.Year ?? throw new Exception("Year is required"),
-                    WorkingHours = payrollViewModel.WorkingHours ?? throw new Exception("Working Hours is required"),
-                    Salary = payrollViewModel.Salary ?? throw new Exception("Salary is required"),
-                    Status = payrollViewModel.Status ?? throw new Exception("Status is required"),
-                    PaymentDate = payrollViewModel.PaymentDate // No conversion needed
+                    CreatedBy = userId, 
+                    CreatedAt = DateTime.Now,
+                    EmpId = payrollViewModel.EmpId,
+                    Month = payrollViewModel.Month,
+                    Year = payrollViewModel.Year,
+                    WorkingHours = (decimal)payrollViewModel.WorkingHours,
+                    Salary = payrollViewModel.Salary,
+                    Status = PayrollStatus.UnPaid,
+                    PaymentDate = payrollViewModel.PaymentDate
                 };
 
                 await _payrollRepository.InsertAsync(payroll);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["Error"] = $"An error occurred while creating the payroll: {ex.Message}.";
-                return View("CreatePayrollView", payrollViewModel);
+                TempData["Error"] = "An error occurred while creating the payroll. Please try again later.";
+                return PartialView("_CreatePayrollModal", payrollViewModel);
             }
 
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
 
-        // GET: Payroll/Details/{id}
-        [Route("Details/{id}")]
+        [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(long id)
         {
             var payroll = await _payrollRepository.GetByIDAsync(id);
@@ -78,12 +105,11 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var payrollViewModel = new PayrollViewModel(payroll);
-            return View("DetailsPayrollView", payrollViewModel);
+            var payrollViewModel  = new PayrollViewModel(payroll);
+            return PartialView("_DetailsPayrollModal", payrollViewModel);
         }
 
-        // GET: Payroll/Edit/{id}
-        [Route("Edit/{id}")]
+        [HttpGet("Edit/{id}")]
         public async Task<IActionResult> Edit(long id)
         {
             var payroll = await _payrollRepository.GetByIDAsync(id);
@@ -92,55 +118,51 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var payrollViewModel = new PayrollViewModel(payroll);
-            return View("EditPayrollView", payrollViewModel);
+            var employee = await _userRepository.GetByIDAsync(payroll.EmpId); 
+            var payrollViewModel = new PayrollViewModel(payroll)
+            {
+                EmployeeName = employee?.FullName
+            };
+            return PartialView("_EditPayrollModal", payrollViewModel);
         }
 
-        // POST: Payroll/Edit/{id}
-        [Route("Edit/{id}")]
-        [HttpPost]
+        [HttpPost("Edit/{id}")]
         public async Task<IActionResult> Edit(PayrollViewModel payrollViewModel)
         {
             if (!ModelState.IsValid)
             {
-                return View("EditPayrollView", payrollViewModel);
+                return PartialView("_EditPayrollModal", payrollViewModel);
             }
 
             try
             {
-                var payrollEntity = await _payrollRepository.GetByIDAsync(payrollViewModel.PayrollId ?? throw new KeyNotFoundException());
+                var id = payrollViewModel.PayrollId;
+                var payrollEntity = await _payrollRepository.GetByIDAsync(id: (long)id);
                 if (payrollEntity == null)
                 {
-                    throw new KeyNotFoundException("Payroll record not found.");
+                    return NotFound();
                 }
 
-                payrollEntity.CreatedBy = payrollViewModel.CreatedBy ?? payrollEntity.CreatedBy;
-                payrollEntity.CreatedAt = payrollViewModel.CreatedAt ?? payrollEntity.CreatedAt;
-                payrollEntity.EmpId = payrollViewModel.EmpId ?? payrollEntity.EmpId;
-                payrollEntity.Month = payrollViewModel.Month ?? payrollEntity.Month;
-                payrollEntity.Year = payrollViewModel.Year ?? payrollEntity.Year;
-                payrollEntity.WorkingHours = payrollViewModel.WorkingHours ?? payrollEntity.WorkingHours;
-                payrollEntity.Salary = payrollViewModel.Salary ?? payrollEntity.Salary;
-                payrollEntity.Status = payrollViewModel.Status ?? payrollEntity.Status;
-                payrollEntity.PaymentDate = payrollViewModel.PaymentDate; // No conversion needed
+                payrollEntity.EmpId = payrollViewModel.EmpId;
+                payrollEntity.Month = payrollViewModel.Month;
+                payrollEntity.Year = payrollViewModel.Year;
+                payrollEntity.WorkingHours = (decimal)payrollViewModel.WorkingHours;
+                payrollEntity.Salary = payrollViewModel.Salary;
+                payrollEntity.Status = payrollViewModel.Status;
+                payrollViewModel.PaymentDate = payrollViewModel.PaymentDate;
 
                 await _payrollRepository.UpdateAsync(payrollEntity);
             }
-            catch (KeyNotFoundException)
+            catch (Exception)
             {
-                return NotFound();
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = $"An error occurred while updating the payroll: {ex.Message}.";
-                return View("EditPayrollView", payrollViewModel);
+                TempData["Error"] = "An error occurred while updating the payroll. Please try again later.";
+                return PartialView("_EditPayrollModal", payrollViewModel);
             }
 
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
 
-        // GET: Payroll/Delete/{id}
-        [Route("Delete/{id}")]
+        [HttpGet("Delete/{id}")]
         public async Task<IActionResult> Delete(long id)
         {
             var payroll = await _payrollRepository.GetByIDAsync(id);
@@ -150,25 +172,23 @@ namespace WebApp.Controllers
             }
 
             var payrollViewModel = new PayrollViewModel(payroll);
-            return View("DeletePayrollView", payrollViewModel);
+            return PartialView("_DeletePayrollModal", payrollViewModel);
         }
 
-        // POST: Payroll/Delete/{PayrollId}
-        [HttpPost]
-        [Route("Delete/{PayrollId}")]
-        public async Task<IActionResult> DeleteConfirmed(long PayrollId)
+        [HttpPost("Delete/{payrollId}")]
+        public async Task<IActionResult> DeleteConfirmed(long payrollId)
         {
             try
             {
-                await _payrollRepository.DeleteAsync(PayrollId);
+                await _payrollRepository.DeleteAsync(payrollId);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                TempData["Error"] = $"An error occurred while deleting the payroll: {ex.Message}.";
-                return RedirectToAction("Delete", new { PayrollId });
+                TempData["Error"] = "An error occurred while deleting the payroll. Please try again later.";
+                return RedirectToAction("Delete", new { payrollId });
             }
 
-            return RedirectToAction("Index");
+            return Json(new { success = true });
         }
     }
 }

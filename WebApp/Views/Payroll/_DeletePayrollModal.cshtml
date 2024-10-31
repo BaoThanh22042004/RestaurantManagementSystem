@@ -1,0 +1,47 @@
+﻿@model PayrollViewModel
+
+<form method="post" asp-action="Delete" id="form">
+    <partial name="Partials/_ModalHeader" model='"Delete Payroll"' />
+
+    <div class="modal-body" id="modalBody">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @TempData["Error"]
+            </div>
+        }
+
+        <input asp-for="PayrollId" type="hidden" />
+
+        <h3 class="mb-3">Are you sure you want to delete this payroll?</h3>
+
+        <dl>
+            <dt>@Html.DisplayNameFor(m => m.EmpId)</dt>
+            <dd>@Model.Employee?.FullName</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.Month)</dt>
+            <dd>@Model.Month</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.Year)</dt>
+            <dd>@Model.Year</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.WorkingHours)</dt>
+            <dd>@Model.WorkingHours</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.Salary)</dt>
+            <dd>@Model.Salary</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.Status)</dt>
+            <dd>@Model.Status</dd>
+
+            <dt>@Html.DisplayNameFor(m => m.PaymentDate)</dt>
+            <dd>@(Model.PaymentDate?.ToString("yyyy-MM-dd") ?? "N/A")</dd>
+        </dl>
+    </div>
+
+    @{
+        string deleteButton = "<button type='submit' class='btn btn-danger'>Delete</button>";
+    }
+
+    <partial name="Partials/_ModalFooter" model='@deleteButton' />
+</form>

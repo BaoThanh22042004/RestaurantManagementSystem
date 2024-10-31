@@ -21,17 +21,21 @@ namespace Repositories
 
 			var attendances = await _context.Attendances.FromSqlRaw(sqlGetAllAttendances).ToListAsync();
 
+			// Include Schedule
 			var scheduleIds = attendances.Select(a => a.ScheId).Distinct().ToList();
-
-			var schedules = await _context.Schedules.FromSqlRaw(string.Format(sqlGetSchedulesByIds, string.Join(",", scheduleIds))).ToDictionaryAsync(s => s.ScheId);
-
-			foreach (var attendance in attendances)
+			if (scheduleIds.Count != 0)
 			{
-				if (schedules.TryGetValue(attendance.ScheId, out var schedule))
+				var schedules = await _context.Schedules.FromSqlRaw(string.Format(sqlGetSchedulesByIds, string.Join(",", scheduleIds))).ToDictionaryAsync(s => s.ScheId);
+
+				foreach (var attendance in attendances)
 				{
-					attendance.Schedule = schedule;
+					if (schedules.TryGetValue(attendance.ScheId, out var schedule))
+					{
+						attendance.Schedule = schedule;
+					}
 				}
 			}
+
 			return attendances;
 		}
 
