@@ -1,0 +1,60 @@
+﻿@model TableViewModel
+
+<form method="post" asp-action="Edit" id="form">
+    <partial name="Partials/_ModalHeader" model='"Edit Table"' />
+
+    <div class="modal-body" id="modalBody">
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @TempData["Error"]
+            </div>
+        }
+
+        <div class="form-floating mb-3">
+            <input asp-for="TableId" type="hidden" />
+            <input asp-for="TableId" class="form-control" disabled />
+            <label asp-for="TableId"></label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="TableName" class="form-control" id="TableName" />
+            <label asp-for="TableName"></label>
+            <span asp-validation-for="TableName" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="Capacity" class="form-control" id="Capacity" />
+            <label asp-for="Capacity"></label>
+            <span asp-validation-for="Capacity" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <select asp-for="Status" asp-items="Html.GetEnumSelectList<Models.Entities.TableStatus>()" class="form-select" id="Status">
+                <option selected id="DefaultSelectStatus">Please select status</option>
+            </select>
+            <label asp-for="Status"></label>
+            <span asp-validation-for="Status" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="ResTime" class="form-control" id="ResTime" placeholder="hh:mm tt" />
+            <label asp-for="ResTime">Reservation Time (optional)</label>
+            <span asp-validation-for="ResTime" class="text-danger"></span>
+        </div>
+
+        <div class="form-floating mb-3">
+            <textarea asp-for="Notes" class="form-control" id="Notes" style="height: 100px;"></textarea>
+            <label asp-for="Notes">Notes</label>
+            <span asp-validation-for="Notes" class="text-danger"></span>
+        </div>
+
+    </div>
+
+    @{
+        string saveButton = "<button type='submit' class='btn btn-primary'>Save</button>";
+    }
+
+    <partial name="Partials/_ModalFooter" model='@saveButton' />
+</form>

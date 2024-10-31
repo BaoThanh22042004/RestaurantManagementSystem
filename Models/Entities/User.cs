@@ -55,7 +55,5 @@ namespace Models.Entities
 		public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
 
 		public ICollection<Bill> CreatedBills { get; set; } = new List<Bill>();
-
-		public ICollection<FeedBack> FeedBacks { get; set; } = new List<FeedBack>();
     }
 }

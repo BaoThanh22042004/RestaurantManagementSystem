@@ -16,50 +16,62 @@ namespace Repositories
 
 		public async Task<IEnumerable<FeedBack>> GetAllAsync()
 		{
-			return await _context.Feedbacks.AsNoTracking().ToListAsync();
+			string sqlGetAllFeedbacks = "SELECT * FROM Feedbacks";
+			return await _context.Feedbacks.FromSqlRaw(sqlGetAllFeedbacks).ToListAsync();
 		}
 
 		public async Task<FeedBack?> GetByIDAsync(long id)
 		{
-			return await _context.Feedbacks.FindAsync(id);
+			string sqlGetFeedbackById = "SELECT * FROM Feedbacks WHERE FeedbackId = {0}";
+			return await _context.Feedbacks.FromSqlRaw(sqlGetFeedbackById, id).FirstOrDefaultAsync();
 		}
 
-		public async Task InsertAsync(FeedBack feedBack)
+		public async Task<FeedBack> InsertAsync(FeedBack feedBack)
 		{
-			var entityEntry = await _context.Feedbacks.AddAsync(feedBack);
-			await SaveAsync();
+			string sqlInsertFeedback = @"INSERT INTO Feedbacks (FullName, Email, Phone, Subject, Body, CreateAt, Status, Note)
+										 VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7})
+										 SELECT * FROM Feedbacks WHERE FeedbackId = SCOPE_IDENTITY()";
+
+			var insertedFeedbacks = await _context.Feedbacks.FromSqlRaw(sqlInsertFeedback,
+																		feedBack.FullName, feedBack.Email, feedBack.Phone,
+																		feedBack.Subject, feedBack.Body, feedBack.CreateAt,
+																		feedBack.Status, feedBack.Note).ToListAsync();
+			var insertedFeedback = insertedFeedbacks.FirstOrDefault();
+			if (insertedFeedback == null)
+			{
+				throw new Exception("Failed to insert feedback");
+			}
+
+			return insertedFeedback;
 		}
 
 		public async Task DeleteAsync(long id)
 		{
-			var feedBack = await _context.Feedbacks.FindAsync(id);
-			if (feedBack == null)
-			{
+			string sqlGetFeedbackById = "SELECT * FROM Feedbacks WHERE FeedbackId = {0}";
+
+			var feedback = await _context.Feedbacks.FromSqlRaw(sqlGetFeedbackById, id).FirstOrDefaultAsync();
+			if (feedback == null) {
 				throw new Exception($"Feedback with id {id} not found");
 			}
-			await DeleteAsync(feedBack);
+			await DeleteAsync(feedback);
 		}
 
 		public async Task DeleteAsync(FeedBack feedBack)
 		{
-			if (_context.Entry(feedBack).State == EntityState.Detached)
-			{
-				_context.Feedbacks.Attach(feedBack);
-			}
-			_context.Feedbacks.Remove(feedBack);
-			await SaveAsync();
+			string sqlDeleteFeedback = "DELETE FROM Feedbacks WHERE FeedbackId = {0}";
+			await _context.Database.ExecuteSqlRawAsync(sqlDeleteFeedback, feedBack.FeedbackId);
 		}
 
 		public async Task UpdateAsync(FeedBack feedBack)
 		{
-			_context.Feedbacks.Attach(feedBack);
-			_context.Entry(feedBack).State = EntityState.Modified;
-			await SaveAsync();
-		}
+			string sqlUpdateFeedback = @"UPDATE Feedbacks
+										 SET FullName = {0}, Email = {1}, Phone = {2}, Subject = {3}, Body = {4}, CreateAt = {5}, Status = {6}, Note = {7}
+										 WHERE FeedbackId = {8}";
 
-		public async Task SaveAsync()
-		{
-			await _context.SaveChangesAsync();
+			await _context.Database.ExecuteSqlRawAsync(sqlUpdateFeedback,
+														feedBack.FullName, feedBack.Email, feedBack.Phone,
+														feedBack.Subject, feedBack.Body, feedBack.CreateAt,
+														feedBack.Status, feedBack.Note, feedBack.FeedbackId);
 		}
 
 		public void Dispose()

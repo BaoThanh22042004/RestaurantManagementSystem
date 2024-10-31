@@ -6,10 +6,9 @@ namespace Repositories.Interface
 	{
 		Task<IEnumerable<Table>> GetAllAsync();
 		Task<Table?> GetByIDAsync(int id);
-		Task InsertAsync(Table table);
+		Task<Table> InsertAsync(Table table);
 		Task DeleteAsync(int id);
 		Task DeleteAsync(Table table);
 		Task UpdateAsync(Table table);
-		Task SaveAsync();
 	}
 }

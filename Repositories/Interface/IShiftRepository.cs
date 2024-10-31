@@ -6,10 +6,9 @@ namespace Repositories.Interface
 	{
 		Task<IEnumerable<Shift>> GetAllAsync();
 		Task<Shift?> GetByIDAsync(int id);
-		Task InsertAsync(Shift shift);
+		Task <Shift> InsertAsync(Shift shift);
 		Task DeleteAsync(int id);
 		Task DeleteAsync(Shift shift);
 		Task UpdateAsync(Shift shift);
-		Task SaveAsync();
 	}
 }

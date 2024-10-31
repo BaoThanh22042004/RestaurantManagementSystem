@@ -84,7 +84,7 @@ namespace WebApp.Controllers
 
                 await _storageRepository.InsertAsync(storage);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 TempData["Error"] = "An error occurred while creating the storage item. Please try again.";
                 return PartialView("_CreateStorageModal", storageViewModel);
@@ -146,7 +146,7 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 TempData["Error"] = "An error occurred while updating the storage item. Please try again later.";
                 return PartialView("_EditStorageModal", storageViewModel);

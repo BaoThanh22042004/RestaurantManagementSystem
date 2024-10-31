@@ -17,31 +17,48 @@ namespace Repositories
 		public async Task<IEnumerable<Attendance>> GetAllAsync()
 		{
 			string sqlGetAllAttendances = "SELECT * FROM Attendances";
-			return await _context.Attendances.FromSqlRaw(sqlGetAllAttendances)
-				.Include(a => a.Schedule)
-				.ToListAsync();
+			string sqlGetSchedulesByIds = "SELECT * FROM Schedules WHERE ScheId IN ({0})";
+
+			var attendances = await _context.Attendances.FromSqlRaw(sqlGetAllAttendances).ToListAsync();
+
+			// Include Schedule
+			var scheduleIds = attendances.Select(a => a.ScheId).Distinct().ToList();
+			if (scheduleIds.Count != 0)
+			{
+				var schedules = await _context.Schedules.FromSqlRaw(string.Format(sqlGetSchedulesByIds, string.Join(",", scheduleIds))).ToDictionaryAsync(s => s.ScheId);
+
+				foreach (var attendance in attendances)
+				{
+					if (schedules.TryGetValue(attendance.ScheId, out var schedule))
+					{
+						attendance.Schedule = schedule;
+					}
+				}
+			}
+
+			return attendances;
 		}
 
 		public async Task<Attendance?> GetByIDAsync(long id)
 		{
 			string sqlGetAttendanceById = "SELECT * FROM Attendances WHERE AttendId = {0}";
-			return await _context.Attendances.FromSqlRaw(sqlGetAttendanceById,id).FirstOrDefaultAsync();
+			return await _context.Attendances.FromSqlRaw(sqlGetAttendanceById, id).FirstOrDefaultAsync();
 		}
 
 		public async Task<Attendance> InsertAsync(Attendance attendance)
-		{			
+		{
 
 			string sqlInsertAttendance = @"INSERT INTO Attendances (ScheId,CheckIn,CheckOut,WorkingHours,Status)
 											VALUES ({0}, {1}, {2}, {3}, {4});
 											SELECT * FROM Attendances WHERE AttendId = SCOPE_IDENTITY();";
 
-			var insertedAttendance = await _context.Attendances.FromSqlRaw(sqlInsertAttendance, attendance.ScheId,attendance.CheckIn,attendance.CheckOut,attendance.WorkingHours,attendance.Status).ToListAsync();
+			var insertedAttendance = await _context.Attendances.FromSqlRaw(sqlInsertAttendance, attendance.ScheId, attendance.CheckIn, attendance.CheckOut, attendance.WorkingHours, attendance.Status).ToListAsync();
 
 			var attendanceInserted = insertedAttendance.FirstOrDefault();
 
 			if (attendanceInserted == null)
 			{
-				throw new Exception("Failed to insert dish category");
+				throw new Exception("Failed to insert attendance");
 			}
 
 			return attendanceInserted;
@@ -75,7 +92,7 @@ namespace Repositories
 											Status = {4}
 											WHERE AttendId = {5}";
 
-			await _context.Database.ExecuteSqlRawAsync(sqlUpdateAttendance, attendance.ScheId, attendance.CheckIn, attendance.CheckOut,attendance.WorkingHours, attendance.Status, attendance.AttendId);
+			await _context.Database.ExecuteSqlRawAsync(sqlUpdateAttendance, attendance.ScheId, attendance.CheckIn, attendance.CheckOut, attendance.WorkingHours, attendance.Status, attendance.AttendId);
 		}
 
 		public void Dispose()

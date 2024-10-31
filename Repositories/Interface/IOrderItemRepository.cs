@@ -6,7 +6,7 @@ namespace Repositories.Interface
 	{
 		Task<IEnumerable<OrderItem>> GetAllAsync();
 		Task<OrderItem?> GetByIDAsync(long id);
-		Task InsertAsync(OrderItem orderItem);
+		Task<OrderItem> InsertAsync(OrderItem orderItem);
 		Task DeleteAsync(long id);
 		Task DeleteAsync(OrderItem orderItem);
 		Task UpdateAsync(OrderItem orderItem);
