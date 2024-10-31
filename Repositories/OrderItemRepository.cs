@@ -64,9 +64,10 @@ namespace Repositories
 			string sqlInsertOrderItem = @"INSERT INTO OrderItems (OrderId, DishId, CreatedBy, Quantity, Price, Status, Notes) 
 										  VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6})
 										  SELECT * FROM OrderItems WHERE OrItemId = SCOPE_IDENTITY()";
-			var insertedOrderItem = await _context.OrderItems.FromSqlRaw(sqlInsertOrderItem,
+			var insertedOrderItems = await _context.OrderItems.FromSqlRaw(sqlInsertOrderItem,
 				orderItem.OrderId, orderItem.DishId, orderItem.CreatedBy, orderItem.Quantity, orderItem.Price, orderItem.Status, orderItem.Notes)
-				.FirstOrDefaultAsync();
+				.ToListAsync();
+			var insertedOrderItem = insertedOrderItems.FirstOrDefault();
 			if (insertedOrderItem == null)
 			{
 				throw new Exception("Failed to insert order item");
