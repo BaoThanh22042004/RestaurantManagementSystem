@@ -96,6 +96,11 @@
 									Payroll
 								</a>
 							</li>
+							<li class="nav-item">
+								<a asp-controller="Payment" asp-action="Index" class="nav-link @IsActive("Payment")">
+									Payment
+								</a>
+							</li>
 						}
 						@if (User.IsInRole(nameof(Models.Entities.Role.Accountant)))
 						{

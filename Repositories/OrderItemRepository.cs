@@ -21,8 +21,19 @@ namespace Repositories
             string sqlGetAllOrderItems = "SELECT * FROM OrderItems";
             string sqlGetDishesByIds = "SELECT * FROM Dishes WHERE DishId IN ({0})";
 
-            // Get all order items
             var orderItems = await _context.OrderItems.FromSqlRaw(sqlGetAllOrderItems).ToListAsync();
+
+            // Include dishes
+            var dishIds = orderItems.Select(oi => oi.DishId);
+            var dishes = await _context.Dishes.FromSqlRaw(string.Format(sqlGetDishesByIds, string.Join(',', dishIds))).ToDictionaryAsync(d => d.DishId);
+
+            foreach (var orderItem in orderItems)
+            {
+                if (dishes.TryGetValue(orderItem.DishId, out var dish))
+                {
+                    orderItem.Dish = dish;
+                }
+            }
 
             return orderItems;
         }

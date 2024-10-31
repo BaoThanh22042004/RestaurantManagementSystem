@@ -1,0 +1,41 @@
+﻿@model PaymentViewModel
+
+<partial name="Partials/_ModalHeader" model='"Details Payment"' />
+
+<div class="modal-body" id="modalBody">
+    <h4>Order Items</h4>
+
+    @if (Model.OrderItems != null && Model.OrderItems.Any())
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Dish Name</th>
+                    <th>Quantity</th>
+                    <th>Created By</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td>@item.DishName</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.CreatedBy</td>
+                        <td>@item.Price?.ToString("C")</td>
+                        <td>@item.Status</td>
+                        <td>@(string.IsNullOrEmpty(item.Notes) ? "none" : item.Notes)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No order items available.</p>
+    }
+</div>
+<partial name="Partials/_ModalFooter" model='""' />

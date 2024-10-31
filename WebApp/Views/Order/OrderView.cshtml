@@ -7,6 +7,7 @@
 
 <h2>Order List</h2>
 
+
 <table class="table table-striped">
     <thead>
         <tr>
@@ -28,13 +29,14 @@
                 <td>                 
                     <button onclick="detailsOrder(@order.OrderId)" class="btn btn-primary">Detail</button>
                     <button onclick="deleteOrder(@order.OrderId)" class="btn btn-primary">Delete</button>
+                    <button onclick="create(@order.OrderId)" class="btn btn-primary">Payment</button>
                 </td>
-            </tr>
+            </tr>   
         }
     </tbody>
 </table>
 
-<div class="modal fade" id="dishModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="dishModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="dishModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" id="modalContent">
         </div>
@@ -43,11 +45,19 @@
 
 @section Scripts {
     <script>
+        function create(orderId) {
+        var url = '@Url.Action("Create", "Payment")' + "?orderId=" + orderId;
+        $.get(url, function (response) {
+            $('#modalContent').html(response);
+            $('#modal').modal('show');
+    });
+}
+
         function detailsOrder(id) {
             var url = '@Url.Action("Details", "Order", new { orderId = "__id__" })'.replace("__id__", id);
             $.get(url, function (response) {
                 $('#modalContent').html(response);
-                $('#dishModal').modal('show');
+                $('#modal').modal('show');
             });
         }
 
@@ -55,7 +65,7 @@
             var url = '@Url.Action("Delete", "Order", new { orderId = "__id__" })'.replace("__id__", id);
             $.get(url, function (response) {
                 $('#modalContent').html(response);
-                $('#dishModal').modal('show');
+                $('#modal').modal('show');
             });
         }
     </script>
