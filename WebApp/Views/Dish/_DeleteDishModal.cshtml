@@ -5,15 +5,15 @@
 
 	<div class="modal-body" id="modalBody">
 
-		@if (@TempData["Error"] != null)
-		{
-			<div class="alert alert-danger" role="alert">
-				@TempData["Error"]
-			</div>
-		}
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
+
 		<input asp-for="DishId" type="hidden" />
 
 		<h3 class="mb-3">Are you sure you want to delete this dish?</h3>
+
+		<div class="mb-3">
+			<img class="rounded mx-auto d-block object-fit-cover" width="360" height="360" id="preview" src="@Model.ImagePath" onerror="this.src='https://placehold.co/360x360'" />
+		</div>
 
 		<dl>
 			<dt>@Html.DisplayNameFor(m => m.DishId)</dt>
@@ -34,12 +34,6 @@
 			<dt>@Html.DisplayNameFor(m => m.Visible)</dt>
 			<dd>@Model.Visible</dd>
 
-			@if (!string.IsNullOrEmpty(Model.ImagePath))
-			{
-				<div class="mb-3">
-					<img src="@Model.ImagePath" onerror=this.src ='https://placehold.co/360x360' alt="@Model.DishName" class="img-thumbnail" style="max-width: 200px;" />
-				</div>
-			}
 		</dl>
 	</div>
 
