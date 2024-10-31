@@ -25,7 +25,7 @@ namespace TestDBContext
 			AddDishData(context).Wait();
 
 			Console.WriteLine("Adding storage data...");
-			AddStorgeData(context).Wait();
+			AddStorageData(context).Wait();
 
 			Console.WriteLine("Adding storage log data...");
 			AddStorageLogData(context).Wait();
@@ -139,20 +139,20 @@ namespace TestDBContext
 			Console.WriteLine("Dish data added.");
 		}
 
-		static async Task AddStorgeData(DBContext context)
+		static async Task AddStorageData(DBContext context)
 		{
 			List<Storage> items = new List<Storage>
 			{
-			new Storage { ItemName = "Bruschetta", Unit = "piece", Quantity = 10 },
-			new Storage { ItemName = "Caesar Salad", Unit = "bowl", Quantity = 5 },
-			new Storage { ItemName = "Stuffed Mushrooms", Unit = "piece", Quantity = 15 },
-			new Storage { ItemName = "Onion Rings", Unit = "piece", Quantity = 20 },
-			new Storage { ItemName = "Spinach Artichoke Dip", Unit = "bowl", Quantity = 10 },
-			new Storage { ItemName = "Steak", Unit = "kg", Quantity = 25 },
-			new Storage { ItemName = "Pasta Carbonara", Unit = "kg", Quantity = 20 },
-			new Storage { ItemName = "Chicken Alfredo", Unit = "kg", Quantity = 30 },
-			new Storage { ItemName = "Seafood Paella", Unit = "kg", Quantity = 25 },
-			new Storage { ItemName = "Ratatouille", Unit = "kg", Quantity = 20 },
+			new Storage { ItemName = "Bruschetta", Unit = "piece", Quantity = 40 },
+			new Storage { ItemName = "Caesar Salad", Unit = "bowl", Quantity = 25 },
+			new Storage { ItemName = "Stuffed Mushrooms", Unit = "piece", Quantity = 25 },
+			new Storage { ItemName = "Onion Rings", Unit = "piece", Quantity = 40 },
+			new Storage { ItemName = "Spinach Artichoke Dip", Unit = "bowl", Quantity = 15 },
+			new Storage { ItemName = "Steak", Unit = "kg", Quantity = 75 },
+			new Storage { ItemName = "Pasta Carbonara", Unit = "kg", Quantity = 60 },
+			new Storage { ItemName = "Chicken Alfredo", Unit = "kg", Quantity = 60 },
+			new Storage { ItemName = "Seafood Paella", Unit = "kg", Quantity = 50 },
+			new Storage { ItemName = "Ratatouille", Unit = "kg", Quantity = 40 },
 			};
 
 			StorageRepository storageRepository = new StorageRepository(context);
@@ -190,7 +190,6 @@ namespace TestDBContext
 			ChangeQuantity = 10,
 			RemainQuantity = 40,
 			Action = Models.Entities.Action.Export,
-			Cost = 40.00m,
 			Description = "Exported 10 Bruschetta for an event"
 		},
 		new StorageLog
@@ -212,7 +211,6 @@ namespace TestDBContext
 			ChangeQuantity = 5,
 			RemainQuantity = 25,
 			Action = Models.Entities.Action.Export,
-			Cost = 15.00m,
 			Description = "Exported 5 Caesar Salads for delivery"
 		},
 		new StorageLog
@@ -234,7 +232,6 @@ namespace TestDBContext
 			ChangeQuantity = 15,
 			RemainQuantity = 25,
 			Action = Models.Entities.Action.Export,
-			Cost = 45.00m,
 			Description = "Exported 15 Stuffed Mushrooms to the kitchen"
 		},
 		new StorageLog
@@ -256,7 +253,6 @@ namespace TestDBContext
 			ChangeQuantity = 20,
 			RemainQuantity = 40,
 			Action = Models.Entities.Action.Export,
-			Cost = 30.00m,
 			Description = "Exported 20 Onion Rings for a large order"
 		},
 		new StorageLog
@@ -278,7 +274,6 @@ namespace TestDBContext
 			ChangeQuantity = 10,
 			RemainQuantity = 15,
 			Action = Models.Entities.Action.Export,
-			Cost = 30.00m,
 			Description = "Exported 10 Spinach Artichoke Dips for an event"
 		},
 		new StorageLog
@@ -300,7 +295,6 @@ namespace TestDBContext
 			ChangeQuantity = 25,
 			RemainQuantity = 75,
 			Action = Models.Entities.Action.Export,
-			Cost = 75.00m,
 			Description = "Exported 25 kg of Steak for a special order"
 		},
 		new StorageLog
@@ -322,7 +316,6 @@ namespace TestDBContext
 			ChangeQuantity = 20,
 			RemainQuantity = 60,
 			Action = Models.Entities.Action.Export,
-			Cost = 40.00m,
 			Description = "Exported 20 kg of Pasta Carbonara for a catering event"
 		},
 		new StorageLog
@@ -344,7 +337,6 @@ namespace TestDBContext
 			ChangeQuantity = 30,
 			RemainQuantity = 60,
 			Action = Models.Entities.Action.Export,
-			Cost = 90.00m,
 			Description = "Exported 30 kg of Chicken Alfredo for banquet"
 		},
 		new StorageLog
@@ -366,7 +358,6 @@ namespace TestDBContext
 			ChangeQuantity = 25,
 			RemainQuantity = 50,
 			Action = Models.Entities.Action.Export,
-			Cost = 75.00m,
 			Description = "Exported 25 kg of Seafood Paella for a special menu"
 		},
 		new StorageLog
@@ -388,7 +379,6 @@ namespace TestDBContext
 			ChangeQuantity = 20,
 			RemainQuantity = 40,
 			Action = Models.Entities.Action.Export,
-			Cost = 60.00m,
 			Description = "Exported 20 kg of Ratatouille for a customer order"
 		},
 	};
