@@ -5,23 +5,18 @@
 
 	<div class="modal-body" id="modalBody">
 
-		@if (@TempData["Error"] != null)
-		{
-			<div class="alert alert-danger" role="alert">
-				@TempData["Error"]
-			</div>
-		}
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 
 		<div class="form-floating mb-3">
-			<div class="form-floating mb-3">
-				<input asp-for="CategoryId" type="hidden" />
-				<input asp-for="CategoryId" class="form-control" disabled />
-				<label asp-for="CategoryId"></label>
-			</div>
-			<input asp-for="CategoryName" class="form-control" id="CategoryName" />
-			<label asp-for="CategoryName">Category Name</label>
-			<span asp-validation-for="CategoryName" class="text-danger"></span>
+			<input asp-for="CategoryId" type="hidden" />
+			<input asp-for="CategoryId" class="form-control" disabled />
+			<label asp-for="CategoryId"></label>
+		</div>
 
+		<div class="form-floating mb-3">
+			<input asp-for="CategoryName" class="form-control" />
+			<label asp-for="CategoryName"></label>
+			<span asp-validation-for="CategoryName" class="text-danger"></span>
 		</div>
 
 	</div>
@@ -30,5 +25,5 @@
 	}
 
 	<partial name="Partials/_ModalFooter" model='@saveButton' />
-</form>	
+</form>
 
