@@ -95,7 +95,7 @@ namespace WebApp.Controllers
                 TableOptions = await GetTableStatusList()
             };
 
-            return View("CreateOrderView", order);
+            return PartialView("_CreateOrderModal", order);
         }
 
         [HttpPost]
@@ -105,7 +105,8 @@ namespace WebApp.Controllers
             if (!ModelState.IsValid)
             {
                 orderViewModel.TableOptions = await GetTableStatusList();
-                return View("CreateOrderView", orderViewModel);
+                return PartialView("_CreateOrderModal", orderViewModel);
+
             }
             try
             {
@@ -126,15 +127,17 @@ namespace WebApp.Controllers
             catch (ArgumentException e)
             {
                 TempData["Error"] = e.Message;
-                return View("CreateOrderView", orderViewModel);
+                return PartialView("_CreateOrderModal", orderViewModel);
+
             }
             catch (Exception e)
             {
                 TempData["Error"] = "An error occurred while creating the order. Please try again later.";
-                return View("CreateOrderView", orderViewModel);
-            }
+                return PartialView("_CreateOrderModal", orderViewModel);
 
-            return RedirectToAction("Index");
+            }
+            return Json(new { success = true });
+
         }
 
         [Route("Details/{orderId}")]
