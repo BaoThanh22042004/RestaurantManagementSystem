@@ -24,14 +24,17 @@ namespace Repositories
 
 			// Include categories
 			var categoryIds = dishes.Select(d => d.CategoryId).Distinct().ToList();
-			var categories = await _context.DishCategories
+			if (categoryIds.Count != 0)
+			{
+				var categories = await _context.DishCategories
 											.FromSqlRaw(string.Format(sqlGetDishCategoriesByIds, string.Join(",", categoryIds)))
 											.ToDictionaryAsync(c => c.CatId);
-			foreach (var dish in dishes)
-			{
-				if (categories.TryGetValue(dish.CategoryId, out var category))
+				foreach (var dish in dishes)
 				{
-					dish.Category = category;
+					if (categories.TryGetValue(dish.CategoryId, out var category))
+					{
+						dish.Category = category;
+					}
 				}
 			}
 

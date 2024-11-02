@@ -1,9 +1,9 @@
 ﻿@model WebApp.Models.OrderViewModel
 
 <partial name="Partials/_ModalHeader" model='"Details Order"' />
-
+<div class="modal-body" id="modalBody">
 <div class="card">
-    @if (@TempData["Error"] != null)
+    @if (TempData["Error"] != null)
     {
         <div class="alert alert-danger" role="alert">
             @TempData["Error"]
@@ -13,29 +13,19 @@
         <h4 class="card-title">Order Information</h4>
         <dl class="row">
             <dt class="col-sm-3">Order ID</dt>
-            <dd class="col-sm-9">
-                <span>@Model.OrderId</span>
-            </dd>
+            <dd class="col-sm-9">@Model.OrderId</dd>
 
             <dt class="col-sm-3">Table Number</dt>
-            <dd class="col-sm-9">
-                <span>@Model.TableId</span>
-            </dd>
+            <dd class="col-sm-9">@Model.TableId</dd>
 
             <dt class="col-sm-3">Reservation ID</dt>
-            <dd class="col-sm-9">
-                <span>@Model.ResId</span>
-            </dd>
+            <dd class="col-sm-9">@Model.ResId</dd>
 
             <dt class="col-sm-3">Created At</dt>
-            <dd class="col-sm-9">
-                <span>@(Model.CreatedAt != DateTime.MinValue ? Model.CreatedAt.ToString("g") : "Not Set")</span>
-            </dd>
+            <dd class="col-sm-9">@Model.CreatedAt.ToString("g")</dd>
 
             <dt class="col-sm-3">Order Status</dt>
-            <dd class="col-sm-9">
-                <span>@Model.Status</span>
-            </dd>
+            <dd class="col-sm-9">@Model.Status</dd>
         </dl>
     </div>
 </div>
@@ -44,8 +34,8 @@
 
 @if (Model.OrderItems != null && Model.OrderItems.Any())
 {
-    <table class="table table-bordered">
-        <thead>
+    <table class="table table-bordered mt-3">
+        <thead class="table-light">
             <tr>
                 <th>Dish Name</th>
                 <th>Quantity</th>
@@ -53,38 +43,34 @@
                 <th>Price</th>
                 <th>Status</th>
                 <th>Notes</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            @for (int i = 0; i < Model.OrderItems.Count; i++)
+            @foreach (var item in Model.OrderItems)
             {
                 <tr>
-                    <td>
-                        <span>@Model.OrderItems[i].DishName</span>
-                    </td>
-                    <td>
-                        <span>@Model.OrderItems[i].Quantity</span>
-                    </td>
-                    <td>
-                        <span>@Model.OrderItems[i].CreatedBy</span>
-                    </td>
-                    <td>
-                        <span>@Model.OrderItems[i].Price?.ToString("C")</span>
-                    </td>
-                    <td>
-                        <span>@Model.OrderItems[i].Status</span>
-                    </td>
-                    <td>
-                        <span>@(string.IsNullOrEmpty(Model.OrderItems[i].Notes) ? "none" : Model.OrderItems[i].Notes)</span>
-                    </td>
+                    <td>@item.DishName</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.CreatedBy</td>
+                    <td>@item.Price?.ToString("C")</td>
+                    <td>@item.Status.ToString()</td>
+                    <td>@(string.IsNullOrEmpty(item.Notes) ? "None" : item.Notes)</td>
+                     <td>
+                         <button class="btn btn-danger" onclick="deleteOrderItem(@Model.OrderId, @item.OrItemId)">Delete</button>
+                     </td>
                 </tr>
             }
         </tbody>
     </table>
 }
-
+else
+{
+    <p class="text-muted">No items in this order.</p>
+}
+</div>
 @{
-    string Button = $"<button class='btn btn-primary' onclick='editOrder({Model.OrderId})'>Edit Order Item</button>    <button class='btn btn-primary' onclick='menuOrder({Model.OrderId})'>Menu</button>";
+    string Button = $"<button class='btn btn-primary' onclick='editOrder({Model.OrderId})'>Edit Order Item</button> <button class='btn btn-primary' onclick='menuOrder({Model.OrderId})'>Menu</button>";
 }
 
 <partial name="Partials/_ModalFooter" model='Button' />
@@ -95,15 +81,35 @@
         var url = '@Url.Action("Edit", "Order", new { orderId = "__id__" })'.replace("__id__", id);
         $.get(url, function (response) {
             $('#modalContent').html(response);
-            $('#dishModal').modal('show');
+            $('#Modal').modal('show');
         });
     }
 
-     function menuOrder(id) {
-        var url = '@Url.Action("OrderItemMenu", "Order", new {orderId = "__orderId__"})'.replace("__orderId__", id);
+    function menuOrder(id) {
+        var url = '@Url.Action("OrderItemMenu", "Order", new { orderId = "__orderId__" })'.replace("__orderId__", id);
         $.get(url, function (response) {
             $('#modalContent').html(response);
-            $('#dishModal').modal('show');
+            $('#Modal').modal('show');
         });
     }
+   function deleteOrderItem(orderId, orderItemId) {
+
+    if (confirm('Are you sure you want to delete this order item?')) {
+        var url = '@Url.Action("DeleteOrderItemConfirmed", "Order", new { orderId = "__orderId__", orderItemId = "__orderItemId__" })'
+            .replace("__orderId__", orderId)
+            .replace("__orderItemId__", orderItemId);
+        
+        $.post(url, function (response) {
+            if (response.success) {
+                alert('Order item deleted successfully.');
+                location.reload(); 
+            } else {
+                alert('Error deleting order item: ' + response.error);
+            }
+        }).fail(function () {
+            alert('An error occurred while deleting the order item. Please try again later.');
+        });
+    }
+}
+
 </script>

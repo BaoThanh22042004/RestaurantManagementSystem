@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Entities;
 using Repositories.Interface;
 using System.Security.Claims;
@@ -29,35 +28,24 @@ namespace WebApp.Controllers
 			return View("StorageLogView", logList);
 		}
 
-		private async Task<IEnumerable<SelectListItem>> GetItemListItem()
-		{
-			var items = await _storageRepository.GetAllAsync();
-			return items.Select(item => new SelectListItem
-			{
-				Value = item.ItemId.ToString(),
-				Text = item.ItemName
-			});
-		}
 
-		[Route("Create")]
-		public async Task<IActionResult> Create()
+		[HttpGet("Import/{id}")]
+		public IActionResult Import(int id)
 		{
-			var itemViewModel = new StorageLogViewModel
+			var storageLogViewModel = new StorageLogViewModel
 			{
-				Items = await GetItemListItem()
+				ItemId = id,
+				Action = Action.Import,
 			};
-
-			return View("CreateStorageLogView", itemViewModel);
+			return PartialView("_ImportItemModal", storageLogViewModel);
 		}
 
-		[HttpPost]
-		[Route("Create")]
-		public async Task<IActionResult> Create(StorageLogViewModel storageLogViewModel)
+		[HttpPost("Import/{id}")]
+		public async Task<IActionResult> Import(StorageLogViewModel storageLogViewModel)
 		{
 			if (!ModelState.IsValid)
 			{
-				storageLogViewModel.Items = await GetItemListItem();
-				return View("CreateStorageLogView", storageLogViewModel);
+				return PartialView("_ImportItemModal", storageLogViewModel);
 			}
 
 			try
@@ -65,10 +53,13 @@ namespace WebApp.Controllers
 				var storageLog = new StorageLog
 				{
 					CreatedBy = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)),
+					CreatedAt = DateTime.Now,
 					ItemId = storageLogViewModel.ItemId,
 					ChangeQuantity = storageLogViewModel.ChangeQuantity,
 					RemainQuantity = await UpdateRemainQuantity(storageLogViewModel),
 					Action = storageLogViewModel.Action,
+					Cost = storageLogViewModel.Cost,
+					Description = storageLogViewModel.Description,
 				};
 
 				await _storageLogRepository.InsertAsync(storageLog);
@@ -76,26 +67,76 @@ namespace WebApp.Controllers
 			catch (KeyNotFoundException)
 			{
 				TempData["Error"] = "The item does not exist.";
-				storageLogViewModel.Items = await GetItemListItem();
-				return View("CreateStorageLogView", storageLogViewModel);
+				return PartialView("_ImportItemModal", storageLogViewModel);
 			}
 			catch (InvalidDataException)
 			{
 				TempData["Error"] = "The remain quantity cannot be negative.";
-				storageLogViewModel.Items = await GetItemListItem();
-				return View("CreateStorageLogView", storageLogViewModel);
+				return PartialView("_ImportItemModal", storageLogViewModel);
 			}
 			catch (Exception)
 			{
-				TempData["Error"] = "An error occurred while creating storage log. Please try again later.";
-				storageLogViewModel.Items = await GetItemListItem();
-				return View("CreateStorageLogView", storageLogViewModel);
+				TempData["Error"] = "An error occurred while importing storage log. Please try again later.";
+				return PartialView("_ImportItemModal", storageLogViewModel);
 			}
 
-			return RedirectToAction("Index");
+			return Json(new { success = true });
 		}
 
-		[Route("Details/{id}")]
+		[HttpGet("Export/{id}")]
+		public IActionResult Export(int id)
+		{
+			var storageLogViewModel = new StorageLogViewModel
+			{
+				ItemId = id,
+				Action = Action.Export,
+			};
+			return PartialView("_ExportItemModal", storageLogViewModel);
+		}
+
+		[HttpPost("Export/{id}")]
+		public async Task<IActionResult> Export(StorageLogViewModel storageLogViewModel)
+		{
+			if (!ModelState.IsValid)
+			{
+				return PartialView("_ExportItemModal", storageLogViewModel);
+			}
+
+			try
+			{
+				var storageLog = new StorageLog
+				{
+					CreatedBy = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)),
+					CreatedAt = DateTime.Now,
+					ItemId = storageLogViewModel.ItemId,
+					ChangeQuantity = storageLogViewModel.ChangeQuantity,
+					RemainQuantity = await UpdateRemainQuantity(storageLogViewModel),
+					Action = storageLogViewModel.Action,
+					Description = storageLogViewModel.Description,
+				};
+
+				await _storageLogRepository.InsertAsync(storageLog);
+			}
+			catch (KeyNotFoundException)
+			{
+				TempData["Error"] = "The item does not exist.";
+				return PartialView("_ExportItemModal", storageLogViewModel);
+			}
+			catch (InvalidDataException)
+			{
+				TempData["Error"] = "The remain quantity cannot be negative.";
+				return PartialView("_ExportItemModal", storageLogViewModel);
+			}
+			catch (Exception)
+			{
+				TempData["Error"] = "An error occurred while importing storage log. Please try again later.";
+				return PartialView("_ExportItemModal", storageLogViewModel);
+			}
+
+			return Json(new { success = true });
+		}
+
+		[HttpGet("Details/{id}")]
 		public async Task<IActionResult> Details(long id)
 		{
 			var log = await _storageLogRepository.GetByIDAsync(id);
@@ -105,56 +146,7 @@ namespace WebApp.Controllers
 			}
 
 			var logViewModel = new StorageLogViewModel(log);
-			return View("DetailsStorageLogView", logViewModel);
-		}
-
-		[Route("Cancel/{id}")]
-		public async Task<IActionResult> Cancel(long id)
-		{
-			var log = await _storageLogRepository.GetByIDAsync(id);
-			if (log == null)
-			{
-				return NotFound();
-			}
-
-			var logViewModel = new StorageLogViewModel(log);
-			return View("CancelStorageLogView", logViewModel);
-		}
-
-		[HttpPost]
-		[Route("Cancel/{id}")]
-		public async Task<IActionResult> CancelConfirmed(long id)
-		{
-			try
-			{
-				var log = await _storageLogRepository.GetByIDAsync(id);
-				if (log == null)
-				{
-					return NotFound();
-				}
-
-				await UpdateRemainQuantityForCancel(log);
-
-				log.Action = Action.Cancel;
-				await _storageLogRepository.UpdateAsync(log);
-			}
-			catch (KeyNotFoundException)
-			{
-				TempData["Error"] = "The item does not exist.";
-				return RedirectToAction("Cancel", new { id });
-			}
-			catch (InvalidDataException)
-			{
-				TempData["Error"] = "The remain quantity cannot be negative.";
-				return RedirectToAction("Cancel", new { id });
-			}
-			catch (Exception)
-			{
-				TempData["Error"] = "An error occurred while deleting the storage log. Please try again later.";
-				return RedirectToAction("Cancel", new { id });
-			}
-
-			return RedirectToAction("Index");
+			return PartialView("_DetailsItemLogModal", logViewModel);
 		}
 
 		private async Task<decimal> UpdateRemainQuantity(StorageLogViewModel storageLogViewModel)
@@ -186,35 +178,6 @@ namespace WebApp.Controllers
 			await _storageRepository.UpdateAsync(item);
 
 			return remainQuantity;
-		}
-
-		private async Task UpdateRemainQuantityForCancel(StorageLog log)
-		{
-			var item = await _storageRepository.GetByIDAsync(log.ItemId);
-			if (item == null)
-			{
-				throw new KeyNotFoundException();
-			}
-
-			decimal remainQuantity = item.Quantity;
-
-			if (log.Action == Action.Import)
-			{
-				remainQuantity -= log.ChangeQuantity;
-			}
-			else
-			{
-				remainQuantity += log.ChangeQuantity;
-			}
-
-			if (remainQuantity < 0)
-			{
-				throw new InvalidDataException();
-			}
-
-			// Update Quantity in Storage
-			item.Quantity = remainQuantity;
-			await _storageRepository.UpdateAsync(item);
 		}
 	}
 }

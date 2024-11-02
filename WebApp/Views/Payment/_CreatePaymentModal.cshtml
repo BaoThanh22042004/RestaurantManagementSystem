@@ -1,0 +1,31 @@
+﻿@model PaymentViewModel
+
+<form method="post" asp-action="Create" id="form">
+    <partial name="Partials/_ModalHeader" model='"Create Payment"' />
+
+    <div class="modal-body" id="modalBody">
+
+        <partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
+
+        <input type="hidden" asp-for="OrderId" />
+
+        <div class="form-floating mb-3">
+            <span class="form-control-plaintext">@Model.TotalAmount</span>
+            <label>Total Amount</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <select asp-for="PaymentMethod" class="form-control" asp-items="Html.GetEnumSelectList<Models.Entities.PaymentMethod>()">
+            </select>
+            <label asp-for="PaymentMethod">Payment Method</label>
+            <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+        </div>
+
+    </div>
+
+    @{
+        string createButton = $"<button onclick='createOrder({Model.BillId})' class='btn btn-primary'>Create Payment</button>";
+    }
+
+    <partial name="Partials/_ModalFooter" model='@createButton' />
+</form>

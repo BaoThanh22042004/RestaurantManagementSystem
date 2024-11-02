@@ -95,7 +95,7 @@ namespace WebApp.Controllers
                 TableOptions = await GetTableStatusList()
             };
 
-            return View("CreateOrderView", order);
+            return PartialView("_CreateOrderModal", order);
         }
 
         [HttpPost]
@@ -105,7 +105,8 @@ namespace WebApp.Controllers
             if (!ModelState.IsValid)
             {
                 orderViewModel.TableOptions = await GetTableStatusList();
-                return View("CreateOrderView", orderViewModel);
+                return PartialView("_CreateOrderModal", orderViewModel);
+
             }
             try
             {
@@ -118,19 +119,25 @@ namespace WebApp.Controllers
                     OrderItems = new List<OrderItem>()
                 };
                 await _orderRepository.InsertAsync(order);
-            }
+
+                var table = await _tableRepository.GetByIDAsync(orderViewModel.TableId.Value);
+				table.Status = TableStatus.Occupied;
+				await _tableRepository.UpdateAsync(table);
+			}
             catch (ArgumentException e)
             {
                 TempData["Error"] = e.Message;
-                return View("CreateOrderView", orderViewModel);
+                return PartialView("_CreateOrderModal", orderViewModel);
+
             }
             catch (Exception e)
             {
                 TempData["Error"] = "An error occurred while creating the order. Please try again later.";
-                return View("CreateOrderView", orderViewModel);
-            }
+                return PartialView("_CreateOrderModal", orderViewModel);
 
-            return RedirectToAction("Index");
+            }
+            return Json(new { success = true });
+
         }
 
         [Route("Details/{orderId}")]
@@ -251,8 +258,7 @@ namespace WebApp.Controllers
             return PartialView("_EditOrderModal", orderViewModel);
         }
 
-        [HttpPost]
-        [Route("Edit/{orderId}")]
+        [HttpPost("Edit/{orderId}")]
         public async Task<IActionResult> Edit(OrderViewModel orderViewModel, long orderId)
         {
             if (!ModelState.IsValid)
@@ -263,7 +269,7 @@ namespace WebApp.Controllers
                     item.StatusOptions = await GetOrderItemStatusList();
                     item.DishName = await GetDishNameByDishId(item.DishId);
                 }
-                return PartialView("_DetailsOrderModal", orderViewModel);
+                return PartialView("_EditOrderModal", orderViewModel);
             }
 
             try
@@ -298,7 +304,7 @@ namespace WebApp.Controllers
                 return PartialView("_EditOrderModal", orderViewModel);
             }
             return Json(new { success = true });
-        }
+        }   
 
         [Route("Delete/{orderId}")]
         public async Task<IActionResult> Delete(long orderId)
@@ -326,6 +332,16 @@ namespace WebApp.Controllers
         {
             try
             {
+                var order = await _orderRepository.GetByIDAsync(orderId);
+                if (order == null)
+                {
+                    return NotFound();
+                }
+                if (order.OrderItems.Any())
+                {
+                    TempData["Error"] = "Cannot delete the order because it contains order items.";
+                    return RedirectToAction("Delete", new { orderId });
+                }
                 await _orderRepository.DeleteAsync(orderId);
             }
             catch (Exception)
@@ -336,6 +352,33 @@ namespace WebApp.Controllers
 
             return Json(new { success = true });
         }
-    }
 
+        [HttpPost]
+        [Route("Details/{orderId}/DeleteOrderItem/{orderItemId}")]
+        public async Task<IActionResult> DeleteOrderItemConfirmed(long orderId, long orderItemId)
+        {
+            try
+            {
+                var orderItem = await _orderItemRepository.GetByIDAsync(orderItemId);
+                if (orderItem == null)
+                {
+                    return Json(new { success = false, error = "Order item not found." });
+                }
+
+                if (orderItem.Status != OrderItemStatus.Pending) 
+                {
+                    return Json(new { success = false, error = "Cannot delete this order item because its status is not Pending." });
+                }
+
+                await _orderItemRepository.DeleteAsync(orderItemId);
+
+                return Json(new { success = true});
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "An error occurred while deleting the order item. Please try again later.";
+                return Json(new { success = false, error = TempData["Error"] });
+            }
+        }
+    }
 }

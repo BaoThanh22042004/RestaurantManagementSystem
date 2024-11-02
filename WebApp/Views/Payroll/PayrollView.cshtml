@@ -1,71 +1,119 @@
-﻿@model IEnumerable<WebApp.Models.PayrollViewModel>
-
+﻿@model IEnumerable<PayrollViewModel>
 @{
-    ViewData["Title"] = "Payroll List";
+    ViewData["Title"] = "Payroll";
     Layout = "_DashboardLayout";
+    int counter = 0;
 }
 
-<h1 class="mb-4">Payroll List</h1>
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["Error"]
-    </div>
-}
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Success"]
-    </div>
-}
+<h1 class="mb-4 text-center">Payroll Management</h1>
 
 <div class="mb-3">
-    <a asp-action="Create" class="btn btn-success">Add New Payroll</a>
+    <button onclick="createPayroll()" class="btn btn-success">Add New Payroll</button>
 </div>
 
-<table class="table table-striped">
+<table class="table">
     <thead>
         <tr>
-            <th>Payroll ID</th>
-            <th>Employee ID</th>
-            <th>Month</th>
-            <th>Year</th>
-            <th>Working Hours</th>
-            <th>Salary</th>
-            <th>Status</th>
-            <th>Payment Date</th>
-            <th>Actions</th>
+            <th>
+                #
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EmpId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Month)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Year)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WorkingHours)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Salary)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var payroll in Model)
+        @foreach (var item in Model)
         {
             <tr>
-                <td>@payroll.PayrollId</td>
-                <td>@payroll.EmpId</td>
-                <td>@payroll.Month</td>
-                <td>@payroll.Year</td>
-                <td>@payroll.WorkingHours</td>
-                <td>@payroll.Salary</td>
-                <td>@payroll.Status</td>
-                <td>@payroll.PaymentDate?.ToString("d")</td>
                 <td>
-                 
-                    <a asp-action="Details" asp-route-id="@payroll.PayrollId" class="btn btn-info btn-sm">Details</a>
-
-                    <a asp-action="Edit" asp-route-id="@payroll.PayrollId" class="btn btn-primary btn-sm">Edit</a>
-
-                    <a asp-action="Delete" asp-route-id="@payroll.PayrollId" class="btn btn-danger btn-sm">Delete</a>
+                    @(++counter)
+                </td>
+                <td>
+                    @item.Employee?.FullName
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Month)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Year)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.WorkingHours)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Salary)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Status)
+                </td>
+                <td>
+                    <button class="btn btn-info" onclick="details(@item.PayrollId)">Details</button>
+                    <button class="btn btn-primary" onclick="editPayroll(@item.PayrollId)">Edit</button>
+                    <button class="btn btn-danger" onclick="deleteAction(@item.PayrollId)">Delete</button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        No payrolls found.
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="modalContent">
+        </div>
     </div>
+</div>
+
+@section Scripts {
+    <script>
+        function createPayroll() {
+            var url = '@Url.Action("Create", "Payroll")';
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+
+        function editPayroll(id) {
+            var url = '@Url.Action("Edit", "Payroll", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+
+        function deleteAction(id) {
+            var url = '@Url.Action("Delete", "Payroll", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+
+        function details(id) {
+            var url = '@Url.Action("Details", "Payroll", new { id = "__id__" })'.replace("__id__", id);
+            $.get(url, function (response) {
+                $('#modalContent').html(response);
+                $('#modal').modal('show');
+            });
+        }
+    </script>
 }
+
+    

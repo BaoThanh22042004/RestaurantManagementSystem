@@ -3,6 +3,11 @@
 <partial name="Partials/_ModalHeader" model='"Details Dish"' />
 
 <div class="modal-body" id="modalBody">
+
+	<div class="mb-3">
+		<img src="@Model.ImagePath" onerror="this.src ='https://placehold.co/360x360'" alt="@Model.DishName" class="rounded mx-auto d-block object-fit-cover" width="360" height="360" />
+	</div>
+
 	<dl>
 		<dt>@Html.DisplayNameFor(m => m.DishId)</dt>
 		<dd>@Model.DishId</dd>
@@ -22,12 +27,7 @@
 		<dt>@Html.DisplayNameFor(m => m.Visible)</dt>
 		<dd>@Model.Visible</dd>
 
-		@if (!string.IsNullOrEmpty(Model.ImagePath))
-		{
-			<div class="mb-3">
-				<img src="@Model.ImagePath" onerror=this.src ='https://placehold.co/360x360' alt="@Model.DishName" class="img-thumbnail" style="max-width: 200px;" />
-			</div>
-		}
+
 	</dl>
 </div>
 

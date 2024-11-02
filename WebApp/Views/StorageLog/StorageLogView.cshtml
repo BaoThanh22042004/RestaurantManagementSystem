@@ -1,89 +1,121 @@
 ﻿@functions {
-    public string GetBgClass(Models.Entities.Action action)
-    {
-        switch (action)
-        {
-            case Models.Entities.Action.Import:
-                return "table-success";
-            case Models.Entities.Action.Export:
-                return "table-danger";
-            case Models.Entities.Action.Cancel:
-                return "table-secondary";
-            default:
-                return "";
-        }
-    }
+	public string GetBgClass(Models.Entities.Action action)
+	{
+		switch (action)
+		{
+			case Models.Entities.Action.Import:
+				return "table-success";
+			case Models.Entities.Action.Export:
+				return "table-danger";
+			default:
+				return "";
+		}
+	}
 }
 
 @model IEnumerable<StorageLogViewModel>
 @{
-    ViewData["Title"] = "Storage Log";
-    Layout = "_DashBoardLayout";
+	ViewData["Title"] = "All Logs";
+	Layout = "_DashBoardLayout";
 }
-<h1>Storage Log</h1>
+<h1 class="mb-4 text-center">All Logs</h1>
 
-<a asp-action="Create" class="btn btn-primary">Create</a>
-<a asp-controller="Storage" asp-action="Index" class="btn btn-secondary">Back to Storage</a>
+<div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
+	<div class="d-inline-block">
+		<a asp-controller="Storage" asp-action="Index" class="btn btn-secondary">Back to Storage</a>
+	</div>
+</div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Item ID
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().ItemName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().Action)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().RemainQuantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.First().ChangeQuantity)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    @if (Model != null && Model.Any())
-    {
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr class="@GetBgClass(item.Action)">
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ItemId)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ItemName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Action)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RemainQuantity)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ChangeQuantity)
-                    </td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.LogId" class="btn btn-info">Details</a>
-                        @if (!item.Action.Equals(Models.Entities.Action.Cancel))
-                        {
-                            <a asp-action="Cancel" asp-route-id="@item.LogId" class="btn btn-danger">Cancel</a>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    }
-    else
-    {
-        <tbody>
-            <tr>
-                <td colspan="7">No Logs Found.</td>
-            </tr>
-        </tbody>
-    }
-</table>
+<div class="rounded border shadow-sm p-3">
+	<div class="table-responsive">
+		<table class="table table-hover">
+			<thead class="table-dark">
+				<tr>
+					<th>
+						Item ID
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.First().ItemName)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.First().Action)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.First().RemainQuantity)
+					</th>
+					<th>
+						@Html.DisplayNameFor(model => model.First().ChangeQuantity)
+					</th>
+				</tr>
+			</thead>
+			@if (Model != null && Model.Any())
+			{
+				<tbody>
+					@foreach (var item in Model)
+					{
+						<tr onclick="details(@item.LogId)" class="@GetBgClass(item.Action) clickable">
+							<td>
+								@Html.DisplayFor(modelItem => item.ItemId)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.ItemName)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Action)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.RemainQuantity)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.ChangeQuantity)
+							</td>
+						</tr>
+					}
+				</tbody>
+			}
+			else
+			{
+				<tbody>
+					<tr>
+						<td colspan="7">No Logs Found.</td>
+					</tr>
+				</tbody>
+			}
+		</table>
+	</div>
+</div>
+
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content" id="modalContent">
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		function details(logId) {
+			var url = '@Url.Action("Details", "StorageLog", new { id = "__id__" })'.replace("__id__", logId);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+	</script>
+}
+
+@section Styles {
+	<style>
+		.table-success {
+			background-color: #d4edda;
+		}
+
+		.table-danger {
+			background-color: #f8d7da;
+		}
+
+		.clickable {
+			cursor: pointer;
+		}
+	</style>
+}

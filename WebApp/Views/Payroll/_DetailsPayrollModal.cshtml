@@ -1,0 +1,35 @@
+﻿@model PayrollViewModel
+
+<partial name="Partials/_ModalHeader" model='"Payroll Details"' />
+
+<div class="modal-body" id="modalBody">
+    <dl>
+        <dt>@Html.DisplayNameFor(m => m.PayrollId)</dt>
+        <dd>@Model.PayrollId</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.EmpId)</dt>
+        <dd>@Model.Employee?.FullName</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.Month)</dt>
+        <dd>@Model.Month</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.Year)</dt>
+        <dd>@Model.Year</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.WorkingHours)</dt>
+        <dd>@Model.WorkingHours</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.Salary)</dt>
+        <dd>@Model.Salary</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.Status)</dt>
+        <dd>@Model.Status</dd>
+
+        <dt>@Html.DisplayNameFor(m => m.PaymentDate)</dt>
+        <dd>@(Model.PaymentDate?.ToString("yyyy-MM-dd") ?? "N/A")</dd>
+    </dl>
+</div>
+
+<partial name="Partials/_ModalFooter" model='""' />
+
+

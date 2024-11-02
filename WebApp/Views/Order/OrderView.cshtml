@@ -5,36 +5,52 @@
     Layout = "_DashboardLayout";
 }
 
-<h2>Order List</h2>
+<h1 class="mb-4 text-center">Order List</h1>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Order ID</th>
-            <th>Table Number</th>
-            <th>Created At</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var order in Model)
-        {
-            <tr>
-                <td>@order.OrderId</td>
-                <td>@order.TableId</td>
-                <td>@order.CreatedAt.ToString("g")</td>
-                <td>@order.Status.ToString()</td>
-                <td>                 
-                    <button onclick="detailsOrder(@order.OrderId)" class="btn btn-primary">Detail</button>
-                    <button onclick="deleteOrder(@order.OrderId)" class="btn btn-primary">Delete</button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="container">
+    <div class="card shadow-sm p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <button onclick="createOrder()" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Add New Order
+            </button>
+        </div>
 
-<div class="modal fade" id="dishModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="dishModalLabel" aria-hidden="true">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Table Number</th>
+                        <th>Created At</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>@order.OrderId</td>
+                            <td>@order.TableId</td>
+                            <td>@order.CreatedAt.ToString("g")</td>
+                            <td>@order.Status.ToString()</td>
+                            <td class="d-flex justify-content-end">
+                                <button onclick="detailsOrder(@order.OrderId)" class="btn btn-info btn-sm me-2">
+                                    <i class="fas fa-info-circle"></i> Details
+                                </button>
+                                <button onclick="deleteOrder(@order.OrderId)" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="Modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" id="modalContent">
         </div>
@@ -43,20 +59,37 @@
 
 @section Scripts {
     <script>
+        function create(orderId) {
+        var url = '@Url.Action("Create", "Payment")' + "?orderId=" + orderId;
+        $.get(url, function (response) {
+            $('#modalContent').html(response);
+            $('#modal').modal('show');
+    });
+}
+
         function detailsOrder(id) {
             var url = '@Url.Action("Details", "Order", new { orderId = "__id__" })'.replace("__id__", id);
             $.get(url, function (response) {
                 $('#modalContent').html(response);
-                $('#dishModal').modal('show');
+                $('#Modal').modal('show');
             });
         }
 
         function deleteOrder(id) {
-            var url = '@Url.Action("Delete", "Order", new { orderId = "__id__" })'.replace("__id__", id);
+                var url = '@Url.Action("Delete", "Order", new { orderId = "__id__" })'.replace("__id__", id);
+                $.get(url, function (response) {
+                    $('#modalContent').html(response);
+                    $('#Modal').modal('show');
+                });         
+        }
+
+        function createOrder() {
+            var url = '@Url.Action("Create", "Order")';
             $.get(url, function (response) {
                 $('#modalContent').html(response);
-                $('#dishModal').modal('show');
+                $('#Modal').modal('show');
             });
         }
     </script>
 }
+

@@ -1,0 +1,55 @@
+﻿@model IEnumerable<string>
+
+<div class="modal-footer" id="modalFooter">
+	@foreach (var button in Model)
+	{
+		@Html.Raw(button)
+	}
+</div>
+
+<script>
+	// Handle form submission
+	$('#form').on('submit', function (e) {
+		// Prevent default form submission
+		e.preventDefault();
+
+		// Create a FormData object to store form data
+		var formData = new FormData(this);
+
+		// Post form data to server
+		$.ajax({
+			url: this.action,
+			type: 'POST',
+			data: formData,
+			contentType: false,
+			processData: false,
+		})
+			.done(function (response) { // Handle server response
+				if (response.success) {
+					$('#modal').modal('hide');
+					location.reload();
+				} else {
+					$('#modalContent').html(response);
+				}
+
+			})
+			.fail(function (jqXHR, textStatus, errorThrown) { // Log any errors
+				console.error('Upload failed:', textStatus, errorThrown);
+			})
+	});
+</script>
+
+@* 
+Example	
+
+@{
+	var listButton = new List<string>();
+	var button1 = "";
+	var button2 = "";
+	var button3 = "";
+	listButton.Add(button1);
+	listButton.Add(button2);
+	listButton.Add(button3);
+}
+
+<partial name="Partials/_ModalCustomFooter" model="listButton" /> *@
