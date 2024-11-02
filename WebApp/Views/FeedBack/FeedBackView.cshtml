@@ -1,5 +1,15 @@
 ﻿@model IEnumerable<WebApp.Models.FeedBackViewModel>
 
+@functions {
+	string StatusClass(Models.Entities.FeedBackStatus status) => status switch
+	{
+		Models.Entities.FeedBackStatus.Pending => "info",
+		Models.Entities.FeedBackStatus.Reviewed => "primary",
+		Models.Entities.FeedBackStatus.Resolved => "success",
+		Models.Entities.FeedBackStatus.Dismissed => "secondary",
+	};
+}
+
 @{
 	ViewData["Title"] = "Feedbacks";
 	Layout = "_DashboardLayout";
@@ -37,7 +47,7 @@ else
 							<td>@feedback.FeedbackId</td>
 							<td>@feedback.FullName</td>
 							<td>@feedback.Subject</td>
-							<td>@feedback.Status</td>
+							<td><span class="badge text-bg-@StatusClass(feedback.Status)">@feedback.Status</span></td>
 							<td>@feedback.CreateAt.ToString("g")</td>
 							<td class="text-center">
 								<div class="btn-group" role="group">

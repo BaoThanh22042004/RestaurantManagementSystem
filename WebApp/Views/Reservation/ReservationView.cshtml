@@ -1,5 +1,5 @@
 ﻿@functions {
-	string statusClass(Models.Entities.ReservationStatus status) => status switch
+	string StatusClass(Models.Entities.ReservationStatus status) => status switch
 	{
 		Models.Entities.ReservationStatus.Pending => "info",
 		Models.Entities.ReservationStatus.Confirmed => "primary",
@@ -60,7 +60,7 @@ else
 							<td>@Html.DisplayFor(modelItem => reservation.ResDate)</td>
 							<td>@Html.DisplayFor(modelItem => reservation.ResTime)</td>
 
-							<td><span class="badge text-bg-@statusClass(reservation.Status)">@reservation.Status</span></td>
+							<td><span class="badge text-bg-@StatusClass(reservation.Status)">@reservation.Status</span></td>
 
 							<td class="text-center">
 								<div class="btn-group" role="group">
