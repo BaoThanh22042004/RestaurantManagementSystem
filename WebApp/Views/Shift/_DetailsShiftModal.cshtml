@@ -3,18 +3,18 @@
 <partial name="Partials/_ModalHeader" model='"Details Shift"'/>
 
 <div class="modal-body" id="modalBody">
-	<dl>
-		<dt>@Html.DisplayNameFor(m => m.ShiftId)</dt>
-		<dd>@Model.ShiftId</dd>
+	<dl class="row">
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ShiftId)</dt>
+		<dd class="col-sm-8">@Model.ShiftId</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.ShiftName)</dt>
-		<dd>@Model.ShiftName</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ShiftName)</dt>
+		<dd class="col-sm-8">@Model.ShiftName</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.StartTime)</dt>
-		<dd>@Model.StartTime</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.StartTime)</dt>
+		<dd class="col-sm-8">@Model.StartTime</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.EndTime)</dt>
-		<dd>@Model.EndTime</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.EndTime)</dt>
+		<dd class="col-sm-8">@Model.EndTime</dd>
 	</dl>
 </div>
 

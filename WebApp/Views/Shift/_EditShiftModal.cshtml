@@ -1,40 +1,36 @@
 ﻿@model ShiftViewModel
 
 <form method="post" asp-action="Edit" id="form">
-    <partial name="Partials/_ModalHeader" model='"Edit User"' />
+	<partial name="Partials/_ModalHeader" model='"Edit Shift"' />
 
-    <div class="modal-body" id="modalBody">
+	<div class="modal-body" id="modalBody">
 
-        <partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 
-        <div class="form-floating mb-3">
-            <input asp-for="ShiftId" type="hidden" />
-            <input asp-for="ShiftId" class="form-control" disabled />
-            <label asp-for="ShiftId"></label>
-        </div>
+		<input asp-for="ShiftId" type="hidden" />
 
-        <div class="form-floating mb-3">
-            <input asp-for="ShiftName" class="form-control" id="ShiftName" />
-            <label asp-for="ShiftName"></label>
-            <span asp-validation-for="ShiftName" class="text-danger"></span>
-        </div>
+		<div class="form-floating mb-3">
+			<input asp-for="ShiftName" class="form-control" id="ShiftName" />
+			<label asp-for="ShiftName"></label>
+			<span asp-validation-for="ShiftName" class="text-danger"></span>
+		</div>
 
-        <div class="form-floating mb-3">
-            <input asp-for="StartTime" type="time" class="form-control" id="StartTime" />
-            <label asp-for="StartTime"></label>
-            <span asp-validation-for="StartTime" class="text-danger"></span>
-        </div>
+		<div class="form-floating mb-3">
+			<input asp-for="StartTime" type="time" class="form-control" id="StartTime" />
+			<label asp-for="StartTime"></label>
+			<span asp-validation-for="StartTime" class="text-danger"></span>
+		</div>
 
-        <div class="form-floating mb-3">
-            <input asp-for="EndTime" type="time" class="form-control" id="EndTime" />
-            <label asp-for="EndTime"></label>
-            <span asp-validation-for="EndTime" class="text-danger"></span>
-        </div>
-    </div>
+		<div class="form-floating mb-3">
+			<input asp-for="EndTime" type="time" class="form-control" id="EndTime" />
+			<label asp-for="EndTime"></label>
+			<span asp-validation-for="EndTime" class="text-danger"></span>
+		</div>
+	</div>
 
-    @{
-        string saveButton = "<button type='submit' class='btn btn-primary'>Save</button>";
-    }
+	@{
+		string saveButton = "<button type='submit' class='btn btn-primary'>Save</button>";
+	}
 
-    <partial name="Partials/_ModalFooter" model='@saveButton' />
+	<partial name="Partials/_ModalFooter" model='@saveButton' />
 </form>

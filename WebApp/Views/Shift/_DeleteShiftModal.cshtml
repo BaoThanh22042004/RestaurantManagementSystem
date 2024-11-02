@@ -9,21 +9,21 @@
 
 		<input asp-for="ShiftId" type="hidden" />
 
-		<h3 class="mb-3">Are you sure you want to delete this shift?</h3>
+		<h4 class="mb-3">Are you sure you want to delete this shift?</h4>
 
-		<dl>
+		<dl class="row">
 
-			<dt>@Html.DisplayNameFor(m => m.ShiftId)</dt>
-			<dd>@Model.ShiftId</dd>
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ShiftId)</dt>
+			<dd class="col-sm-8">@Model.ShiftId</dd>
 
-			<dt>@Html.DisplayNameFor(m => m.ShiftName)</dt>
-			<dd>@Model.ShiftName</dd>
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ShiftName)</dt>
+			<dd class="col-sm-8">@Model.ShiftName</dd>
 
-			<dt>@Html.DisplayNameFor(m => m.StartTime)</dt>
-			<dd>@Model.StartTime</dd>
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.StartTime)</dt>
+			<dd class="col-sm-8">@Model.StartTime</dd>
 
-			<dt>@Html.DisplayNameFor(m => m.EndTime)</dt>
-			<dd>@Model.EndTime</dd>
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.EndTime)</dt>
+			<dd class="col-sm-8">@Model.EndTime</dd>
 
 		</dl>
 	</div>
