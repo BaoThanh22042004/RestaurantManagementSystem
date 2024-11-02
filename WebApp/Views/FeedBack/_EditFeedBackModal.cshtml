@@ -6,48 +6,32 @@
 
 	<div class="modal-body" id="modalBody">
 
-		@if (@TempData["Error"] != null)
-		{
-			<div class="alert alert-danger" role="alert">
-				@TempData["Error"]
-			</div>
-		}
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
+			
+		<input asp-for="FeedbackId" type="hidden" />
 
-		<div class="form-floating mb-3">
-			<input asp-for="FeedbackId" type="hidden" />
-			<input asp-for="FeedbackId" class="form-control" disabled />
-			<label asp-for="FeedbackId"></label>
-		</div>
+		<dl class="row">
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.FeedbackId)</dt>
+			<dd class="col-sm-8">@Model.FeedbackId</dd>
 
-		<div class="form-floating mb-3">
-			<input asp-for="CreateAt" class="form-control" disabled />
-			<label asp-for="CreateAt"></label>
-		</div>
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.CreateAt)</dt>
+			<dd class="col-sm-8">@Model.CreateAt</dd>
 
-		<div class="form-floating mb-3">
-			<input asp-for="FullName" class="form-control" disabled />
-			<label asp-for="FullName"></label>
-		</div>
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.FullName)</dt>
+			<dd class="col-sm-8">@Model.FullName</dd>
 
-		<div class="form-floating mb-3">
-			<input asp-for="Email" class="form-control" disabled />
-			<label asp-for="Email"></label>
-		</div>
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Email)</dt>
+			<dd class="col-sm-8">@Model.Email</dd>
 
-		<div class="form-floating mb-3">
-			<input asp-for="Phone" class="form-control" disabled />
-			<label asp-for="Phone"></label>
-		</div>
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Phone)</dt>
+			<dd class="col-sm-8">@Model.Phone</dd>
 
-		<div class="form-floating mb-3">
-			<input asp-for="Subject" class="form-control" disabled />
-			<label asp-for="Subject"></label>
-		</div>
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Subject)</dt>
+			<dd class="col-sm-8">@Model.Subject</dd>
 
-		<div class="form-floating mb-3">
-			<textarea asp-for="Body" class="form-control" rows="5" disabled></textarea>
-			<label asp-for="Body"></label>
-		</div>
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Body)</dt>
+			<dd class="col-sm-8">@Model.Body</dd>
+		</dl>
 
 		<div class="form-floating mb-3">
 			<select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<FeedBackStatus>()">
