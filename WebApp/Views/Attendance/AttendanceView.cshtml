@@ -1,48 +1,62 @@
 ﻿@model IEnumerable<AttendanceViewModel>
 @{
-    ViewData["Title"] = "Attendance";
-    Layout = "_DashboardLayout";
-    int counter = 0;
+	ViewData["Title"] = "Attendance";
+	Layout = "_DashboardLayout";
+	int counter = 0;
 }
 
-<h1 class="mb-4">Attendance</h1>
+@functions {
+	string StatusClass(Models.Entities.AttendanceStatus status) => status switch
+	{
+		Models.Entities.AttendanceStatus.ClockIn => "primary",
+		Models.Entities.AttendanceStatus.ClockOut => "success",
+		Models.Entities.AttendanceStatus.Absent => "danger",
+	};
+}
+
+<h1 class="mb-4 text-center">Attendance</h1>
 
 @if (!Model.Any())
 {
-    <div class="text-center mt-5">
-        <h2>No Attendances available.</h2>
-        <p>Please add some Attendances.</p>
-    </div>
+	<div class="rounded border shadow-sm p-3">
+		<div class="text-center py-4">
+			<h2>No Attendances available.</h2>
+		</div>
+	</div>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Employee Name</th>
-                <th>Schedule Date</th>
-                <th>Check In</th>
-                <th>Check Out</th>
-                <th>Working Hours</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@(++counter)</td>
-                    <td>@item.EmployeeName</td>
-                    <td>@item.ScheDate</td>
-                    <td>@item.CheckIn</td>
-                    <td>@item.CheckOut</td>
-                    <td>@item.WorkingHours</td>
-                    <td>@item.Status</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+	<div class="rounded border shadow-sm p-3">
+		<div class="table-responsive">
+			<table class="table table-hover align-middle">
+				<thead class="table-dark align-middle">
+					<tr>
+						<th>#</th>
+						<th>Employee Name</th>
+						<th>Schedule Date</th>
+						<th>Check In</th>
+						<th>Check Out</th>
+						<th>Working Hours</th>
+						<th>Status</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model)
+					{
+						<tr>
+							<td>@(++counter)</td>
+							<td>@item.EmployeeName</td>
+							<td>@item.ScheDate</td>
+							<td>@item.CheckIn</td>
+							<td>@item.CheckOut</td>
+							<td>@item.WorkingHours</td>
+							<td><span class="badge text-bg-@StatusClass(item.Status)">@item.Status</span></td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
 }
 
 
