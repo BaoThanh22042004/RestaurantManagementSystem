@@ -1,119 +1,144 @@
 ﻿@model IEnumerable<PayrollViewModel>
 @{
-    ViewData["Title"] = "Payroll";
-    Layout = "_DashboardLayout";
-    int counter = 0;
+	ViewData["Title"] = "Payroll";
+	Layout = "_DashboardLayout";
+	int counter = 0;
 }
 
-<h1 class="mb-4 text-center">Payroll Management</h1>
+@functions {
+	string StatusClass(Models.Entities.PayrollStatus status) => status switch
+	{
+		Models.Entities.PayrollStatus.UnPaid => "info",
+		Models.Entities.PayrollStatus.Paid => "success",
+	};
+}
 
-<div class="mb-3">
-    <button onclick="createPayroll()" class="btn btn-success">Add New Payroll</button>
+<h1 class="mb-4 text-center">Payrolls</h1>
+
+<div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
+	<div class="d-inline-block">
+		<button onclick="createPayroll()" class="btn btn-success">Add New Payroll</button>
+	</div>
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                #
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EmpId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Month)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Year)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.WorkingHours)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Salary)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @(++counter)
-                </td>
-                <td>
-                    @item.Employee?.FullName
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Month)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Year)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.WorkingHours)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Salary)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Status)
-                </td>
-                <td>
-                    <button class="btn btn-info" onclick="details(@item.PayrollId)">Details</button>
-                    <button class="btn btn-primary" onclick="editPayroll(@item.PayrollId)">Edit</button>
-                    <button class="btn btn-danger" onclick="deleteAction(@item.PayrollId)">Delete</button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+@if (!Model.Any())
+{
+	<div class="rounded border shadow-sm p-3">
+		<div class="text-center py-4">
+			<h2>No payrolls available.</h2>
+		</div>
+	</div>
+}
+else
+{
+	<div class="rounded border shadow-sm p-3">
+		<div class="table-responsive">
+			<table class="table table-hover align-middle">
+				<thead class="table-dark align-middle">
+					<tr>
+						<th>
+							#
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.EmpId)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.Month)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.Year)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.WorkingHours)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.Salary)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.Status)
+						</th>
+						<th class="text-center">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model)
+					{
+						<tr>
+							<td>
+								@(++counter)
+							</td>
+							<td>
+								@item.Employee?.FullName
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Month)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Year)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.WorkingHours)
+							</td>
+							<td>
+								@Html.DisplayFor(modelItem => item.Salary)
+							</td>
+							<td><span class="badge text-bg-@StatusClass(item.Status)">@item.Status</span></td>
+							<td class="text-center">
+								<div class="btn-group" role="group">
+									<button class="btn btn-info" onclick="details(@item.PayrollId)">Details</button>
+									<button class="btn btn-primary" onclick="editPayroll(@item.PayrollId)">Edit</button>
+									<button class="btn btn-danger" onclick="deleteAction(@item.PayrollId)">Delete</button>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+}
 
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" id="modalContent">
-        </div>
-    </div>
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content" id="modalContent">
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    <script>
-        function createPayroll() {
-            var url = '@Url.Action("Create", "Payroll")';
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
+	<script>
+		function createPayroll() {
+			var url = '@Url.Action("Create", "Payroll")';
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
 
-        function editPayroll(id) {
-            var url = '@Url.Action("Edit", "Payroll", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
+		function editPayroll(id) {
+			var url = '@Url.Action("Edit", "Payroll", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
 
-        function deleteAction(id) {
-            var url = '@Url.Action("Delete", "Payroll", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
+		function deleteAction(id) {
+			var url = '@Url.Action("Delete", "Payroll", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
 
-        function details(id) {
-            var url = '@Url.Action("Details", "Payroll", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-    </script>
+		function details(id) {
+			var url = '@Url.Action("Details", "Payroll", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+	</script>
 }
 
-    

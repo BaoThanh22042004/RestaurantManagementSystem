@@ -6,6 +6,7 @@ namespace WebApp.Models
 {
     public class PayrollViewModel
     {
+        [Display(Name = "Payroll ID")]
         public long? PayrollId { get; set; }
 
         [Required(ErrorMessage = "Created By is required.")]
