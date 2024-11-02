@@ -6,12 +6,8 @@
 	<div class="modal-body" id="modalBody">
 
 		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
-
-		<div class="form-floating mb-3">
-			<input asp-for="CategoryId" type="hidden" />
-			<input asp-for="CategoryId" class="form-control" disabled />
-			<label asp-for="CategoryId"></label>
-		</div>
+			
+		<input asp-for="CategoryId" type="hidden" />
 
 		<div class="form-floating mb-3">
 			<input asp-for="CategoryName" class="form-control" />
