@@ -25,7 +25,10 @@
 			<dd class="col-sm-8">@Model.WorkingHours</dd>
 
 			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Salary)</dt>
-			<dd class="col-sm-8">@Model.Salary</dd>
+			<dd class="col-sm-8">@Model.Salary.ToString("C")</dd>
+
+			<dt class="col-sm-4">Total Earnings</dt>
+			<dd class="col-sm-8 fw-medium">@((Model.Salary * Model.WorkingHours).Value.ToString("C"))</dd>
 		</dl>
 
 		<div class="form-floating mb-3">

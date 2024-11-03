@@ -81,7 +81,7 @@ else
 								@Html.DisplayFor(modelItem => item.WorkingHours)
 							</td>
 							<td>
-								@Html.DisplayFor(modelItem => item.Salary)
+								@item.Salary.ToString("C")
 							</td>
 							<td><span class="badge text-bg-@StatusClass(item.Status)">@item.Status</span></td>
 							<td class="text-center">
