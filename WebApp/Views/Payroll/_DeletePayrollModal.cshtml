@@ -17,11 +17,11 @@
 			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.EmpId)</dt>
 			<dd class="col-sm-8">@Model.Employee?.FullName</dd>
 
-			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Month)</dt>
-			<dd class="col-sm-8">@Model.Month</dd>
+			<dt class="col-sm-4">Month</dt>
+			<dd class="col-sm-8">@Model.MonthAndYear.Month</dd>
 
-			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Year)</dt>
-			<dd class="col-sm-8">@Model.Year</dd>
+			<dt class="col-sm-4">Year</dt>
+			<dd class="col-sm-8">@Model.MonthAndYear.Year</dd>
 
 			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.WorkingHours)</dt>
 			<dd class="col-sm-8">@Model.WorkingHours</dd>

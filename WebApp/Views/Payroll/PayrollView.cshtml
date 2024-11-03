@@ -44,10 +44,10 @@ else
 							@Html.DisplayNameFor(model => model.EmpId)
 						</th>
 						<th>
-							@Html.DisplayNameFor(model => model.Month)
+							Month
 						</th>
 						<th>
-							@Html.DisplayNameFor(model => model.Year)
+							Year
 						</th>
 						<th>
 							@Html.DisplayNameFor(model => model.WorkingHours)
@@ -72,10 +72,10 @@ else
 								@item.Employee?.FullName
 							</td>
 							<td>
-								@Html.DisplayFor(modelItem => item.Month)
+								@item.MonthAndYear.Month
 							</td>
 							<td>
-								@Html.DisplayFor(modelItem => item.Year)
+								@item.MonthAndYear.Year
 							</td>
 							<td>
 								@Html.DisplayFor(modelItem => item.WorkingHours)
