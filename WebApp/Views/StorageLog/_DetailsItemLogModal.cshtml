@@ -65,7 +65,7 @@
 			@Html.DisplayNameFor(model => model.Cost)
 		</dt>
 		<dd class="col-sm-8">
-			@(Model.Cost == null ? "N/A" : Model.Cost)
+			@(Model.Cost == null ? "N/A" : Model.Cost?.ToString("C"))
 		</dd>
 
 		<dt class="col-sm-4">

@@ -23,7 +23,7 @@
 		<dd class="col-sm-8">@Model.Role</dd>
 
 		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Salary)</dt>
-		<dd class="col-sm-8">@Model.Salary</dd>
+		<dd class="col-sm-8">@(Model.Salary?.ToString("C") ?? "N/A")</dd>
 
 		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.IsActive)</dt>
 		<dd class="col-sm-8">@Model.IsActive</dd>
