@@ -1,22 +1,30 @@
-﻿@model IEnumerable<ScheduleViewModel>
+﻿@using System.Globalization
+@model IEnumerable<ScheduleViewModel>
 @{
     ViewData["Title"] = "Schedule";
     Layout = "_DashboardLayout";
 }
 
 @{
-    static DateOnly getSunday()
-    {
-        DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
-        int dayOfWeek = (int)currentDate.DayOfWeek;
-        currentDate = currentDate.AddDays(-dayOfWeek);
-        return currentDate.AddDays(0);
-    }
+    // static DateOnly getSunday()
+    // {
+    //     DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
+    //     int dayOfWeek = (int)currentDate.DayOfWeek;
+    //     currentDate = currentDate.AddDays(-dayOfWeek);
+    //     return currentDate.AddDays(0);
+    // }
 
-    static List<DateOnly> listDate()
+    static List<DateOnly> listDate(string week)
     {
         List<DateOnly> list = new List<DateOnly>();
-        DateOnly currentDate = getSunday();
+
+        string[] listS = week.Split('-');
+
+        int year = int.Parse(listS[0]);
+
+        int weekNumber = int.Parse(listS[1].Substring(1));
+
+        DateOnly currentDate = DateOnly.FromDateTime(GetStartOfWeek(year, weekNumber));
         for (int i = 0; i < 7; i++)
         {
             list.Add(currentDate);
@@ -26,7 +34,42 @@
     }
 
     DateOnly curDate = DateOnly.FromDateTime(DateTime.Now);
-    List<DateOnly> dateList = listDate();
+    List<DateOnly> dateList = listDate(Context.Request.Query["week"].ToString() == "" ? GetCurrentWeek() : Context.Request.Query["week"]);
+
+    static string GetCurrentWeek()
+    {
+        DateTime today = DateTime.Now;
+
+        CultureInfo cul = CultureInfo.InvariantCulture;
+        Calendar calendar = cul.Calendar;
+
+        int weekNumber = cul.Calendar.GetWeekOfYear(
+            today,
+            CalendarWeekRule.FirstFourDayWeek,
+            DayOfWeek.Monday
+        );
+
+        int year = today.Year;
+
+        return $"{year}-W{weekNumber:D2}";
+    }         
+
+    static DateTime GetStartOfWeek(int year, int weekNumber)
+    {
+        DateTime jan4 = new DateTime(year, 1, 4);
+
+        int daysToMonday = (int)jan4.DayOfWeek - (int)DayOfWeek.Monday;
+        if (daysToMonday < 0)
+        {
+            daysToMonday += 7;        
+        }
+        
+        DateTime startOfWeek1 = jan4.AddDays(-daysToMonday);
+
+        DateTime resultDate = startOfWeek1.AddDays((weekNumber - 1) * 7);
+
+        return resultDate;
+    }
 }
 
 <h1 class="mb-4">Schedule</h1>
@@ -34,6 +77,10 @@
 <div class="mb-3">
     <button onclick="create()" class="btn btn-success">Add New Schedule</button>
 </div>
+
+<form method="get" id="weekForm">
+    <input id="week" type="week" name="week" value="@(Context.Request.Query["week"].ToString() == "" ? GetCurrentWeek() : Context.Request.Query["week"])"/>
+</form>
 
 @if (!Model.Any())
 {
@@ -58,11 +105,11 @@ else
                         <div>
                             @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
                             {
-                                <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)" >Clock In</button>
+                                <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)">Clock In</button>
                             }
                             else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
                             {
-                                <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)" >Clock Out</button>
+                                <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)">Clock Out</button>
                             }
                         </div>
                     }
@@ -74,14 +121,14 @@ else
     <table class="table table-bordered border border-3 border-primary">
         <thead>
             <tr class="fs-5">
-                <th class="Name fs-6" colspan="2" rowspan="2">Staff's Name</th>
-                <th>Sun</th>
+                <th class="Name fs-6" colspan="2" rowspan="2">Staff's Name</th>               
                 <th>Mon</th>
                 <th>Tues</th>
                 <th>Wed</th>
                 <th>Thurs</th>
                 <th>Fri</th>
                 <th>Sat</th>
+                <th>Sun</th>
             </tr>
             <tr id='dateRow' class="fs-5">
                 @foreach (var day in dateList)
@@ -104,7 +151,6 @@ else
                             <td class="Name" style="font-weight: bold" colspan="2">
                                 @roleList.First().EmployeeName
                             </td>
-
                             @for (var i = 0; i < 7; i++)
                             {
                                 var scheInDate = name.Where(sche => sche.ScheDate == dateList[i]).OrderBy(t => t.StartTime);
@@ -127,11 +173,11 @@ else
                                                 <div>
                                                     @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
                                                     {
-                                                        <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)" >Clock In</button>
+                                                        <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)">Clock In</button>
                                                     }
                                                     else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
                                                     {
-                                                        <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)" >Clock Out</button>
+                                                        <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)">Clock Out</button>
                                                     }
                                                 </div>
                                             </div>
@@ -143,7 +189,6 @@ else
                                     <td></td>
                                 }
                             }
-
                         </tr>
                     }
                 }
@@ -188,11 +233,11 @@ else
                                                 <div>
                                                     @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
                                                     {
-                                                        <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)" >Clock In</button>
+                                                        <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)">Clock In</button>
                                                     }
                                                     else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
                                                     {
-                                                        <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)" >Clock Out</button>
+                                                        <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)">Clock Out</button>
                                                     }
                                                 </div>
                                             </div>
@@ -223,7 +268,6 @@ else
         border-collapse: collapse;
         width: 100%;
         text-align: center;
-        font-size: 95%;
     }
 
         .table tr:hover {
@@ -269,10 +313,9 @@ else
 </style>
 
 <script>
-    // Lấy tất cả các phần tử có class "status-text"
+    
     const textElements = document.querySelectorAll(".attendanceStatus");
-
-    // Vòng lặp qua các phần tử để thay đổi màu
+    
     textElements.forEach((textElement) => {
         const text = textElement.innerText;
 
@@ -340,6 +383,12 @@ else
                 $('#modal').modal('show');
             });
         }
+    </script>
+
+    <script>
+        $("#week").on("change", function () {
+            $("#weekForm").submit();
+        });
     </script>
 }
 
