@@ -50,4 +50,11 @@
 
 </div>
 
-<partial name="Partials/_ModalFooter" model='""' />
+@{
+	string button = "";
+	if (Model.Order != null)
+	{
+		button = $"<a href='{ Url.Action("Details", "Order", new { orderId = Model.Order.OrderId })}' class='btn btn-primary'>Go to Order</a>";
+	}
+}
+<partial name="Partials/_ModalFooter" model='button' />
