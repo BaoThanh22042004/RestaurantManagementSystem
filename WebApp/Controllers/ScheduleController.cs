@@ -112,6 +112,18 @@ namespace WebApp.Controllers
                 {
                     return await InvalidView("Cannot create a schedule with the date in the past!");
                 }
+
+                var shift = await _shiftRepository.GetByIDAsync(scheduleViewModel.ShiftId);
+                if (shift == null) 
+                {
+                    return await InvalidView("Shift does not exist!");
+                }
+
+                if (shift.EndTime <= TimeOnly.FromDateTime(DateTime.Now).AddMinutes(-30))
+                {
+                    return await InvalidView("Cannot create a schedule with end time less than thirty minutes of current time!");
+                }
+
                 var schedules = await _scheduleRepository.GetAllAsync();
                 var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule));
                 foreach (var schelist in scheduleList.Where(d => d.ScheDate == scheduleViewModel.ScheDate && d.EmpId == scheduleViewModel.EmpId)) 
@@ -128,8 +140,8 @@ namespace WebApp.Controllers
 					EmpId = scheduleViewModel.EmpId,
 					ShiftId = scheduleViewModel.ShiftId,
 				};
-
-				await _scheduleRepository.InsertAsync(schedule);
+            
+                await _scheduleRepository.InsertAsync(schedule);
 			}
 			catch (Exception)
 			{

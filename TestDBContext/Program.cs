@@ -167,14 +167,13 @@ namespace TestDBContext
 		static async Task AddStorageLogData(DBContext context)
 		{
 			int currentUserId = 1;
-			DateTime now = DateTime.Now;
 
 			List<StorageLog> logs = new List<StorageLog>
 	{
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 1,
 			ChangeQuantity = 50,
 			RemainQuantity = 50,
@@ -185,7 +184,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 1,
 			ChangeQuantity = 10,
 			RemainQuantity = 40,
@@ -195,7 +194,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 2,
 			ChangeQuantity = 30,
 			RemainQuantity = 30,
@@ -206,7 +205,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 2,
 			ChangeQuantity = 5,
 			RemainQuantity = 25,
@@ -216,7 +215,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 3,
 			ChangeQuantity = 40,
 			RemainQuantity = 40,
@@ -227,7 +226,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 3,
 			ChangeQuantity = 15,
 			RemainQuantity = 25,
@@ -237,7 +236,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 4,
 			ChangeQuantity = 60,
 			RemainQuantity = 60,
@@ -248,7 +247,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 4,
 			ChangeQuantity = 20,
 			RemainQuantity = 40,
@@ -258,7 +257,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 5,
 			ChangeQuantity = 25,
 			RemainQuantity = 25,
@@ -269,7 +268,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 5,
 			ChangeQuantity = 10,
 			RemainQuantity = 15,
@@ -279,7 +278,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 6,
 			ChangeQuantity = 100,
 			RemainQuantity = 100,
@@ -290,7 +289,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 6,
 			ChangeQuantity = 25,
 			RemainQuantity = 75,
@@ -300,7 +299,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 7,
 			ChangeQuantity = 80,
 			RemainQuantity = 80,
@@ -311,7 +310,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 7,
 			ChangeQuantity = 20,
 			RemainQuantity = 60,
@@ -321,7 +320,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 8,
 			ChangeQuantity = 90,
 			RemainQuantity = 90,
@@ -332,7 +331,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 8,
 			ChangeQuantity = 30,
 			RemainQuantity = 60,
@@ -342,7 +341,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 9,
 			ChangeQuantity = 75,
 			RemainQuantity = 75,
@@ -353,7 +352,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 9,
 			ChangeQuantity = 25,
 			RemainQuantity = 50,
@@ -363,7 +362,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 10,
 			ChangeQuantity = 60,
 			RemainQuantity = 60,
@@ -374,7 +373,7 @@ namespace TestDBContext
 		new StorageLog
 		{
 			CreatedBy = currentUserId,
-			CreatedAt = now,
+			CreatedAt = DateTime.Now,
 			ItemId = 10,
 			ChangeQuantity = 20,
 			RemainQuantity = 40,

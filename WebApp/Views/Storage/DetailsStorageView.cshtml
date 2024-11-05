@@ -72,7 +72,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				@foreach (var log in Model.Logs)
+				@foreach (var log in Model.Logs.OrderByDescending(item => item.CreatedAt))
 				{
 					<tr class="clickable" onclick="details(@log.LogId)">
 						<td>@Html.DisplayFor(modelItem => log.LogId)</td>
@@ -81,7 +81,7 @@
 						</td>
 						<td>@Html.Raw(GetSymbol(log.Action))@log.ChangeQuantity</td>
 						<td>@Html.DisplayFor(modelItem => log.RemainQuantity)</td>
-						<td>@Html.DisplayFor(modelItem => log.CreatedAt)</td>
+						<td>@log.CreatedAt.ToString("HH:mm MM/dd/yy")</td>
 					</tr>
 				}
 			</tbody>

@@ -39,7 +39,7 @@ namespace Repositories
 		public async Task<Payroll?> GetByIDAsync(long id)
 		{
 			string sqlGetPayrollById = "SELECT * FROM Payrolls WHERE PayrollId = {0}";
-			string sqlGetUserById = "SELECT * FROM Users WHERE UserId = {0}";
+			string sqlGetUsersByIds = "SELECT * FROM Users WHERE UserId IN ({0})";
 
 			var payroll = await _context.Payrolls.FromSqlRaw(sqlGetPayrollById, id).FirstOrDefaultAsync();
 
@@ -48,11 +48,17 @@ namespace Repositories
 				return null;
 			}
 
-			var employee = await _context.Users.FromSqlRaw(string.Format(sqlGetUserById, payroll.EmpId)).FirstOrDefaultAsync();
-
-			if (employee != null)
+			// Include employee and creator
+			var employeeIds = new[] { payroll.EmpId, payroll.CreatedBy };
+			var employees = await _context.Users.FromSqlRaw(string.Format(sqlGetUsersByIds, string.Join(",", employeeIds))).ToDictionaryAsync(e => e.UserId);
+			if (employees.TryGetValue(payroll.EmpId, out var employee))
 			{
 				payroll.Employee = employee;
+			}
+
+			if (employees.TryGetValue(payroll.CreatedBy, out var creator))
+			{
+				payroll.Creator = creator;
 			}
 
 			return payroll;

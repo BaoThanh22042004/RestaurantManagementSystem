@@ -363,6 +363,11 @@ namespace WebApp.Controllers
                     return Json(new { success = false, error = "Order item not found." });
                 }
 
+                if (orderItem.Status != OrderItemStatus.Pending) 
+                {
+                    return Json(new { success = false, error = "Cannot delete this order item because its status is not Pending." });
+                }
+
                 await _orderItemRepository.DeleteAsync(orderItemId);
 
                 return Json(new { success = true});

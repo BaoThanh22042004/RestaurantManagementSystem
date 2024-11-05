@@ -26,65 +26,81 @@
 	</div>
 </div>
 
-<div class="rounded border shadow-sm p-3">
-	<div class="table-responsive">
-		<table class="table table-hover">
-			<thead class="table-dark">
-				<tr>
-					<th>
-						Item ID
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.First().ItemName)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.First().Action)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.First().RemainQuantity)
-					</th>
-					<th>
-						@Html.DisplayNameFor(model => model.First().ChangeQuantity)
-					</th>
-				</tr>
-			</thead>
-			@if (Model != null && Model.Any())
-			{
-				<tbody>
-					@foreach (var item in Model)
-					{
-						<tr onclick="details(@item.LogId)" class="@GetBgClass(item.Action) clickable">
-							<td>
-								@Html.DisplayFor(modelItem => item.ItemId)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.ItemName)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.Action)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.RemainQuantity)
-							</td>
-							<td>
-								@Html.DisplayFor(modelItem => item.ChangeQuantity)
-							</td>
-						</tr>
-					}
-				</tbody>
-			}
-			else
-			{
-				<tbody>
-					<tr>
-						<td colspan="7">No Logs Found.</td>
-					</tr>
-				</tbody>
-			}
-		</table>
+@if (!Model.Any())
+{
+	<div class="rounded border shadow-sm p-3">
+		<div class="text-center py-4">
+			<h2>No log in storage.</h2>
+		</div>
 	</div>
-</div>
-
+}
+else
+{
+	<div class="rounded border shadow-sm p-3">
+		<div class="table-responsive">
+			<table class="table table-hover align-middle">
+				<thead class="table-dark align-middle">
+					<tr>
+						<th>
+							Item ID
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.First().ItemName)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.First().Action)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.First().CreatedAt)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.First().RemainQuantity)
+						</th>
+						<th>
+							@Html.DisplayNameFor(model => model.First().ChangeQuantity)
+						</th>
+					</tr>
+				</thead>
+				@if (Model != null && Model.Any())
+				{
+					<tbody>
+						@foreach (var item in Model.OrderByDescending(item => item.CreatedAt))
+						{
+							<tr onclick="details(@item.LogId)" class="@GetBgClass(item.Action) clickable">
+								<td>
+									@Html.DisplayFor(modelItem => item.ItemId)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.ItemName)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.Action)
+								</td>
+								<td>
+									@item.CreatedAt.ToString("HH:mm MM/dd/yy")
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.RemainQuantity)
+								</td>
+								<td>
+									@Html.DisplayFor(modelItem => item.ChangeQuantity)
+								</td>
+							</tr>
+						}
+					</tbody>
+				}
+				else
+				{
+					<tbody>
+						<tr>
+							<td colspan="7">No Logs Found.</td>
+						</tr>
+					</tbody>
+				}
+			</table>
+		</div>
+	</div>
+}
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg">
 		<div class="modal-content" id="modalContent">

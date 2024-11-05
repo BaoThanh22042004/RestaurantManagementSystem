@@ -3,33 +3,33 @@
 <partial name="Partials/_ModalHeader" model='"Details Feedback"' />
 
 <div class="modal-body" id="modalBody">
-	<dl>
-		<dt>@Html.DisplayNameFor(m => m.FeedbackId)</dt>
-		<dd>@Model.FeedbackId</dd>
+	<dl class="row">
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.FeedbackId)</dt>
+		<dd class="col-sm-8">@Model.FeedbackId</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.CreateAt)</dt>
-		<dd>@Model.CreateAt</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.CreateAt)</dt>
+		<dd class="col-sm-8">@Model.CreateAt</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.FullName)</dt>
-		<dd>@Model.FullName</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.FullName)</dt>
+		<dd class="col-sm-8">@Model.FullName</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.Email)</dt>
-		<dd>@Model.Email</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Email)</dt>
+		<dd class="col-sm-8">@Model.Email</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.Phone)</dt>
-		<dd>@Model.Phone</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Phone)</dt>
+		<dd class="col-sm-8">@Model.Phone</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.Subject)</dt>
-		<dd>@Model.Subject</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Subject)</dt>
+		<dd class="col-sm-8">@Model.Subject</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.Body)</dt>
-		<dd>@Model.Body</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Body)</dt>
+		<dd class="col-sm-8">@Model.Body</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.Status)</dt>
-		<dd>@Model.Status</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Status)</dt>
+		<dd class="col-sm-8">@Model.Status</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.Note)</dt>
-		<dd>@(Model.Note ?? "N/A")</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Note)</dt>
+		<dd class="col-sm-8">@(Model.Note ?? "N/A")</dd>
 	</dl>
 </div>
 
