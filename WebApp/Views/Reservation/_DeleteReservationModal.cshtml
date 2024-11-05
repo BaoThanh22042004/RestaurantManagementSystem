@@ -3,13 +3,13 @@
 <form method="post" asp-action="Delete" id="form">
 	<input asp-for="ResId" type="hidden" />
 
-	<partial name="Partials/_ModalHeader" model='"Delete Dish Category"' />
+	<partial name="Partials/_ModalHeader" model='"Delete Reservation"' />
 
 	<div class="modal-body" id="modalBody">
 
 		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 		
-		<h3 class="mb-5">Are you sure you want to delete this account?</h3>
+		<h4 class="mb-3">Are you sure you want to delete this account?</h4>
 		
 		<dl class="row">
 			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ResId)</dt>
@@ -38,7 +38,7 @@
 
 		<dl class="row">
 			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.DepositAmount)</dt>
-			<dd class="col-sm-8">@Model.DepositAmount</dd>
+			<dd class="col-sm-8">@(Model.DepositAmount?.ToString("C") ?? "N/A")</dd>
 		</dl>
 
 		<dl class="row">

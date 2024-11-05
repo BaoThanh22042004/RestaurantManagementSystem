@@ -1,96 +1,101 @@
 ﻿@model IEnumerable<WebApp.Models.FeedBackViewModel>
 
+@functions {
+	string StatusClass(Models.Entities.FeedBackStatus status) => status switch
+	{
+		Models.Entities.FeedBackStatus.Pending => "info",
+		Models.Entities.FeedBackStatus.Reviewed => "primary",
+		Models.Entities.FeedBackStatus.Resolved => "success",
+		Models.Entities.FeedBackStatus.Dismissed => "secondary",
+	};
+}
+
 @{
-    ViewData["Title"] = "Feedback List";
-    Layout = "_DashboardLayout";
+	ViewData["Title"] = "Feedbacks";
+	Layout = "_DashboardLayout";
 }
 
-<h1 class="mb-4">Feedback List</h1>
-
-<!-- Notifications for errors or success messages -->
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">
-        @TempData["Error"]
-    </div>
-}
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Success"]
-    </div>
-}
-
-<table class="table table-hover">
-    <thead>
-        <tr class="table-dark">
-            <th>Feedback ID</th>
-            <th>Full Name</th>
-            <th>Subject</th>
-            <th>Status</th>
-            <th>Created At</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var feedback in Model)
-        {
-            <tr>
-                <td>@feedback.FeedbackId</td>
-                <td>@feedback.FullName</td>
-                <td>@feedback.Subject</td>
-                <td>@feedback.Status</td>
-                <td>@feedback.CreateAt.ToString("g")</td>
-                <td>
-                    <!-- Buttons to trigger modals for each action -->
-                    <button class="btn btn-info btn-sm" onclick="details(@feedback.FeedbackId)">Details</button>
-                    <button class="btn btn-primary btn-sm" onclick="edit(@feedback.FeedbackId)">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteAction(@feedback.FeedbackId)">Delete</button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<h1 class="mb-4 text-center">Feedbacks</h1>
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">
-        No feedbacks found.
-    </div>
+	<div class="rounded border shadow-sm p-3">
+		<div class="text-center py-4">
+			<h2>No feedback available.</h2>
+		</div>
+	</div>
+}
+else
+{
+	<div class="rounded border shadow-sm p-3">
+		<div class="table-responsive">
+			<table class="table table-hover align-middle">
+				<thead>
+					<tr class="table-dark align-middle">
+						<th>Feedback ID</th>
+						<th>Full Name</th>
+						<th>Subject</th>
+						<th>Status</th>
+						<th>Created At</th>
+						<th class="text-center">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var feedback in Model)
+					{
+						<tr>
+							<td>@feedback.FeedbackId</td>
+							<td>@feedback.FullName</td>
+							<td>@feedback.Subject</td>
+							<td><span class="badge text-bg-@StatusClass(feedback.Status)">@feedback.Status</span></td>
+							<td>@feedback.CreateAt.ToString("g")</td>
+							<td class="text-center">
+								<div class="btn-group" role="group">
+									<button class="btn btn-info" onclick="details(@feedback.FeedbackId)">Details</button>
+									<button class="btn btn-primary" onclick="edit(@feedback.FeedbackId)">Edit</button>
+									<button class="btn btn-danger" onclick="deleteAction(@feedback.FeedbackId)">Delete</button>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
 }
 
 <!-- Modal Structure -->
 <div class="modal fade" id="feedbackModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" id="feedbackModalContent">
-        </div>
-    </div>
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content" id="feedbackModalContent">
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    <script>
-        function details(id) {
-            var url = '@Url.Action("Details", "Feedback", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#feedbackModalContent').html(response);
-                $('#feedbackModal').modal('show');
-            });
-        }
+	<script>
+		function details(id) {
+			var url = '@Url.Action("Details", "Feedback", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#feedbackModalContent').html(response);
+				$('#feedbackModal').modal('show');
+			});
+		}
 
-        function edit(id) {
-            var url = '@Url.Action("Edit", "Feedback", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#feedbackModalContent').html(response);
-                $('#feedbackModal').modal('show');
-            });
-        }
+		function edit(id) {
+			var url = '@Url.Action("Edit", "Feedback", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#feedbackModalContent').html(response);
+				$('#feedbackModal').modal('show');
+			});
+		}
 
-        function deleteAction(id) {
-            var url = '@Url.Action("Delete", "Feedback", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#feedbackModalContent').html(response);
-                $('#feedbackModal').modal('show');
-            });
-        }
-    </script>
+		function deleteAction(id) {
+			var url = '@Url.Action("Delete", "Feedback", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#feedbackModalContent').html(response);
+				$('#feedbackModal').modal('show');
+			});
+		}
+	</script>
 }

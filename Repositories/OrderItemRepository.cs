@@ -112,5 +112,49 @@ namespace Repositories
 			_context.Dispose();
 			GC.SuppressFinalize(this);
 		}
-	}
+
+        public async Task<IEnumerable<OrderItem>?> GetAllByOrderIdAsync(long orderId)
+        {
+			string sqlGetAllByOrderId = "SELECT * FROM OrderItems WHERE OrderId = {0}";
+            string sqlGetDishesByIds = "SELECT * FROM Dishes WHERE DishId IN ({0})";
+			string sqlGetUsersByIds = "SELECT * FROM Users WHERE UserId IN ({0})";
+
+            var orderItems = await _context.OrderItems.FromSqlRaw(sqlGetAllByOrderId, orderId).ToListAsync();
+            if (orderItems.Count == 0)
+            {
+                return null;
+            }
+
+            // Include dishes
+            var dishIds = orderItems.Select(oi => oi.DishId).Distinct();
+
+            var dishes = await _context.Dishes.FromSqlRaw(string.Format(sqlGetDishesByIds, string.Join(',', dishIds))).ToDictionaryAsync(d => d.DishId);
+
+            foreach (var orderItem in orderItems)
+            {
+                if (dishes.TryGetValue(orderItem.DishId, out var dish))
+                {
+                    orderItem.Dish = dish;
+                }
+            }
+
+            // Include creators
+            var creatorIds = orderItems.Select(oi => oi.CreatedBy).Distinct();
+
+            var creators = await _context.Users.FromSqlRaw(string.Format(sqlGetUsersByIds, string.Join(',', creatorIds))).ToDictionaryAsync(u => u.UserId);
+
+			foreach (var creator in creators)
+            {
+                foreach (var orderItem in orderItems)
+                {
+                    if (creator.Key == orderItem.CreatedBy)
+                    {
+                        orderItem.Creator = creator.Value;
+                    }
+                }
+            }
+
+            return orderItems;
+        }
+    }
 }

@@ -1,5 +1,5 @@
 ﻿@functions {
-	string statusClass(Models.Entities.ReservationStatus status) => status switch
+	string StatusClass(Models.Entities.ReservationStatus status) => status switch
 	{
 		Models.Entities.ReservationStatus.Pending => "info",
 		Models.Entities.ReservationStatus.Confirmed => "primary",
@@ -14,29 +14,30 @@
 	Layout = "_DashBoardLayout";
 }
 
-<div class="container">
-	<h1 class="mb-4 text-center">Reservations</h1>
+<h1 class="mb-4 text-center">Reservations</h1>
 
-	<div>
-		<div class="d-flex justify-content-between align-items-center mb-3">
-			<button onclick="create()" class="btn btn-primary">
-				Add New Reservation
-			</button>
-		</div>
-
-		@if (!Model.Any())
-		{
-			<div class="no-reservations-message text-center mt-5">
-				<h2 class="text-muted">No reservations available.</h2>
-			</div>
-		}
+<div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
+	<div class="d-inline-block">
+		<button onclick="create()" class="btn btn-primary">
+			Add New Reservation
+		</button>
 	</div>
+</div>
 
-	@if (Model.Any())
-	{
-		<div class="table-responsive mt-4">
-			<table class="table table-hover">
-				<thead class="table-dark">
+@if (!Model.Any())
+{
+	<div class="rounded border shadow-sm p-3">
+		<div class="text-center py-4">
+			<h2>No reservations available.</h2>
+		</div>
+	</div>
+}
+else
+{
+	<div class="rounded border shadow-sm p-3">
+		<div class="table-responsive">
+			<table class="table table-hover align-middle">
+				<thead class="table-dark align-middle">
 					<tr>
 						<th>@Html.DisplayNameFor(model => model.ResId)</th>
 						<th>Full Name</th>
@@ -45,7 +46,7 @@
 						<th>@Html.DisplayNameFor(model => model.ResDate)</th>
 						<th>@Html.DisplayNameFor(model => model.ResTime)</th>
 						<th>@Html.DisplayNameFor(model => model.Status)</th>
-						<th class="text-end">Actions</th>
+						<th class="text-center">Actions</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -59,26 +60,28 @@
 							<td>@Html.DisplayFor(modelItem => reservation.ResDate)</td>
 							<td>@Html.DisplayFor(modelItem => reservation.ResTime)</td>
 
-							<td><span class="badge text-bg-@statusClass(reservation.Status)">@reservation.Status</span></td>
+							<td><span class="badge text-bg-@StatusClass(reservation.Status)">@reservation.Status</span></td>
 
-							<td class="d-flex justify-content-end">
-								<button type="button" onclick="details(@reservation.ResId)" class="btn btn-info btn-sm me-2">
-									<i class="fas fa-info-circle"></i> Details
-								</button>
-								<button type="button" onclick="edit(@reservation.ResId)" class="btn btn-primary btn-sm me-2">
-									<i class="fas fa-edit"></i> Edit
-								</button>
-								<button type="button" onclick="deleteAction(@reservation.ResId)" class="btn btn-danger btn-sm">
-									<i class="fas fa-trash-alt"></i> Delete
-								</button>
+							<td class="text-center">
+								<div class="btn-group" role="group">
+									<button type="button" onclick="details(@reservation.ResId)" class="btn btn-info">
+										Details
+									</button>
+									<button type="button" onclick="edit(@reservation.ResId)" class="btn btn-primary">
+										Edit
+									</button>
+									<button type="button" onclick="deleteAction(@reservation.ResId)" class="btn btn-danger">
+										Delete
+									</button>
+								</div>
 							</td>
 						</tr>
 					}
 				</tbody>
 			</table>
 		</div>
-	}
-</div>
+	</div>
+}
 
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered modal-lg">

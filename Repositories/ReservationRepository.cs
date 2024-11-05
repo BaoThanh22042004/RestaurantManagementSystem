@@ -45,21 +45,35 @@ namespace Repositories
         {
             string sqlGetReservationById = "SELECT * FROM Reservations WHERE ResId = {0}";
             string sqlGetCustomerById = "SELECT * FROM Users WHERE UserId = {0}";
+            string sqlGetOrderByReservationId = "SELECT * FROM Orders WHERE ResId = {0}";
 
-            var reservation = await _context.Reservations.FromSqlRaw(sqlGetReservationById, id).FirstOrDefaultAsync();
+			var reservation = await _context.Reservations.FromSqlRaw(sqlGetReservationById, id).FirstOrDefaultAsync();
 
             if (reservation == null)
             {
                 return null;
             }
-            var customer = await _context.Users
+
+			// Include customer
+			var customer = await _context.Users
                 .FromSqlRaw(sqlGetCustomerById, reservation.CustomerId)
                 .FirstOrDefaultAsync();
             if (customer != null)
             {
                 reservation.Customer = customer;
             }
-            return reservation;
+
+			// Include order
+			var order = await _context.Orders
+				.FromSqlRaw(sqlGetOrderByReservationId, reservation.ResId)
+				.FirstOrDefaultAsync();
+			if (order != null)
+			{
+				reservation.Order = order;
+			}
+
+
+			return reservation;
         }
 
         public async Task<Reservation> InsertAsync(Reservation reservation)

@@ -16,13 +16,15 @@ namespace WebApp.Controllers
 		private readonly IUserRepository _userRepository;
 		private readonly CartManager _cartManager;
 		private readonly IOrderRepository _orderRepository;
+		private readonly IOrderItemRepository _orderItemRepository;
 
-		public ReservationController(IReservationRepository reservationRepository, IUserRepository userRepository, CartManager cartManager, IOrderRepository orderRepository)
+		public ReservationController(IReservationRepository reservationRepository, IUserRepository userRepository, CartManager cartManager, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository)
 		{
 			_reservationRepository = reservationRepository;
 			_userRepository = userRepository;
 			_cartManager = cartManager;
 			_orderRepository = orderRepository;
+			_orderItemRepository = orderItemRepository;
 		}
 
 		[HttpGet]
@@ -89,8 +91,7 @@ namespace WebApp.Controllers
 							Status = OrderItemStatus.Reservation,
 						};
 
-						orderEntity.OrderItems.Add(orderItem);
-						await _orderRepository.UpdateAsync(orderEntity);
+						await _orderItemRepository.InsertAsync(orderItem);
 					}
 				}
 			}
@@ -176,10 +177,7 @@ namespace WebApp.Controllers
 				return NotFound();
 			}
 
-			var reservationViewModel = new ReservationViewModel(reservation)
-			{
-				Customers = await GetCustomerList()
-			};
+			var reservationViewModel = new ReservationViewModel(reservation);
 			return PartialView("_DetailsReservationModal", reservationViewModel);
 		}
 
@@ -193,7 +191,6 @@ namespace WebApp.Controllers
 			}
 
 			var reservationViewModel = new ReservationViewModel(reservation);
-			
 			return PartialView("_EditReservationModal", reservationViewModel);
 		}
 

@@ -9,6 +9,7 @@ namespace WebApp.Models
 {
 	public class ShiftViewModel
 	{
+		[Display(Name = "Shift ID")]
 		public int ShiftId { get; set; }
 
 		[Required(ErrorMessage = "Shift name is required.")]

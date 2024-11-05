@@ -1,62 +1,54 @@
 ﻿@model PayrollViewModel
 
 <form method="post" asp-action="Edit" id="form">
-    <partial name="Partials/_ModalHeader" model='"Edit Payroll"' />
+	<partial name="Partials/_ModalHeader" model='"Edit Payroll"' />
 
-    <div class="modal-body" id="modalBody">
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger" role="alert">
-                @TempData["Error"]
-            </div>
-        }
+	<div class="modal-body" id="modalBody">
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 
-        <input asp-for="PayrollId" type="hidden" />
+		<input asp-for="PayrollId" type="hidden" />
 
+		<dl class="row">
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.PayrollId)</dt>
+			<dd class="col-sm-8">@Model.PayrollId</dd>
 
-        <input asp-for="CreatedBy" class="form-control" type="hidden" id="CreatedBy" />
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.EmpId)</dt>
+			<dd class="col-sm-8">@Model.Employee?.FullName</dd>
 
+			<dt class="col-sm-4">Month</dt>
+			<dd class="col-sm-8">@Model.MonthAndYear.Month</dd>
 
-        <input asp-for="CreatedAt" class="form-control" type="hidden" id="CreatedAt"  />
+			<dt class="col-sm-4">Year</dt>
+			<dd class="col-sm-8">@Model.MonthAndYear.Year</dd>
 
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.WorkingHours)</dt>
+			<dd class="col-sm-8">@Model.WorkingHours</dd>
 
+			<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Salary)</dt>
+			<dd class="col-sm-8">@Model.Salary.ToString("C")</dd>
 
-        <input asp-for="EmpId" class="form-control" type="hidden" id="EmpId"  />
+			<dt class="col-sm-4">Total Earnings</dt>
+			<dd class="col-sm-8 fw-medium">@((Model.Salary * Model.WorkingHours).Value.ToString("C"))</dd>
+		</dl>
 
+		<div class="form-floating mb-3">
+			<select asp-for="Status" asp-items="Html.GetEnumSelectList<Models.Entities.PayrollStatus>()" class="form-select">
+				<option selected disabled>Please select Status</option>
+			</select>
+			<label asp-for="Status"></label>
+			<span asp-validation-for="Status" class="text-danger"></span>
+		</div>
 
-        <input asp-for="Month" class="form-control" id="Month" type="hidden" min="1" max="12"  />
+		<div class="form-floating mb-3">
+			<input asp-for="PaymentDate" class="form-control" type="date" />
+			<label asp-for="PaymentDate"></label>
+			<span asp-validation-for="PaymentDate" class="text-danger"></span>
+		</div>
+	</div>
 
+	@{
+		string editButton = "<button type='submit' class='btn btn-primary'>Save Changes</button>";
+	}
 
-
-        <input asp-for="Year" class="form-control" id="Year" type="hidden"  />
-
-
-
-        <input asp-for="WorkingHours" class="form-control" id="WorkingHours" type="hidden" step="0.01"  />
-
-
-
-        <input asp-for="Salary" class="form-control" id="Salary" type="hidden" step="0.01"  />
-
-
-        <div class="form-floating mb-3">
-            <select asp-for="Status" asp-items="Html.GetEnumSelectList<Models.Entities.PayrollStatus>()" class="form-select" id="Status" required>
-                <option selected disabled>Please select Status</option>
-            </select>
-            <label asp-for="Status"></label>
-            <span asp-validation-for="Status" class="text-danger"></span>
-        </div>
-
-        <div class="form-floating mb-3">
-            <input asp-for="PaymentDate" class="form-control" type="date" id="PaymentDate" />
-            <label asp-for="PaymentDate">Payment Date</label>
-            <span asp-validation-for="PaymentDate" class="text-danger"></span>
-        </div>
-    </div>
-
-    @{
-        string editButton = "<button type='submit' class='btn btn-primary'>Save Changes</button>";
-    }
-
-    <partial name="Partials/_ModalFooter" model='@editButton' />
+	<partial name="Partials/_ModalFooter" model='@editButton' />
 </form>

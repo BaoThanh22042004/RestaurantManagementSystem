@@ -30,7 +30,7 @@
 
 	<dl class="row">
 		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.DepositAmount)</dt>
-		<dd class="col-sm-8">@Model.DepositAmount</dd>
+		<dd class="col-sm-8">@(Model.DepositAmount?.ToString("C") ?? "N/A")</dd>
 	</dl>
 
 	<dl class="row">
@@ -50,4 +50,11 @@
 
 </div>
 
-<partial name="Partials/_ModalFooter" model='""' />
+@{
+	string button = "";
+	if (Model.Order != null)
+	{
+		button = $"<a href='{ Url.Action("Details", "Order", new { orderId = Model.Order.OrderId })}' class='btn btn-primary'>Go to Order</a>";
+	}
+}
+<partial name="Partials/_ModalFooter" model='button' />

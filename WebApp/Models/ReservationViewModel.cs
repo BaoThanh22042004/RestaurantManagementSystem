@@ -40,22 +40,26 @@ namespace WebApp.Models
 
         public User? Customer { get; set; }
 
-        // Constructors
-        public ReservationViewModel()
+        public Order? Order { get; set; }
+
+		// Constructors
+		public ReservationViewModel()
         {
         }
 
         public ReservationViewModel(Reservation reservation)
         {
             ResId = reservation.ResId;
-            CustomerId = reservation.CustomerId;//
-            PartySize = reservation.PartySize;//
-            ResDate = reservation.ResDate;//
-            ResTime = reservation.ResTime;//
+            CustomerId = reservation.CustomerId;
+            PartySize = reservation.PartySize;
+            ResDate = reservation.ResDate;
+            ResTime = reservation.ResTime;
             Status = reservation.Status;
-            DepositAmount = reservation.DepositAmount;//
-            Notes = reservation.Notes;//
-            Customer = reservation.Customer;//
-        }
+            DepositAmount = reservation.DepositAmount;
+            Notes = reservation.Notes;
+            Customer = reservation.Customer;
+            Order = reservation.Order;
+
+		}
     }
 }
