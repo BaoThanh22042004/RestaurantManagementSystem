@@ -15,7 +15,7 @@
                     <th>Created By</th>
                     <th>Price</th>
                     <th>Status</th>
-                    <th>Notes</th>
+                    <th>Note</th>
                 </tr>
             </thead>
             <tbody>
@@ -24,7 +24,7 @@
                     <tr>
                         <td>@item.DishName</td>
                         <td>@item.Quantity</td>
-                        <td>@item.CreatedBy</td>
+                        <td>@item.Creator.FullName</td>
                         <td>@item.Price?.ToString("C")</td>
                         <td>@item.Status</td>
                         <td>@(string.IsNullOrEmpty(item.Notes) ? "none" : item.Notes)</td>
@@ -32,6 +32,9 @@
                 }
             </tbody>
         </table>
+        <h4>
+            <span class="form-control-plaintext">Total Amount: @Model.TotalAmount.ToString("C")</span>
+        </h4>
     }
     else
     {

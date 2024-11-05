@@ -52,7 +52,7 @@
                 <tr>
                     <td>@item.DishName</td>
                     <td>@item.Quantity</td>
-                    <td>@item.CreatedBy</td>
+                        <td>@item.Creator.FullName</td>
                     <td>@item.Price?.ToString("C")</td>
                     <td>@item.Status.ToString()</td>
                     <td>@(string.IsNullOrEmpty(item.Notes) ? "None" : item.Notes)</td>

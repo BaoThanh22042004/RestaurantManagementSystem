@@ -100,23 +100,25 @@ namespace Repositories
 
         public async Task<Order?> GetByIDAsync(long id)
         {
-            //return await _context.Orders.Include(order => order.OrderItems)
-            //                            .Include(order => order.Reservation)
-            //                            .Include(order => order.Table)
-            //                            .FirstOrDefaultAsync(order => order.OrderId == id);
-
             string sqlGetOrderById = "SELECT * FROM Orders WHERE OrderId = {0}";
             string sqlGetOrderItemsByOrderId = "SELECT * FROM OrderItems WHERE OrderId = {0}";
             string sqlGetReservationById = "SELECT * FROM Reservations WHERE ReservationId = {0}";
             string sqlGetTableById = "SELECT * FROM Tables WHERE TableId = {0}";
+            string sqlGetUsersByIds = "SELECT * FROM Users WHERE UserId IN ({0})";
 
             // Get order by ID
             var order = await _context.Orders.FromSqlRaw(sqlGetOrderById, id).FirstOrDefaultAsync();
+
+            if (order == null)
+            {
+                return null; // or handle the case where the order is not found
+            }
 
             // Include OrderItems
             var orderItems = await _context.OrderItems
                                         .FromSqlRaw(string.Format(sqlGetOrderItemsByOrderId, order.OrderId))
                                         .ToListAsync();
+
             order.OrderItems = orderItems;
 
             // Include Reservation
@@ -136,6 +138,25 @@ namespace Repositories
                                     .FirstOrDefaultAsync();
                 order.Table = table;
             }
+
+            // Include Users
+            var userIds = order.OrderItems.Select(oi => oi.CreatedBy).Distinct().ToList();
+
+            if (userIds.Count != 0)
+            {
+                var users = await _context.Users
+                                    .FromSqlRaw(string.Format(sqlGetUsersByIds, string.Join(",", userIds)))
+                                    .ToDictionaryAsync(u => u.UserId);
+
+                foreach (var orderItem in order.OrderItems)
+                {
+                    if (users.TryGetValue(orderItem.CreatedBy, out var user))
+                    {
+                        orderItem.Creator = user;
+                    }
+                }
+            }
+
             return order;
         }
 

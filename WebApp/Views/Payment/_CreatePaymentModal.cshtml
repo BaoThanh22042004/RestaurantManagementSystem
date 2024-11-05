@@ -4,23 +4,51 @@
     <partial name="Partials/_ModalHeader" model='"Create Payment"' />
 
     <div class="modal-body" id="modalBody">
-
         <partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 
         <input type="hidden" asp-for="OrderId" />
 
-        <div class="form-floating mb-3">
-            <span class="form-control-plaintext">@Model.TotalAmount</span>
-            <label>Total Amount</label>
+        
+        
+        <div class="modal-body" id="modalBody">
+            <div class="form-floating mb-3">
+                <select asp-for="PaymentMethod" class="form-control" asp-items="Html.GetEnumSelectList<Models.Entities.PaymentMethod>()">
+                </select>
+                <label asp-for="PaymentMethod">Payment Method</label>
+                <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+            </div>
+            <h4>Order Items</h4>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Dish Name</th>
+                            <th>Quantity</th>
+                            <th>Created By</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <tr>
+                                <td>@item.DishName</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Creator.FullName</td>
+                                <td>@item.Price?.ToString("C")</td>
+                                <td>@item.Status</td>
+                                <td>@(string.IsNullOrEmpty(item.Notes) ? "none" : item.Notes)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
         </div>
 
-        <div class="form-floating mb-3">
-            <select asp-for="PaymentMethod" class="form-control" asp-items="Html.GetEnumSelectList<Models.Entities.PaymentMethod>()">
-            </select>
-            <label asp-for="PaymentMethod">Payment Method</label>
-            <span asp-validation-for="PaymentMethod" class="text-danger"></span>
-        </div>
-
+        <h4>
+            <span class="form-control-plaintext">Total Amount: @Model.TotalAmount.ToString("C")</span>
+        </h4>
     </div>
 
     @{
