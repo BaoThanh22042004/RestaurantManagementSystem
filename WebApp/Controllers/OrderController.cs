@@ -212,8 +212,6 @@ namespace WebApp.Controllers
                 return PartialView("_AddOrderItemView", orderItem);
             }
 
-            var staffId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
             var dish = await _dishRepository.GetByIDAsync(orderItem.DishId);
             var dishPrice = dish.Price;
 
@@ -221,7 +219,7 @@ namespace WebApp.Controllers
             {
                 OrderId = orderItem.OrderId,
                 DishId = orderItem.DishId,
-                CreatedBy = staffId,
+                CreatedBy = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)),
                 Quantity = orderItem.Quantity,
                 Price = dishPrice,
                 Status = OrderItemStatus.Pending,

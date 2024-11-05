@@ -47,9 +47,11 @@ namespace WebApp.Controllers
         [HttpGet("Create")]
         public async Task<IActionResult> Create(int orderId)
         {
+            var orderItems = (await _orderItemRepository.GetAllByOrderIdAsync(orderId))
+                .Select(item => new OrderItemViewModel(item)).ToList();
             var payment = new PaymentViewModel
             {
-                Orders = await GetOrderList(),
+                OrderItems = orderItems,
                 OrderId = orderId,
                 TotalAmount = await CalculateTotalAmount(orderId)
             };
@@ -62,7 +64,7 @@ namespace WebApp.Controllers
         {
             if (!ModelState.IsValid)
             {
-                paymentViewModel.Orders = await GetOrderList();
+                paymentViewModel.TotalAmount = await CalculateTotalAmount(paymentViewModel.OrderId);
                 return PartialView("_CreatePaymentModal", paymentViewModel);
             }
 
@@ -77,10 +79,16 @@ namespace WebApp.Controllers
                     PaymentMethod = paymentViewModel.PaymentMethod
                 };
                 await _billRepository.InsertAsync(bill);
+
+                var order = await _orderRepository.GetByIDAsync(paymentViewModel.OrderId);
+                order.Status = OrderStatus.Paid;
+                await _orderRepository.UpdateAsync(order);
             }
-            catch (Exception)
+
+            catch (Exception e)
             {
                 TempData["Error"] = "Failed to create payment.";
+                paymentViewModel.TotalAmount = await CalculateTotalAmount(paymentViewModel.OrderId);
                 return PartialView("_CreatePaymentModal", paymentViewModel);
             }
             return Json(new { success = true });
@@ -123,6 +131,5 @@ namespace WebApp.Controllers
 
             return PartialView("_DetailsPaymentModal", payment);
         }
-
     }
 }

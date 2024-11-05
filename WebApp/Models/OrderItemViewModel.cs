@@ -36,6 +36,9 @@ namespace WebApp.Models
         public string? Notes { get; set; }
 
         public string? DishName { get; set; }
+
+        public User? Creator { get; set; }
+
         public IEnumerable<SelectListItem>? StatusOptions { get; set; }
 
         public OrderItemViewModel() 
@@ -54,6 +57,7 @@ namespace WebApp.Models
             Price = orderItem.Price;
             Status = orderItem.Status;
             Notes = orderItem.Notes;
+            Creator = orderItem.Creator;
         }
     }
 }

@@ -42,12 +42,12 @@
 
 @section Scripts {
     <script>
-                function details(id) {
+        function details(id) {
             var url = '@Url.Action("Details", "Payment", new { id = "__id__" })'.replace("__id__", id);
             $.get(url, function (response) {
                 $('#modalContent').html(response);
                 $('#modal').modal('show');
-                    });
+            });
         }
     </script>
 }
