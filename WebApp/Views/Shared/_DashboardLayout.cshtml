@@ -21,12 +21,14 @@
 	<title>@ViewData["Title"] - Dashboard</title>
 	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 	<link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="/css/site.css" />
 	@await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
 	<div class="container-fluid">
 		<div class="row">
 			<!-- Sidebar -->
+			<div id="sidebar-backdrop"></div>
 			<nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse min-vh-100">
 				<div class="position-sticky pt-3">
 					<a asp-controller="Dashboard" asp-action="Index" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
@@ -177,17 +179,18 @@
 		document.addEventListener('DOMContentLoaded', function () {
 			var sidebar = document.getElementById('sidebar');
 			var toggleBtn = document.querySelector('[data-bs-target="#sidebar"]');
+			var sidebarBackdrop = document.getElementById('sidebar-backdrop');
 
+			// Show/hide sidebar and backdrop on toggle button click
 			toggleBtn.addEventListener('click', function () {
 				sidebar.classList.toggle('show');
+				sidebarBackdrop.classList.toggle('show');
 			});
 
 			// Close sidebar when clicking outside on mobile
-			document.addEventListener('click', function (event) {
-				var isClickInside = sidebar.contains(event.target) || toggleBtn.contains(event.target);
-				if (!isClickInside && window.innerWidth < 768 && sidebar.classList.contains('show')) {
-					sidebar.classList.remove('show');
-				}
+			sidebarBackdrop.addEventListener('click', function () {
+				sidebar.classList.remove('show');
+				sidebarBackdrop.classList.remove('show');
 			});
 		});
 	</script>

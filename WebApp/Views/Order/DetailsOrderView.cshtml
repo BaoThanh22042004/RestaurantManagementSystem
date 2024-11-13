@@ -1,0 +1,146 @@
+﻿@model OrderViewModel
+@{
+	ViewData["Title"] = "Details Order";
+	Layout = "_DashboardLayout";
+}
+
+<h1 class="mb-4 text-center">Order Information</h1>
+
+<div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
+	<div class="d-inline-block">
+		<button class='btn btn-primary' onclick='editOrder(@Model.OrderId)'>Edit Order</button>
+	</div>
+
+	<div class="d-inline-block">
+		<button class='btn btn-success' onclick='payment(@Model.OrderId)'>Payment</button>
+	</div>
+</div>
+
+<div class="rounded border shadow-sm p-3">
+	<dl class="row">
+		<dt class="col-sm-3">Order ID</dt>
+		<dd class="col-sm-9">@Model.OrderId</dd>
+
+		<dt class="col-sm-3">Table Number</dt>
+		<dd class="col-sm-9">@(Model.Table?.TableName ?? "N/A")</dd>
+
+		<dt class="col-sm-3">Reservation ID</dt>
+		<dd class="col-sm-9">@(Model.ResId?.ToString() ?? "N/A")</dd>
+
+		<dt class="col-sm-3">Created At</dt>
+		<dd class="col-sm-9">@Model.CreatedAt.ToString("g")</dd>
+
+		<dt class="col-sm-3">Order Status</dt>
+		<dd class="col-sm-9">@Model.Status</dd>
+	</dl>
+</div>
+
+<h1 class="my-4 text-center">Order Items</h1>
+
+<div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
+	<div class="d-inline-block">
+		<button class='btn btn-primary' onclick='editOrder(@Model.OrderId)'>Edit Order Item</button>
+	</div>
+
+	<div class="d-inline-block">
+		<button class='btn btn-primary' onclick='menuOrder(@Model.OrderId)'>Menu</button>
+	</div>
+</div>
+
+@if (Model.OrderItems != null && Model.OrderItems.Any())
+{
+	<div class="rounded border shadow-sm p-3">
+		<div class="table-responsive">
+			<table class="table table-hover align-middle">
+				<thead class="table-dark align-middle">
+					<tr>
+						<th>Dish Name</th>
+						<th>Quantity</th>
+						<th>Create By</th>
+						<th>Price</th>
+						<th>Status</th>
+						<th>Notes</th>
+						<th class="text-center">Action</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var item in Model.OrderItems)
+					{
+						<tr>
+							<td>@item.Dish.DishName</td>
+							<td>@item.Quantity</td>
+							<td>@item.Creator.FullName</td>
+							<td>@item.Price?.ToString("C")</td>
+							<td>@item.Status.ToString()</td>
+							<td>@(string.IsNullOrEmpty(item.Notes) ? "None" : item.Notes)</td>
+							<td class="text-center">
+								<div class="btn-group" role="group">
+									<button class="btn btn-danger" onclick="deleteOrderItem(@Model.OrderId, @item.OrItemId)">Delete</button>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+
+}
+else
+{
+	<p class="text-muted">No items in this order.</p>
+}
+
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content" id="modalContent">
+		</div>
+	</div>
+</div>
+
+<script>
+	function payment(orderId) {
+		var url = '@Url.Action("Create", "Payment")' + "?orderId=" + orderId;
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#modal').modal('show');
+		});
+	}
+
+	function editOrder(id) {
+		var url = '@Url.Action("Edit", "Order", new { orderId = "__id__" })'.replace("__id__", id);
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#modal').modal('show');
+		});
+	}
+
+	function menuOrder(id) {
+		var url = '@Url.Action("OrderItemMenu", "Order", new { orderId = "__orderId__" })'.replace("__orderId__", id);
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#modal').modal('show');
+		});
+	}
+
+	function deleteOrderItem(orderId, orderItemId) {
+		if (confirm('Are you sure you want to delete this order item?')) {
+			var url = '@Url.Action("DeleteOrderItemConfirmed", "Order", new { orderId = "__orderId__", orderItemId = "__orderItemId__" })'
+				.replace("__orderId__", orderId)
+				.replace("__orderItemId__", orderItemId);
+
+			$.post(url, function (response) {
+				if (response.success) {
+					alert('Order item deleted successfully.');
+					location.reload();
+				} else {
+					alert('Error deleting order item: ' + response.error);
+				}
+			}).fail(function () {
+				alert('An error occurred while deleting the order item. Please try again later.');
+			});
+		}
+	}
+
+</script>

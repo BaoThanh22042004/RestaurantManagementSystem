@@ -34,7 +34,10 @@
 		</div>
 
 		<div class="form-floating mb-3">
-			<select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<Models.Entities.ReservationStatus>()">
+			<select asp-for="Status" class="form-control">
+				<option selected disabled>Please select status</option>
+				<option value="@Models.Entities.ReservationStatus.Pending">@Models.Entities.ReservationStatus.Pending</option>
+				<option value="@Models.Entities.ReservationStatus.Confirmed">@Models.Entities.ReservationStatus.Confirmed</option>
 			</select>
 			<label asp-for="Status">Reservation Status</label>
 			<span asp-validation-for="Status" class="text-danger"></span>

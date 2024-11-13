@@ -17,7 +17,7 @@
 
                     <dt class="col-sm-3">Table ID</dt>
                     <dd class="col-sm-9">
-                        <select asp-for="TableId" asp-items="Model.TableOptions" class="form-select" id="tableId">
+                        @* <select asp-for="TableId" asp-items="Model.TableOptions" class="form-select" id="tableId"> *@
                         </select>
                         <span asp-validation-for="TableId" class="text-danger"></span>
                     </dd>
@@ -66,7 +66,7 @@
                         <tr>
                             <td>
                                 <input type="hidden" asp-for="OrderItems[i].OrItemId" />
-                                <span>@Model.OrderItems[i].DishName</span>
+                                <span>@Model.OrderItems[i].Dish.DishName</span>
                             </td>
                             <td>
                                 <input type="hidden" asp-for="OrderItems[i].Quantity" />

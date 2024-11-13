@@ -34,9 +34,7 @@ namespace WebApp.Models
         [Display(Name = "Notes")]
         [StringLength(500, ErrorMessage = "Notes cannot exceed 500 characters.")]
         public string? Notes { get; set; }
-
-        public string? DishName { get; set; }
-
+        public Dish? Dish { get; set; }
         public User? Creator { get; set; }
 
         public IEnumerable<SelectListItem>? StatusOptions { get; set; }
@@ -51,13 +49,13 @@ namespace WebApp.Models
             OrItemId = orderItem.OrItemId;
             OrderId = orderItem.OrderId;
             DishId = orderItem.DishId;
-            DishName = orderItem.Dish?.DishName;
             CreatedBy = orderItem.CreatedBy;
             Quantity = orderItem.Quantity;
             Price = orderItem.Price;
             Status = orderItem.Status;
             Notes = orderItem.Notes;
             Creator = orderItem.Creator;
+            Dish = orderItem.Dish;
         }
     }
 }

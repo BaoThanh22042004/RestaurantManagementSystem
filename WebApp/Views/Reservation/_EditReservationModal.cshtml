@@ -53,10 +53,10 @@
 		<div class="form-floating mb-3">
 
 			<select asp-for="Status" class="form-control">
-				@foreach (var status in Enum.GetValues(typeof(Models.Entities.ReservationStatus)))
-				{
-					<option value="@status">@status</option>
-				}
+				<option selected disabled>Please select status</option>
+				<option value="@Models.Entities.ReservationStatus.Pending">@Models.Entities.ReservationStatus.Pending</option>
+				<option value="@Models.Entities.ReservationStatus.Confirmed">@Models.Entities.ReservationStatus.Confirmed</option>
+				<option value="@Models.Entities.ReservationStatus.Cancelled">@Models.Entities.ReservationStatus.Cancelled</option>
 			</select>
 			<label asp-for="Status"></label>
 			<span asp-validation-for="Status" class="text-danger"></span>

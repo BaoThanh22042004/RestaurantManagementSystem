@@ -1,0 +1,33 @@
+/* Custom styles for floating sidebar on mobile */
+@media (max-width: 767.9px) {
+    #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 75%;
+        z-index: 1045; /* higher than backdrop */
+        background-color: #f8f9fa; /* Sidebar background */
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+        #sidebar.show {
+            transform: translateX(0);
+        }
+    /* Dim background when sidebar is open */
+    #sidebar-backdrop {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1040; /* Slightly below sidebar */
+    }
+
+        #sidebar-backdrop.show {
+            display: block;
+        }
+}

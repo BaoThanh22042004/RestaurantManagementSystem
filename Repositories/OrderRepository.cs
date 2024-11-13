@@ -17,12 +17,6 @@ namespace Repositories
 
         public async Task<IEnumerable<Order>> GetAllAsync()
         {
-            //  return await _context.Orders.Include(order => order.OrderItems)
-            //.Include(order => order.Reservation)
-            //.Include(order => order.Table)
-            //.AsNoTracking()
-            //.ToListAsync();
-
             string sqlGetAllOrders = "SELECT * FROM Orders";
             string sqlGetOrderItemsByOrderIds = "SELECT * FROM OrderItems WHERE OrderId IN ({0})";
             string sqlGetReservationsByIds = "SELECT * FROM Reservations WHERE ResId IN ({0})";
@@ -102,12 +96,13 @@ namespace Repositories
         {
             string sqlGetOrderById = "SELECT * FROM Orders WHERE OrderId = {0}";
             string sqlGetOrderItemsByOrderId = "SELECT * FROM OrderItems WHERE OrderId = {0}";
-            string sqlGetReservationById = "SELECT * FROM Reservations WHERE ReservationId = {0}";
+            string sqlGetReservationById = "SELECT * FROM Reservations WHERE ResId = {0}";
             string sqlGetTableById = "SELECT * FROM Tables WHERE TableId = {0}";
             string sqlGetUsersByIds = "SELECT * FROM Users WHERE UserId IN ({0})";
+            string sqlGetDishesByIds = "SELECT * FROM Dishes WHERE DishId IN ({0})";
 
-            // Get order by ID
-            var order = await _context.Orders.FromSqlRaw(sqlGetOrderById, id).FirstOrDefaultAsync();
+			// Get order by ID
+			var order = await _context.Orders.FromSqlRaw(sqlGetOrderById, id).FirstOrDefaultAsync();
 
             if (order == null)
             {
@@ -157,7 +152,24 @@ namespace Repositories
                 }
             }
 
-            return order;
+			// Include Dishes
+			var dishIds = order.OrderItems.Select(oi => oi.DishId).Distinct().ToList();
+            if (dishIds.Count != 0)
+			{
+				var dishes = await _context.Dishes
+									.FromSqlRaw(string.Format(sqlGetDishesByIds, string.Join(",", dishIds)))
+									.ToDictionaryAsync(d => d.DishId);
+
+				foreach (var orderItem in order.OrderItems)
+				{
+					if (dishes.TryGetValue(orderItem.DishId, out var dish))
+					{
+						orderItem.Dish = dish;
+					}
+				}
+			}
+
+			return order;
         }
 
         public async Task<Order> InsertAsync(Order order)

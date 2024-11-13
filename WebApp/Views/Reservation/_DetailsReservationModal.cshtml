@@ -6,44 +6,28 @@
 	<dl class="row">
 		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ResId)</dt>
 		<dd class="col-sm-8">@Model.ResId</dd>
-	</dl>
 
-	<dl class="row">
 		<dt class="col-sm-4">Customer Full Name</dt>
 		<dd class="col-sm-8">@Model.Customer?.FullName</dd>
-	</dl>
 
-	<dl class="row">
 		<dt class="col-sm-4">Customer Phone</dt>
 		<dd class="col-sm-8">@Model.Customer?.Phone</dd>
-	</dl>
 
-	<dl class="row">
 		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.PartySize)</dt>
 		<dd class="col-sm-8">@Model.PartySize</dd>
-	</dl>
 
-	<dl class="row">
 		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ResDate)</dt>
 		<dd class="col-sm-8">@Model.ResDate.ToString("MM/dd/yyyy")</dd>
-	</dl>
 
-	<dl class="row">
-		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.DepositAmount)</dt>
-		<dd class="col-sm-8">@(Model.DepositAmount?.ToString("C") ?? "N/A")</dd>
-	</dl>
-
-	<dl class="row">
 		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ResTime)</dt>
 		<dd class="col-sm-8">@Model.ResTime.ToString("hh:mm tt")</dd>
-	</dl>
 
-	<dl class="row">
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.DepositAmount)</dt>
+		<dd class="col-sm-8">@(Model.DepositAmount?.ToString("C") ?? "N/A")</dd>
+
 		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Status)</dt>
 		<dd class="col-sm-8">@Model.Status</dd>
-	</dl>
 
-	<dl class="row">
 		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Notes)</dt>
 		<dd class="col-sm-8">@Model.Notes</dd>
 	</dl>
@@ -51,10 +35,20 @@
 </div>
 
 @{
-	string button = "";
+	string button = $"<button onclick='createOrder({@Model.ResId})' class='btn btn-primary'>Create Order</button>";
 	if (Model.Order != null)
 	{
-		button = $"<a href='{ Url.Action("Details", "Order", new { orderId = Model.Order.OrderId })}' class='btn btn-primary'>Go to Order</a>";
+		button = $"<a href='{Url.Action("Details", "Order", new { orderId = Model.Order.OrderId })}' class='btn btn-primary'>Go to Order</a>";
 	}
 }
 <partial name="Partials/_ModalFooter" model='button' />
+
+<script>
+	function createOrder(id) {
+		var url = '@Url.Action("Create", "Order", new { reservationId = "__id__" })'.replace("__id__", id);
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#modal').modal('show');
+		});
+	}
+</script>

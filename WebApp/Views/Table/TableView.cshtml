@@ -1,77 +1,100 @@
 ﻿@model IEnumerable<WebApp.Models.TableViewModel>
 @{
-    ViewData["Title"] = "Tables";
-    Layout = "_DashboardLayout";
+	ViewData["Title"] = "Tables";
+	Layout = "_DashboardLayout";
 }
 
-<h1 class="mb-4 text-center">Table Management</h1>
+<h1 class="mb-4 text-center">Tables</h1>
 
-<div class="mb-3">
-    <button onclick="create()" class="btn btn-success">Add New Table</button>
+<div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
+	<div class="d-inline-block">
+		<button onclick="create()" class="btn btn-success">Add New Table</button>
+	</div>
 </div>
 
-<div class="container">
-    <div class="row">
-        @foreach (var table in Model)
-        {
-            var cardColor = table.Status switch
-            {
-                Models.Entities.TableStatus.Available => "#84e88b",
-                Models.Entities.TableStatus.Reserved => "#F00000",
-                Models.Entities.TableStatus.Occupied => "#F00000",
-                Models.Entities.TableStatus.Cleaning => "#9EE7FB",
-                Models.Entities.TableStatus.Unavailable => "#C8D7DB"
-            };
+<div class="rounded border shadow-sm p-3">
+	<div class="row">
+		@foreach (var table in Model)
+		{
+			var cardColor = table.Status switch
+			{
+				Models.Entities.TableStatus.Available => "text-bg-success",
+				Models.Entities.TableStatus.Reserved => "text-bg-primary",
+				Models.Entities.TableStatus.Occupied => "text-bg-danger",
+				Models.Entities.TableStatus.Cleaning => "text-bg-warning",
+				Models.Entities.TableStatus.Unavailable => "text-bg-secondary"
+			};
 
-            <div class="col-md-3 mb-4">
-                <div class="text-decoration-none" onclick="details(@table.TableId)">
-                    <div class="card shadow-sm h-100" style="background-color: @cardColor; width: 100%; height: 0; padding-bottom: 100%; position: relative;">
-                        <div class="card-body d-flex flex-column align-items-center justify-content-center" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; color: black;">
-                            <h5 class="card-title text-center">@table.TableName</h5>
-                            <p class="card-text text-center mb-1"><strong>Capacity:</strong> @table.Capacity</p>
-                            <p class="card-text text-center"><strong>Status:</strong> @table.Status</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
+			<div class="col-xl-3 col-lg-4 col-md-6 col-12 mb-4">
+				<div class="h-100">
+					<div class="card shadow h-100 @cardColor">
+						<div class="card-header text-center h4">
+							@table.TableName
+						</div>
+						<div onclick="details(@table.TableId)" class="card-body clickable d-flex flex-column align-items-center justify-content-center p-5 h-100 @cardColor">
+							<span class="card-text text-center"><strong>Capacity:</strong> @table.Capacity</span>
+							<span class="card-text text-center"><strong>Status:</strong> @table.Status</span>
+						</div>
+						<div class="card-footer d-flex justify-content-between">
+							<button onclick='edit(@table.TableId)' class='btn btn-primary border'>Edit</button>
+							<button onclick='deleteAction(@table.TableId)' class='btn btn-danger border'>Delete</button>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		}
+	</div>
 </div>
 
 <!-- Modal for AJAX-driven actions -->
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" id="modalContent">
-        </div>
-    </div>
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content" id="modalContent">
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    <script>
-        function create() {
-            var url = '@Url.Action("Create", "Table")';
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
+	<script>
+		function create() {
+			var url = '@Url.Action("Create", "Table")';
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
 
-        function details(id) {
-            var url = '@Url.Action("Details", "Table", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
+		function details(id) {
+			var url = '@Url.Action("Details", "Table", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
 
-        function edit(id) {
-            var url = '@Url.Action("Edit", "Table", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
+		function edit(id) {
+			var url = '@Url.Action("Edit", "Table", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
 
-     
-    </script>
+		function deleteAction(id) {
+			var url = '@Url.Action("Delete", "Table", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+	</script>
+}
+
+@section Styles {
+	<style>
+		.clickable {
+			cursor: pointer;
+		}
+	</style>
 }

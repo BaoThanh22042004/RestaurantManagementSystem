@@ -3,49 +3,42 @@
 <partial name="Partials/_ModalHeader" model='"Table Details"' />
 
 <div class="modal-body" id="modalBody">
-    <dl>
-        <dt>@Html.DisplayNameFor(m => m.TableId)</dt>
-        <dd>@Model.TableId</dd>
+    <dl class="row">
+        <dt class="col-sm-4">@Html.DisplayNameFor(m => m.TableId)</dt>
+        <dd class="col-sm-8">@Model.TableId</dd>
 
-        <dt>@Html.DisplayNameFor(m => m.TableName)</dt>
-        <dd>@Model.TableName</dd>
+        <dt class="col-sm-4">@Html.DisplayNameFor(m => m.TableName)</dt>
+        <dd class="col-sm-8">@Model.TableName</dd>
 
-        <dt>@Html.DisplayNameFor(m => m.Capacity)</dt>
-        <dd>@Model.Capacity</dd>
+        <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Capacity)</dt>
+        <dd class="col-sm-8">@Model.Capacity</dd>
 
-        <dt>@Html.DisplayNameFor(m => m.Status)</dt>
-        <dd>@Model.Status</dd>
+        <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Status)</dt>
+        <dd class="col-sm-8">@Model.Status</dd>
 
-        <dt>@Html.DisplayNameFor(m => m.ResTime)</dt>
-        <dd>@(Model.ResTime?.ToString("hh:mm tt") ?? "N/A")</dd>
+        <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ResTime)</dt>
+        <dd class="col-sm-8">@(Model.ResTime?.ToString("hh:mm tt") ?? "N/A")</dd>
 
-        <dt>@Html.DisplayNameFor(m => m.Notes)</dt>
-        <dd>@(string.IsNullOrEmpty(Model.Notes) ? "None" : Model.Notes)</dd>
+        <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Notes)</dt>
+        <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Notes) ? "None" : Model.Notes)</dd>
     </dl>
 </div>
 
 @{
-    string buttons = $"<button onclick='createOrder({Model.TableId})' class='btn btn-primary'>Create Order</button> <button onclick='edit({Model.TableId})' class='btn btn-primary'>Edit</button> <button onclick='deleteAction({Model.TableId})' class='btn btn-danger'>Delete</button>";
+    string button;
+    if (Model.Order != null)
+    {
+        button = $"<a href='{Url.Action("Details", "Order", new { orderId = Model.Order.OrderId})}' class='btn btn-primary'>Go to Order</a>";
+    }
+    else
+    {
+        button = $"<button onclick='createOrder({Model.TableId})' class='btn btn-primary'>Create Order</button>";
+    }
 }
 
-<partial name="Partials/_ModalFooter" model='buttons' />
+<partial name="Partials/_ModalFooter" model='button' />
 
 <script>
-    function deleteAction(id) {
-        var url = '@Url.Action("Delete", "Table", new { id = "__id__" })'.replace("__id__", id);
-        $.get(url, function (response) {
-            $('#modalContent').html(response);
-            $('#modal').modal('show');
-        });
-    }
-    function edit(id) {
-        var url = '@Url.Action("Edit", "Table", new { id = "__id__" })'.replace("__id__", id);
-        $.get(url, function (response) {
-            $('#modalContent').html(response);
-            $('#modal').modal('show');
-        });
-    }
-
     function createOrder(id) {
         var url = '@Url.Action("Create", "Order", new { tableId = "__id__" })'.replace("__id__", id);
         $.get(url, function (response) {
@@ -53,5 +46,4 @@
             $('#modal').modal('show');
         });
     }
-
 </script>

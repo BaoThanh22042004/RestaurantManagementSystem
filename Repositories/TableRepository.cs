@@ -24,7 +24,20 @@ namespace Repositories
 		public async Task<Table?> GetByIDAsync(int id)
 		{
 			string sqlGetTableById = "SELECT * FROM Tables WHERE TableId = {0}";
+			string sqlGetCurrentOrderById = "SELECT * FROM Orders WHERE TableId = {0} AND Status IN (0,1)";
+
 			var table = await _context.Tables.FromSqlRaw(sqlGetTableById, id).FirstOrDefaultAsync();
+
+			// Include current order
+			if (table != null)
+			{
+				var currentOrder = await _context.Orders.FromSqlRaw(sqlGetCurrentOrderById, id).FirstOrDefaultAsync();
+				if (currentOrder != null)
+				{
+					table.Orders.Add(currentOrder);
+				}
+			}
+
 			return table;
 		}
 

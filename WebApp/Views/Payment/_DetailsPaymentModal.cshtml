@@ -22,7 +22,7 @@
                 @foreach (var item in Model.OrderItems)
                 {
                     <tr>
-                        <td>@item.DishName</td>
+                        <td>@item.Dish.DishName</td>
                         <td>@item.Quantity</td>
                         <td>@item.Creator.FullName</td>
                         <td>@item.Price?.ToString("C")</td>

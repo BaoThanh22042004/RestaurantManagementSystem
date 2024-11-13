@@ -123,9 +123,9 @@ namespace WebApp.Controllers
                                     .Select(item =>
                                     {
                                         var viewModel = new OrderItemViewModel(item);
-                                        viewModel.DishName = order?.OrderItems
+                                        viewModel.Dish = order?.OrderItems
                                                                 .FirstOrDefault(i => i.DishId == item.DishId)?
-                                                                .Dish?.DishName ?? "Unknown Dish";
+                                                                .Dish;
                                         return viewModel;
                                     }).ToList();
 

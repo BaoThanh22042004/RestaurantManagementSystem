@@ -7,7 +7,8 @@ namespace Models.Entities
 	{
 		Reservation,
 		Serving,
-		Paid
+		Paid,
+		Cancelled
 	}
 
 	public class Order

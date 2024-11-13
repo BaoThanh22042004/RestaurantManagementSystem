@@ -25,8 +25,13 @@ namespace WebApp.Models
 
         public List<OrderItemViewModel> OrderItems { get; set; } = new List<OrderItemViewModel>();
 
-        public IEnumerable<SelectListItem>? TableOptions { get; set; }
-        public OrderViewModel()
+        public List<Table>? TableOptions { get; set; }
+
+        public Reservation? Reservation { get; set; }
+
+		public Table? Table { get; set; }
+
+		public OrderViewModel()
         {
 
         }
@@ -39,6 +44,8 @@ namespace WebApp.Models
             CreatedAt = order.CreatedAt;
             Status = order.Status;
             OrderItems = order.OrderItems.Select(item => new OrderItemViewModel(item)).ToList();
+			Reservation = order.Reservation;
+			Table = order.Table;
 		}
     }
 }

@@ -5,6 +5,7 @@ namespace WebApp.Models
 {
 	public class TableViewModel
 	{
+		[Display(Name = "Table ID")]
 		public int? TableId { get; set; }
 
 		[Required(ErrorMessage = "Table name is required.")]
@@ -30,6 +31,9 @@ namespace WebApp.Models
 		[DataType(DataType.MultilineText)]
 		public string? Notes { get; set; }
 
+
+		public Order? Order { get; set; }
+
 		// Default constructor
 		public TableViewModel()
 		{
@@ -44,6 +48,7 @@ namespace WebApp.Models
 			Status = table.Status;
 			ResTime = table.ResTime; 
 			Notes = table.Notes;
+			Order = table.Orders.FirstOrDefault();
 		}
 	}
 }

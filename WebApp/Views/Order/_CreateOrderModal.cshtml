@@ -2,27 +2,66 @@
 
 <form method="post" asp-action="Create" id="form">
 
-    <partial name="Partials/_ModalHeader" model='"Create Order"' />
+	<partial name="Partials/_ModalHeader" model='"Create Order"' />
 
-    <div class="modal-body" id="modalBody">
-        @if (@TempData["Error"] != null)
-        {
-            <div class="alert alert-danger" role="alert">
-                @TempData["Error"]
-            </div>
-        }
+	<div class="modal-body" id="modalBody">
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 
-        <div class="form-floating mb-3">
-            <input asp-for="TableId" class="form-control" id="TableId" readonly />
-            <label asp-for="TableId">Table</label>
-            <span asp-validation-for="TableId" class="text-danger"></span>
-        </div>
-    </div>
+		<input asp-for="TableId" type="hidden" />
+		<input asp-for="ResId" type="hidden" />
+		@if (Model.Table != null)
+		{
+			<dl class="row">
 
-    @* *@
-    @{
-        string createButton = "<button type='submit' class='btn btn-primary'>Create Order</button>";
-    }
+				<dt class="col-sm-4">Table ID</dt>
+				<dd class="col-sm-8">@Model.TableId</dd>
 
-    <partial name="Partials/_ModalFooter" model='@createButton' />
+				<dt class="col-sm-4">Table Name</dt>
+				<dd class="col-sm-8">@Model.Table.TableName</dd>
+
+				<dt class="col-sm-4">Capacity</dt>
+				<dd class="col-sm-8">@Model.Table.Capacity</dd>
+
+			</dl>
+		}
+
+		@if (Model.Reservation != null)
+		{
+			<dl class="row">
+
+				<dt class="col-sm-4">Reservation ID</dt>
+				<dd class="col-sm-8">@Model.Reservation.ResId</dd>
+
+				<dt class="col-sm-4">Customer Full Name</dt>
+				<dd class="col-sm-8">@Model.Reservation.Customer?.FullName</dd>
+
+				<dt class="col-sm-4">Customer Phone</dt>
+				<dd class="col-sm-8">@Model.Reservation.Customer?.Phone</dd>
+
+				<dt class="col-sm-4">Party Size</dt>
+				<dd class="col-sm-8">@Model.Reservation.PartySize</dd>
+
+				<dt class="col-sm-4">Reservation Date</dt>
+				<dd class="col-sm-8">@Model.Reservation.ResDate.ToString("MM/dd/yyyy")</dd>
+				
+				<dt class="col-sm-4">Reservation Time</dt>
+				<dd class="col-sm-8">@Model.Reservation.ResTime.ToString("hh:mm tt")</dd>
+
+				<dt class="col-sm-4">Notes</dt>
+				<dd class="col-sm-8">@Model.Reservation.Notes</dd>
+			</dl>
+		}
+	</div>
+
+	@{
+		string createButton = "<button type='submit' class='btn btn-primary'>Create Order</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model='@createButton' />
 </form>
+
+<script>
+	var form = document.getElementById("form");
+	var newForm = form.cloneNode(true);
+	form.parentNode.replaceChild(newForm, form);
+</script>

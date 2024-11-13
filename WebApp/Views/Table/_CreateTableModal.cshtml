@@ -5,43 +5,18 @@
 
 	<div class="modal-body" id="modalBody">
 
-		@if (@TempData["Error"] != null)
-		{
-			<div class="alert alert-danger" role="alert">
-				@TempData["Error"]
-			</div>
-		}
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 
 		<div class="form-floating mb-3">
-			<input asp-for="TableName" class="form-control" id="TableName" maxlength="50" required />
+			<input asp-for="TableName" class="form-control"/>
 			<label asp-for="TableName"></label>
 			<span asp-validation-for="TableName" class="text-danger"></span>
 		</div>
 
 		<div class="form-floating mb-3">
-			<input asp-for="Capacity" class="form-control" id="Capacity" type="number" min="1" required />
+			<input asp-for="Capacity" class="form-control" type="number" min="1" />
 			<label asp-for="Capacity"></label>
 			<span asp-validation-for="Capacity" class="text-danger"></span>
-		</div>
-
-		<div class="form-floating mb-3">
-			<select asp-for="Status" asp-items="Html.GetEnumSelectList<Models.Entities.TableStatus>()" class="form-select" id="Status" required>
-				<option selected disabled>Please select Status</option>
-			</select>
-			<label asp-for="Status"></label>
-			<span asp-validation-for="Status" class="text-danger"></span>
-		</div>
-
-		<div class="form-floating mb-3">
-			<input asp-for="ResTime" class="form-control" id="ResTime" type="time" />
-			<label asp-for="ResTime">Reservation Time</label>
-			<span asp-validation-for="ResTime" class="text-danger"></span>
-		</div>
-
-		<div class="form-floating mb-3">
-			<textarea asp-for="Notes" class="form-control" id="Notes" style="height: 100px;" placeholder="Add any notes..."></textarea>
-			<label asp-for="Notes">Notes</label>
-			<span asp-validation-for="Notes" class="text-danger"></span>
 		</div>
 
 	</div>

@@ -1,79 +1,81 @@
 ﻿@model IEnumerable<WebApp.Models.OrderViewModel>
 
 @{
-    ViewData["Title"] = "Order List";
-    Layout = "_DashboardLayout";
+	ViewData["Title"] = "Order List";
+	Layout = "_DashboardLayout";
 }
 
 <h1 class="mb-4 text-center">Order List</h1>
 
 <div class="container">
-    <div class="card shadow-sm p-4 mb-4">
-
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Table Number</th>
-                        <th>Created At</th>
-                        <th>Status</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var order in Model)
-                    {
-                        <tr>
-                            <td>@order.OrderId</td>
-                            <td>@order.TableId</td>
-                            <td>@order.CreatedAt.ToString("g")</td>
-                            <td>@order.Status.ToString()</td>
-                            <td class="d-flex justify-content-end">
-                                <button onclick="detailsOrder(@order.OrderId)" class="btn btn-info btn-sm me-2">Details</button>
-                                <button onclick="deleteOrder(@order.OrderId)" class="btn btn-danger btn-sm">Delete</button>
-                                <button onclick="create(@order.OrderId)" class="btn btn-primary btn-sm">Payment</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+	<div class="rounded border shadow-sm p-3">
+		<div class="table-responsive">
+			<table class="table table-hover align-middle">
+				<thead class="table-dark align-middle">
+					<tr>
+						<th>Order ID</th>
+						<th>Table Number</th>
+						<th>Created At</th>
+						<th>Status</th>
+						<th class="text-center">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var order in Model)
+					{
+						<tr>
+							<td>@order.OrderId</td>
+							<td>@order.TableId</td>
+							<td>@order.CreatedAt.ToString("g")</td>
+							<td>@order.Status.ToString()</td>
+							<td class="text-center">
+								<div class="btn-group" role="group">
+									<a asp-action="Details" asp-controller="Order" asp-route-orderId="@order.OrderId" class="btn btn-info">Details</a>
+									 @* <button onclick="" class="btn btn-primary">Edit</button>
+									 <button onclick="payment(@order.OrderId)" class="btn btn-success">Payment</button> *@
+									<button onclick="deleteOrder(@order.OrderId)" class="btn btn-danger">Delete</button>
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
 </div>
 
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" id="modalContent">
-        </div>
-    </div>
+	<div class="modal-dialog modal-dialog-centered modal-lg">
+		<div class="modal-content" id="modalContent">
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    <script>
-        function create(orderId) {
-            var url = '@Url.Action("Create", "Payment")' + "?orderId=" + orderId;
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
+	<script>
+		// function payment(orderId) {
+		// 	var url = '@Url.Action("Create", "Payment")' + "?orderId=" + orderId;
+		// 	$.get(url, function (response) {
+		// 		$('#modalContent').html(response);
+		// 		$('#modal').modal('show');
+		// 	});
+		// }
 
-        function detailsOrder(id) {
-            var url = '@Url.Action("Details", "Order", new { orderId = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
+		function detailsOrder(id) {
+			var url = '@Url.Action("Details", "Order", new { orderId = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
 
-        function deleteOrder(id) {
-            var url = '@Url.Action("Delete", "Order", new { orderId = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-    </script>
+		function deleteOrder(id) {
+			var url = '@Url.Action("Delete", "Order", new { orderId = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+	</script>
 }
 
