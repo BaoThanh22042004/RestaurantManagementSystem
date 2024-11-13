@@ -57,7 +57,7 @@ namespace WebApp.Controllers
             return userRole;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string week)
         {
 			var allShifts = await GetShiftList();
 
@@ -211,10 +211,6 @@ namespace WebApp.Controllers
 					return NotFound();
 				}
 
-                if (schedule.ScheDate < DateOnly.FromDateTime(DateTime.Now))
-                {
-                    return await InvalidView("Cannot create a schedule with the date in the past!");
-                }
                 var schedules = await _scheduleRepository.GetAllAsync();
                 var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule));
                 foreach (var schelist in scheduleList.Where(d => d.ScheDate == schedule.ScheDate && d.EmpId == schedule.EmpId))
