@@ -31,3 +31,7 @@
             display: block;
         }
 }
+
+.clickable {
+    cursor: pointer;
+}
