@@ -15,24 +15,25 @@
 			<img class="rounded mx-auto d-block object-fit-cover" width="360" height="360" id="preview" src="@Model.ImagePath" onerror="this.src='https://placehold.co/360x360'" />
 		</div>
 
-		<dl>
-			<dt>@Html.DisplayNameFor(m => m.DishId)</dt>
-			<dd>@Model.DishId</dd>
+		<dl class="row">
 
-			<dt>@Html.DisplayNameFor(m => m.DishName)</dt>
-			<dd>@Model.DishName</dd>
+			<dt class="col-md-4">@Html.DisplayNameFor(m => m.DishId)</dt>
+			<dd class="col-md-8">@Model.DishId</dd>
 
-			<dt>@Html.DisplayNameFor(m => m.Price)</dt>
-			<dd>@Model.Price</dd>
+			<dt class="col-md-4">@Html.DisplayNameFor(m => m.DishName)</dt>
+			<dd class="col-md-8">@Model.DishName</dd>
 
-			<dt>@Html.DisplayNameFor(m => m.Description)</dt>
-			<dd>@Model.Description</dd>
+			<dt class="col-md-4">@Html.DisplayNameFor(m => m.Price)</dt>
+			<dd class="col-md-8">@Model.Price</dd>
 
-			<dt>@Html.DisplayNameFor(m => m.CategoryName)</dt>
-			<dd>@Model.CategoryName</dd>
+			<dt class="col-md-4">@Html.DisplayNameFor(m => m.Description)</dt>
+			<dd class="col-md-8">@Model.Description</dd>
 
-			<dt>@Html.DisplayNameFor(m => m.Visible)</dt>
-			<dd>@Model.Visible</dd>
+			<dt class="col-md-4">@Html.DisplayNameFor(m => m.CategoryName)</dt>
+			<dd class="col-md-8">@Model.CategoryName</dd>
+
+			<dt class="col-md-4">@Html.DisplayNameFor(m => m.Visible)</dt>
+			<dd class="col-md-8">@Model.Visible</dd>
 
 		</dl>
 	</div>
