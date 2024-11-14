@@ -1,105 +1,87 @@
 ﻿@model OrderMenuViewModel
 
 <partial name="Partials/_ModalHeader" model='"Order Menu"' />
+
 <div class="modal-body" id="modalBody">
-<div class="container mt-3">
-    <div class="text-end mb-2">
-        <a class="btn btn-outline-secondary" data-bs-toggle="collapse" href="#filterForm" role="button" aria-expanded="false" aria-controls="filterForm">
-            <i class="bi bi-filter-circle"></i> Filters
-        </a>
-    </div>
+	<div class="mt-3">
+		<div class="text-end mb-2">
+			<a class="btn btn-outline-secondary" data-bs-toggle="collapse" href="#filterForm" role="button" aria-expanded="false" aria-controls="filterForm">
+				<i class="bi bi-filter-circle"></i> Filters
+			</a>
+		</div>
+
+		<div class="collapse border p-3 mb-3 rounded" id="filterForm">
+			<form class="p-3 border rounded-3" asp-action="OrderItemMenu" method="get" id="form">
+				<div class="mb-2">
+					<input class="form-control" asp-for="Keyword" placeholder="Search by name" type="search">
+				</div>
+				<div class="mb-2">
+					@foreach (var category in Model.Categories)
+					{
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="checkbox" id="@category.CategoryName" name="SelectedCategories" value="@category.CategoryId" @(category.IsSelected ? "checked" : "")>
+							<label class="form-check-label" for="@category.CategoryName">@category.CategoryName</label>
+						</div>
+					}
+				</div>
+				<div class="d-flex justify-content-between mt-2">
+					<button type="button" class="btn btn-outline-secondary btn-sm" id="resetButton">Reset</button>
+					<button type="submit" class="btn btn-primary btn-sm">Apply</button>
+				</div>
+			</form>
+		</div>
 
 
-    <div class="collapse" id="filterForm">
-            <form class="p-3 border rounded-3" asp-action="OrderItemMenu" method="get" id="form">
-            <div class="mb-2">
-                <input class="form-control" asp-for="Keyword" placeholder="Search by name" type="search">
-            </div>
-            <div class="mb-2">
-                @foreach (var category in Model.Categories)
-                {
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="@category.CategoryName" name="SelectedCategories" value="@category.CategoryId" @(category.IsSelected ? "checked" : "")>
-                        <label class="form-check-label" for="@category.CategoryName">@category.CategoryName</label>
-                    </div>
-                }
-            </div>
-            <div class="d-flex justify-content-between mt-2">
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="resetButton">Reset</button>
-                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
-            </div>
-        </form>
-    </div>
-
-
-    @if (!Model.Dishes.Any())
-    {
-        <div class="text-center mt-3">
-            <p class="text-muted">No dishes found.</p>
-        </div>
-    }
-    else
-    {
-        <div class="row row-cols-2 row-cols-md-3 g-2">
-            @foreach (var item in Model.Dishes)
-            {
-                <div class="col">
-                    <div class="card border-0 shadow-sm h-100" onclick="SelectedDish(@Model.OrderId,@item.DishId)">
-                        <div class="row g-0">
-                            <div class="col-4">
-                                <img src="@item.ImagePath" class="img-fluid rounded-start" width="80" height="80" alt="Image of @item.DishName" onerror="this.src='https://placehold.co/80x80'">
-                            </div>
-                            <div class="col-8">
-                                <div class="card-body p-2">
-                                    <h6 class="card-title mb-1 fw-bold text-truncate">@item.DishName</h6>
-                                    <p class="card-text text-muted mb-0">@item.Price.ToString("C")</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    }
+		@if (!Model.Dishes.Any())
+		{
+			<div class="text-center mt-3">
+				<p class="text-muted">No dishes found.</p>
+			</div>
+		}
+		else
+		{
+			<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-2">
+				@foreach (var item in Model.Dishes)
+				{
+					<div class="col">
+						<div class="card border-0 shadow-sm h-100" onclick="SelectedDish(@Model.OrderId,@item.DishId)">
+							<div class="row g-0">
+								<div class="col-4">
+									<img src="@item.ImagePath" class="img-fluid rounded-start" width="80" height="80" alt="Image of @item.DishName" onerror="this.src='https://placehold.co/80x80'">
+								</div>
+								<div class="col-8">
+									<div class="card-body p-2">
+										<h6 class="card-title mb-1 fw-bold text-truncate">@item.DishName</h6>
+										<p class="card-text text-muted mb-0">@item.Price.ToString("C")</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		}
+	</div>
 </div>
-</div>
-@{
-    string Button = $"<button class='btn btn-primary' onclick='detailsOrder({Model.OrderId})'>Back</button>";
-}
 
-<partial name="Partials/_ModalFooter" model='Button' />
+<partial name="Partials/_ModalFooter" model='""' />
 
 <script>
-    document.getElementById('resetButton').addEventListener('click', function () {
-        document.getElementById('keyword').value = '';
-        const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
-        checkboxes.forEach((checkbox) => { checkbox.checked = false; });
-    });
+	document.getElementById('resetButton').addEventListener('click', function () {
+		document.getElementById('keyword').value = '';
+		const checkboxes = document.querySelectorAll('input[name="SelectedCategories"]');
+		checkboxes.forEach((checkbox) => { checkbox.checked = false; });
+	});
 
-    function SelectedDish(orderId, dishId) {
-        var url = '@Url.Action("AddOrderItem", "Order", new { orderId = "__orderId__", dishId = "__dishId__" })'
-            .replace("__orderId__", orderId)
-            .replace("__dishId__", dishId);
+	function SelectedDish(orderId, dishId) {
+		var url = '@Url.Action("AddOrderItem", "Order", new { orderId = "__orderId__", dishId = "__dishId__" })'
+			.replace("__orderId__", orderId)
+			.replace("__dishId__", dishId);
 
-        $.get(url, function (response) {
-            $('#modalContent').html(response);
-            $('#Modal').modal('show');
-        });
-    }
-
-    function detailsOrder(id) {
-        var url = '@Url.Action("Details", "Order", new { orderId = "__id__" })'.replace("__id__", id);
-        $.get(url, function (response) {
-            $('#modalContent').html(response);
-            $('#Modal').modal('show');
-        });
-    }
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#modal').modal('show');
+		});
+	}
 </script>
 
-@section Styles {
-    <style>
-        .card img:hover {
-            cursor: pointer;
-        }
-    </style>
-}
