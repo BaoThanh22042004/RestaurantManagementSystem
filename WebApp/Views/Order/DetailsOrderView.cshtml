@@ -19,7 +19,7 @@
 
 <div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
 	<div class="d-inline-block">
-		<button class='btn btn-primary' onclick='editOrder(@Model.OrderId)'>Edit Order</button>
+		<button class='btn btn-primary' onclick='assignTable(@Model.OrderId)'>Assign Table</button>
 		<button class='btn btn-success' onclick='payment(@Model.OrderId)'>Payment</button>
 	</div>
 
@@ -69,7 +69,7 @@
 
 <div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
 	<div class="d-inline-block">
-		<button class='btn btn-primary' onclick='editOrder(@Model.OrderId)'>Edit Order Item</button>
+		<button class='btn btn-primary' onclick='editOrderItem(@Model.OrderId)'>Edit Order Item</button>
 	</div>
 
 	<div class="d-inline-block">
@@ -140,8 +140,8 @@ else
 		});
 	}
 
-	function editOrder(id) {
-		var url = '@Url.Action("Edit", "Order", new { orderId = "__id__" })'.replace("__id__", id);
+	function editOrderItem(id) {
+		var url = '@Url.Action("EditOrderItem", "Order", new { orderId = "__id__" })'.replace("__id__", id);
 		$.get(url, function (response) {
 			$('#modalContent').html(response);
 			$('#modal').modal('show');
@@ -149,7 +149,7 @@ else
 	}
 
 	function menuOrder(id) {
-		var url = '@Url.Action("OrderItemMenu", "Order", new { orderId = "__orderId__" })'.replace("__orderId__", id);
+		var url = '@Url.Action("OrderMenu", "Order", new { orderId = "__orderId__" })'.replace("__orderId__", id);
 		$.get(url, function (response) {
 			$('#modalContent').html(response);
 			$('#modal').modal('show');
@@ -185,6 +185,14 @@ else
 
 	function detailsTable(id) {
 		var url = '@Url.Action("Details", "Table", new { id = "__id__" })'.replace("__id__", id);
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#modal').modal('show');
+		});
+	}
+
+	function assignTable(orderId) {
+		var url = '@Url.Action("AssignTable", "Order", new { orderId = "__orderId__" })'.replace("__orderId__", orderId);
 		$.get(url, function (response) {
 			$('#modalContent').html(response);
 			$('#modal').modal('show');

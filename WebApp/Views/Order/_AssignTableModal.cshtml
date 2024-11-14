@@ -1,0 +1,22 @@
+﻿@model OrderViewModel
+
+<form method="post" asp-action="AssignTable" id="form">
+	<partial name="Partials/_ModalHeader" model='"Assign Table"' />
+
+	<div class="modal-body" id="modalBody">
+		<input type="hidden" asp-for="OrderId" />
+
+		<div class="mb-3 form-floating">
+			<select asp-for="TableId" asp-items='Model.TableOptions' class="form-select">
+			</select>
+			<label asp-for="TableId" class="form-label">Table</label>
+			<span asp-validation-for="TableId" class="text-danger"></span>
+		</div>
+	</div>
+
+	@{
+		string Button = $"<button type='submit' class='btn btn-primary'>Assign</button> ";
+	}
+
+	<partial name="Partials/_ModalFooter" model='@Button' />
+</form>

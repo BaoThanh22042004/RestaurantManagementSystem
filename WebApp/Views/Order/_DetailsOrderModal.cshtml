@@ -86,7 +86,7 @@ else
     }
 
     function menuOrder(id) {
-        var url = '@Url.Action("OrderItemMenu", "Order", new { orderId = "__orderId__" })'.replace("__orderId__", id);
+        var url = '@Url.Action("OrderMenu", "Order", new { orderId = "__orderId__" })'.replace("__orderId__", id);
         $.get(url, function (response) {
             $('#modalContent').html(response);
             $('#Modal').modal('show');

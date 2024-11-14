@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Models.Entities;
 using Repositories.Interface;
 using System.Security.Claims;
@@ -43,20 +44,17 @@ namespace WebApp.Controllers
 			return dishes.Select(d => new DishViewModel(d)).ToList();
 		}
 
-		//private async Task<string> GetDishNameByDishId(int dishId)
-		//{
-		//    var dish = await _dishRepository.GetByIDAsync(dishId);
-		//    var dishName = dish.DishName;
-		//    return dishName;
-		//}
-
-		private async Task<List<Table>> GetAvailableTables()
+		private async Task<SelectList> GetAvailableTables(int? currentTableId)
 		{
 			var tables = (await _tableRepository.GetAllAsync())
-				.Where(t => t.Status == TableStatus.Available)
-				.ToList();
+				.Where(t => t.TableId == currentTableId || t.Status == TableStatus.Available)
+				.Select(t => new SelectListItem
+				{
+					Value = t.TableId.ToString(),
+					Text = $"{t.TableName} ({t.Capacity})"
+				});
 
-			return tables;
+			return new SelectList(tables, "Value", "Text");
 		}
 
 		private static List<SelectListItem> GetOrderItemStatusList()
@@ -87,7 +85,7 @@ namespace WebApp.Controllers
 				return BadRequest();
 			}
 
-			var table = (await GetAvailableTables()).Find(t => t.TableId == tableId);
+			var table = tableId.HasValue ? await _tableRepository.GetByIDAsync(tableId.Value) : null;
 			var reservation = reservationId.HasValue ? await _reservationRepository.GetByIDAsync(reservationId.Value) : null;
 			var order = new OrderViewModel
 			{
@@ -105,7 +103,7 @@ namespace WebApp.Controllers
 			Order orderEntity;
 			if (!ModelState.IsValid)
 			{
-				orderViewModel.Table = (await GetAvailableTables()).Find(t => t.TableId == orderViewModel.TableId);
+				orderViewModel.Table = orderViewModel.TableId.HasValue ? await _tableRepository.GetByIDAsync(orderViewModel.TableId.Value) : null;
 				orderViewModel.Reservation = orderViewModel.ResId.HasValue ? await _reservationRepository.GetByIDAsync(orderViewModel.ResId.Value) : null;
 				return PartialView("_CreateOrderModal", orderViewModel);
 			}
@@ -145,7 +143,7 @@ namespace WebApp.Controllers
 			catch (Exception e)
 			{
 				TempData["Error"] = "An error occurred while creating the order. Please try again later.";
-				orderViewModel.Table = (await GetAvailableTables()).Find(t => t.TableId == orderViewModel.TableId);
+				orderViewModel.Table = orderViewModel.TableId.HasValue ? await _tableRepository.GetByIDAsync(orderViewModel.TableId.Value) : null;	
 				orderViewModel.Reservation = orderViewModel.ResId.HasValue ? await _reservationRepository.GetByIDAsync(orderViewModel.ResId.Value) : null;
 				return PartialView("_CreateOrderModal", orderViewModel);
 			}
@@ -166,8 +164,74 @@ namespace WebApp.Controllers
 			return View("DetailsOrderView", orderViewModel);
 		}
 
-		[Route("Details/{orderId}/OrderItemMenu")]
-		public async Task<IActionResult> OrderItemMenu(OrderMenuViewModel orderMenuViewModel, long orderId)
+		[HttpGet("Details/{orderId}/AssignTable")]
+		public async Task<IActionResult> AssignTable(long orderId)
+		{
+			var order = await _orderRepository.GetByIDAsync(orderId);
+			if (order == null)
+			{
+				return NotFound();
+			}
+
+			var orderViewModel = new OrderViewModel(order)
+			{
+				TableOptions = await GetAvailableTables(order.TableId)
+			};
+
+			return PartialView("_AssignTableModal", orderViewModel);
+		}
+
+		[HttpPost("Details/{orderId}/AssignTable")]
+		public async Task<IActionResult> AssignTable(OrderViewModel orderViewModel, long orderId)
+		{
+			if (!ModelState.IsValid)
+			{
+				orderViewModel.TableOptions = await GetAvailableTables(orderViewModel.TableId);
+				return PartialView("_AssignTableModal", orderViewModel);
+			}
+
+			try
+			{
+				var order = await _orderRepository.GetByIDAsync(orderId);
+				order.TableId = orderViewModel.TableId;
+				await _orderRepository.UpdateAsync(order);
+
+				if (orderViewModel.TableId.HasValue)
+				{
+					var table = await _tableRepository.GetByIDAsync(orderViewModel.TableId.Value);
+					if (table != null)
+					{
+						if (order.Status == OrderStatus.Reservation)
+						{
+							table.Status = TableStatus.Reserved;
+							table.ResTime = order.Reservation?.ResTime;
+							table.Notes = order.Reservation?.Notes;
+						}
+						else
+						{
+							table.Status = TableStatus.Occupied;
+						}
+
+						await _tableRepository.UpdateAsync(table);
+					}
+				}
+			}
+			catch (InvalidOperationException)
+			{
+				return NotFound();
+			}
+			catch (Exception e)
+			{
+				TempData["Error"] = "An error occurred while assigning the table. Please try again later.";
+				orderViewModel.TableOptions = await GetAvailableTables(orderViewModel.TableId);
+				return PartialView("_AssignTableModal", orderViewModel);
+			}
+
+			return Json(new { success = true });
+		}
+
+		[Route("OrderMenu")]
+		public async Task<IActionResult> OrderMenu(OrderMenuViewModel orderMenuViewModel, long orderId)
 		{
 			orderMenuViewModel.OrderId = orderId;
 			orderMenuViewModel.Dishes ??= await GetDishList();
@@ -176,7 +240,7 @@ namespace WebApp.Controllers
 
 			if (string.IsNullOrWhiteSpace(orderMenuViewModel.Keyword) && orderMenuViewModel.SelectedCategories.Count == 0)
 			{
-				return PartialView("_OrderItemMenu", orderMenuViewModel);
+				return PartialView("_OrderMenu", orderMenuViewModel);
 			}
 
 			if (!string.IsNullOrWhiteSpace(orderMenuViewModel.Keyword))
@@ -186,14 +250,17 @@ namespace WebApp.Controllers
 
 			if (orderMenuViewModel.SelectedCategories.Count != 0)
 			{
-				orderMenuViewModel.SelectedCategories.ForEach(selected => orderMenuViewModel.Categories.Find(c => c.CategoryId.Equals(selected)).IsSelected = true);
+				orderMenuViewModel.Categories
+								  .Where(c => c.CategoryId.HasValue && orderMenuViewModel.SelectedCategories.Contains(c.CategoryId.Value))
+								  .ToList()
+								  .ForEach(c => c.IsSelected = true);
 				orderMenuViewModel.Dishes = orderMenuViewModel.Dishes.Where(d => orderMenuViewModel.SelectedCategories.Contains(d.CategoryId)).ToList();
 			}
 
-			return PartialView("_OrderItemMenu", orderMenuViewModel);
+			return PartialView("_OrderMenu", orderMenuViewModel);
 		}
 
-		[Route("Details/{orderId}/OrderItemMenu/AddOrderItem/{dishId}")]
+		[HttpGet("Details/{orderId}/AddOrderItem/{dishId}")]
 		public async Task<IActionResult> AddOrderItem(int orderId, int dishId)
 		{
 			var orderItem = new OrderItemViewModel
@@ -206,8 +273,7 @@ namespace WebApp.Controllers
 			return PartialView("_AddOrderItemModal", orderItem);
 		}
 
-		[Route("Details/{orderId}/OrderItemMenu/AddOrderItem/{dishId}")]
-		[HttpPost]
+		[HttpPost("Details/{orderId}/AddOrderItem/{dishId}")]
 		public async Task<IActionResult> AddOrderItem(OrderItemViewModel orderItem, int dishId)
 		{
 			if (!ModelState.IsValid)
@@ -236,11 +302,11 @@ namespace WebApp.Controllers
 			await _orderItemRepository.InsertAsync(item);
 			await _orderRepository.UpdateAsync(order);
 
-			return RedirectToAction("Details", new { orderItem.OrderId });
+			return Json(new { success = true });
 		}
 
-		[Route("Edit/{orderId}")]
-		public async Task<IActionResult> Edit(long orderId)
+		[HttpGet("Details/{orderId}/EditOrderItem")]
+		public async Task<IActionResult> EditOrderItem(long orderId)
 		{
 			var order = await _orderRepository.GetByIDAsync(orderId);
 			if (order == null)
@@ -250,35 +316,33 @@ namespace WebApp.Controllers
 
 			var orderViewModel = new OrderViewModel(order)
 			{
-				TableOptions = await GetAvailableTables()
+				Table = order.TableId.HasValue ? await _tableRepository.GetByIDAsync(order.TableId.Value) : null,
+				Reservation = order.ResId.HasValue ? await _reservationRepository.GetByIDAsync(order.ResId.Value) : null
 			};
 
 			foreach (var item in orderViewModel.OrderItems)
 			{
 				item.StatusOptions = GetOrderItemStatusList();
 			}
-			return PartialView("_EditOrderModal", orderViewModel);
+			return PartialView("_EditOrderItemModal", orderViewModel);
 		}
 
-		[HttpPost("Edit/{orderId}")]
-		public async Task<IActionResult> Edit(OrderViewModel orderViewModel, long orderId)
+		[HttpPost("Details/{orderId}/EditOrderItem")]
+		public async Task<IActionResult> EditOrderItem(OrderViewModel orderViewModel, long orderId)
 		{
 			if (!ModelState.IsValid)
 			{
-				orderViewModel.TableOptions = await GetAvailableTables();
+				orderViewModel.Table = orderViewModel.TableId.HasValue ? await _tableRepository.GetByIDAsync(orderViewModel.TableId.Value) : null;
 				foreach (var item in orderViewModel.OrderItems)
 				{
 					item.StatusOptions = GetOrderItemStatusList();
 				}
-				return PartialView("_EditOrderModal", orderViewModel);
+				return PartialView("_EditOrderItemModal", orderViewModel);
 			}
 
 			try
 			{
 				var order = await _orderRepository.GetByIDAsync(orderId);
-				order.TableId = orderViewModel.TableId;
-				order.ResId = orderViewModel.ResId;
-				order.Status = orderViewModel.Status;
 
 				foreach (var viewModelItem in orderViewModel.OrderItems)
 				{
@@ -297,17 +361,17 @@ namespace WebApp.Controllers
 			catch (Exception e)
 			{
 				TempData["Error"] = "An error occurred while updating the order. Please try again later.";
-				orderViewModel.TableOptions = await GetAvailableTables();
+				orderViewModel.Table = orderViewModel.TableId.HasValue ? await _tableRepository.GetByIDAsync(orderViewModel.TableId.Value) : null;
 				foreach (var item in orderViewModel.OrderItems)
 				{
 					item.StatusOptions = GetOrderItemStatusList();
 				}
-				return PartialView("_EditOrderModal", orderViewModel);
+				return PartialView("_EditOrderItemModal", orderViewModel);
 			}
 			return Json(new { success = true });
 		}
 
-		[Route("Delete/{orderId}")]
+		[HttpGet("Delete/{orderId}")]
 		public async Task<IActionResult> Delete(long orderId)
 		{
 			var order = await _orderRepository.GetByIDAsync(orderId);
@@ -317,7 +381,7 @@ namespace WebApp.Controllers
 			}
 			var orderViewModel = new OrderViewModel(order)
 			{
-				TableOptions = await GetAvailableTables()
+				Table = order.TableId.HasValue ? await _tableRepository.GetByIDAsync(order.TableId.Value) : null
 			};
 			foreach (var item in orderViewModel.OrderItems)
 			{
@@ -326,8 +390,7 @@ namespace WebApp.Controllers
 			return PartialView("_DeleteOrderModal", orderViewModel);
 		}
 
-		[HttpPost]
-		[Route("Delete/{orderId}")]
+		[HttpPost("Delete/{orderId}")]
 		public async Task<IActionResult> DeleteConfirmed(long orderId)
 		{
 			try
@@ -353,8 +416,7 @@ namespace WebApp.Controllers
 			return Json(new { success = true });
 		}
 
-		[HttpPost]
-		[Route("Details/{orderId}/DeleteOrderItem/{orderItemId}")]
+		[HttpPost("Details/{orderId}/DeleteOrderItem/{orderItemId}")]
 		public async Task<IActionResult> DeleteOrderItemConfirmed(long orderId, long orderItemId)
 		{
 			try

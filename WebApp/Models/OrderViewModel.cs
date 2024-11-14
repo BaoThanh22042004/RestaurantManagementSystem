@@ -25,7 +25,7 @@ namespace WebApp.Models
 
         public List<OrderItemViewModel> OrderItems { get; set; } = new List<OrderItemViewModel>();
 
-        public List<Table>? TableOptions { get; set; }
+        public SelectList? TableOptions { get; set; }
 
         public Reservation? Reservation { get; set; }
 
