@@ -6,14 +6,6 @@
 }
 
 @{
-    // static DateOnly getSunday()
-    // {
-    //     DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
-    //     int dayOfWeek = (int)currentDate.DayOfWeek;
-    //     currentDate = currentDate.AddDays(-dayOfWeek);
-    //     return currentDate.AddDays(0);
-    // }
-
     static List<DateOnly> listDate(string week)
     {
         List<DateOnly> list = new List<DateOnly>();
@@ -33,9 +25,6 @@
         return list;
     }
 
-    DateOnly curDate = DateOnly.FromDateTime(DateTime.Now);
-    List<DateOnly> dateList = listDate(Context.Request.Query["week"].ToString() == "" ? GetCurrentWeek() : Context.Request.Query["week"]);
-
     static string GetCurrentWeek()
     {
         DateTime today = DateTime.Now;
@@ -52,7 +41,7 @@
         int year = today.Year;
 
         return $"{year}-W{weekNumber:D2}";
-    }         
+    }
 
     static DateTime GetStartOfWeek(int year, int weekNumber)
     {
@@ -61,15 +50,19 @@
         int daysToMonday = (int)jan4.DayOfWeek - (int)DayOfWeek.Monday;
         if (daysToMonday < 0)
         {
-            daysToMonday += 7;        
+            daysToMonday += 7;
         }
-        
+
         DateTime startOfWeek1 = jan4.AddDays(-daysToMonday);
 
         DateTime resultDate = startOfWeek1.AddDays((weekNumber - 1) * 7);
 
         return resultDate;
     }
+
+    DateOnly curDate = DateOnly.FromDateTime(DateTime.Now);
+    List<DateOnly> dateList = listDate(Context.Request.Query["week"].ToString() == "" ? GetCurrentWeek() : Context.Request.Query["week"]);
+
 }
 
 <h1 class="mb-4">Schedule</h1>
@@ -79,7 +72,7 @@
 </div>
 
 <form method="get" id="weekForm">
-    <input id="week" type="week" name="week" value="@(Context.Request.Query["week"].ToString() == "" ? GetCurrentWeek() : Context.Request.Query["week"])"/>
+    <input id="week" type="week" class="mb-3" name="week" value="@(Context.Request.Query["week"].ToString() == "" ? GetCurrentWeek() : Context.Request.Query["week"])" />
 </form>
 
 @if (!Model.Any())
@@ -91,37 +84,34 @@
 }
 else
 {
-    @foreach (var roleList in Model.Where(s => s.ScheDate >= dateList[0] && s.ScheDate <= dateList[6]).GroupBy(s => s.Role))
+    @foreach (var nameList in Model.Where(s => s.ScheDate >= dateList[0] && s.ScheDate <= dateList[6]).GroupBy(s => s.EmployeeName))
     {
-        if (roleList.First().Role == Models.Entities.Role.Manager)
+        var scheInDate = nameList.Where(sche => sche.ScheDate == DateOnly.FromDateTime(DateTime.Now)).OrderBy(t => t.StartTime);
+        if (scheInDate.Any())
         {
-            foreach (var name in roleList.GroupBy(s => s.EmployeeName))
+            @foreach (var sche in scheInDate)
             {
-                var scheInDate = name.Where(sche => sche.ScheDate == DateOnly.FromDateTime(DateTime.Now)).OrderBy(t => t.StartTime);
-                if (scheInDate.Any())
+                @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
                 {
-                    @foreach (var sche in scheInDate)
-                    {
-                        <div>
-                            @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
-                            {
-                                <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)">Clock In</button>
-                            }
-                            else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
-                            {
-                                <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)">Clock Out</button>
-                            }
-                        </div>
-                    }
+                    <div class="mb-3">
+                        <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)">Clock In</button>
+                    </div>
+                    break;
+                }
+                else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
+                {
+                    <div class="mb-3">
+                        <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)">Clock Out</button>
+                    </div>
+                    break;
                 }
             }
         }
     }
-    <br />
     <table class="table table-bordered border border-3 border-primary">
         <thead>
             <tr class="fs-5">
-                <th class="Name fs-6" colspan="2" rowspan="2">Staff's Name</th>               
+                <th class="Name fs-6" colspan="2" rowspan="2">Staff's Name</th>
                 <th>Mon</th>
                 <th>Tues</th>
                 <th>Wed</th>
@@ -139,7 +129,7 @@ else
         </thead>
         <tbody>
             <tr class="border border-3 border-primary non-selectable">
-                <td class="rowName" colspan="9" style="font-weight: bold">Managers</td>
+                <td class="rowName fw-bold" colspan="9">Managers</td>
             </tr>
             @foreach (var roleList in Model.Where(s => s.ScheDate >= dateList[0] && s.ScheDate <= dateList[6]).GroupBy(s => s.Role))
             {
@@ -148,7 +138,7 @@ else
                     foreach (var name in roleList.GroupBy(s => s.EmployeeName))
                     {
                         <tr>
-                            <td class="Name" style="font-weight: bold" colspan="2">
+                            <td class="Name fw-bold" colspan="2">
                                 @roleList.First().EmployeeName
                             </td>
                             @for (var i = 0; i < 7; i++)
@@ -159,7 +149,7 @@ else
                                     <td>
                                         @foreach (var sche in scheInDate)
                                         {
-                                            <div>
+                                            <div onclick="details(@sche.ScheId)">
                                                 <div class="shiftName">
                                                     @sche.ShiftName <br />
                                                 </div>
@@ -181,6 +171,7 @@ else
                                                     }
                                                 </div>
                                             </div>
+                                            <button onclick="edit(@sche.ScheId)">Edit</button>
                                         }
                                     </td>
                                 }
@@ -209,17 +200,15 @@ else
                                     (@roleList.First().Role)
                                 </div>
                             </td>
-
                             @for (var i = 0; i < 7; i++)
                             {
-
                                 var scheInDate = name.Where(sche => sche.ScheDate == dateList[i]).OrderBy(t => t.StartTime);
                                 if (scheInDate.Any())
                                 {
                                     <td>
                                         @foreach (var sche in scheInDate)
                                         {
-                                            <div>
+                                            <div onclick="details(@sche.ScheId)" >
                                                 <div class="shiftName">
                                                     @sche.ShiftName <br />
                                                 </div>
@@ -268,13 +257,8 @@ else
         border-collapse: collapse;
         width: 100%;
         text-align: center;
-    }
-
-        .table tr:hover {
-            background-color: transparent !important;
-        }
-
-        .table td:hover {
+    }       
+        .table div:hover {
             cursor: pointer;
             background-color: lightgrey;
         }
@@ -310,12 +294,34 @@ else
         text-align: right;
         font-weight: bold;
     }
+
+    input[type="week"] {
+        width: 15%;
+        padding: 0.6%;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+        input[type="week"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+            outline: none;
+        }
 </style>
 
+<!-- Modal -->
+<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content" id="modalContent">
+        </div>
+    </div>
+</div>
+
 <script>
-    
+
     const textElements = document.querySelectorAll(".attendanceStatus");
-    
+
     textElements.forEach((textElement) => {
         const text = textElement.innerText;
 
@@ -330,14 +336,6 @@ else
         }
     });
 </script>
-
-<!-- Modal -->
-<div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content" id="modalContent">
-        </div>
-    </div>
-</div>
 
 @section Scripts {
     <script>
@@ -391,6 +389,8 @@ else
         });
     </script>
 }
+
+
 
 
 

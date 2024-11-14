@@ -1,21 +1,55 @@
 ﻿@model ScheduleViewModel
 
-<partial name="Partials/_ModalHeader" model='"Details Shift"' />
+<partial name="Partials/_ModalHeader" model='"Details Schedule"' />
 
 <div class="modal-body" id="modalBody">
-	<dl>
-		<dt>@Html.DisplayNameFor(m => m.ScheId)</dt>
-		<dd>@Model.ScheId</dd>
+	<dl class="row">
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ScheId)</dt>
+		<dd class="col-sm-8">@Model.ScheId</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.ScheDate)</dt>
-		<dd>@Model.ScheDate</dd>
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.ScheDate)</dt>
+		<dd class="col-sm-8">@Model.ScheDate</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.EmployeeName)</dt>
-		<dd>@Model.EmployeeName</dd>
+		<dt class="col-sm-4">Employee Name</dt>
+		<dd class="col-sm-8">@Model.EmployeeName</dd>
 
-		<dt>@Html.DisplayNameFor(m => m.ShiftName)</dt>
-		<dd>@Model.ShiftName</dd>
+		<dt class="col-sm-4">Shift Name</dt>
+		<dd class="col-sm-8">@Model.ShiftName (@Model.StartTime - @Model.EndTime)</dd>
+
+		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Attendance.Status)</dt>
+        <dd class="col-sm-8 fw-bold text-@StatusClass(Model.Attendance.Status)">@(Model.Attendance == null ? "NotYet" : Model.Attendance.Status)</dd>
 	</dl>
 </div>
 
+<script>
+
+    const textElement = document.getElementById("attendanceStatus");
+
+    if (textElement) {
+        const text = textElement.innerText;
+
+        if (text === "ClockIn") {
+            textElement.style.color = "blue";
+        } else if (text === "ClockOut") {
+            textElement.style.color = "green";
+        } else if (text === "Absent") {
+            textElement.style.color = "red";
+        } else {
+            textElement.style.color = "black";
+        }
+    }
+
+</script>
+
+@functions {
+	string StatusClass(Models.Entities.AttendanceStatus status) => status switch
+	{
+		Models.Entities.AttendanceStatus.ClockIn => "info",
+		Models.Entities.AttendanceStatus.ClockOut => "success",
+		Models.Entities.AttendanceStatus.Absent => "danger",
+		_ => "dark"
+	};
+}
+
 <partial name="Partials/_ModalFooter" model='""' />
+
