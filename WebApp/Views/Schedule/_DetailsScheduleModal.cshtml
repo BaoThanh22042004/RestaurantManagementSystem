@@ -17,34 +17,14 @@
 		<dd class="col-sm-8">@Model.ShiftName (@Model.StartTime - @Model.EndTime)</dd>
 
 		<dt class="col-sm-4">@Html.DisplayNameFor(m => m.Attendance.Status)</dt>
-        <dd class="col-sm-8 fw-bold text-@StatusClass(Model.Attendance.Status)">@(Model.Attendance == null ? "NotYet" : Model.Attendance.Status)</dd>
+        <dd class="col-sm-8 fw-bold text-@StatusClass(Model.Attendance?.Status)">@(Model.Attendance == null ? "NotYet" : Model.Attendance.Status)</dd>
 	</dl>
 </div>
 
-<script>
-
-    const textElement = document.getElementById("attendanceStatus");
-
-    if (textElement) {
-        const text = textElement.innerText;
-
-        if (text === "ClockIn") {
-            textElement.style.color = "blue";
-        } else if (text === "ClockOut") {
-            textElement.style.color = "green";
-        } else if (text === "Absent") {
-            textElement.style.color = "red";
-        } else {
-            textElement.style.color = "black";
-        }
-    }
-
-</script>
-
 @functions {
-	string StatusClass(Models.Entities.AttendanceStatus status) => status switch
+	string StatusClass(Models.Entities.AttendanceStatus? status) => status switch
 	{
-		Models.Entities.AttendanceStatus.ClockIn => "info",
+		Models.Entities.AttendanceStatus.ClockIn => "primary",
 		Models.Entities.AttendanceStatus.ClockOut => "success",
 		Models.Entities.AttendanceStatus.Absent => "danger",
 		_ => "dark"

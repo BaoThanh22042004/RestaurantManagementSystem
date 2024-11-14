@@ -27,10 +27,10 @@ namespace WebApp.Controllers
             _userRepository = userRepository;
         }
 
-        private async Task<IEnumerable<SelectListItem>> GetShiftList() 
+        private async Task<IEnumerable<SelectListItem>> GetShiftList()
         {
             var shift = (await _shiftRepository.GetAllAsync()).Select(s => new SelectListItem
-			{
+            {
                 Value = s.ShiftId.ToString(),
                 Text = s.ShiftName
             });
@@ -42,7 +42,7 @@ namespace WebApp.Controllers
             var user = (await _userRepository.GetAllAsync()).Where(u => u.Role != Role.Customer && u.IsActive.Equals(true)).Select(u => new SelectListItem
             {
                 Value = u.UserId.ToString(),
-                Text =  u.FullName,             
+                Text = u.FullName,
             }).ToList();
             return user;
         }
@@ -59,20 +59,20 @@ namespace WebApp.Controllers
 
         public async Task<IActionResult> Index(string week)
         {
-			var allShifts = await GetShiftList();
+            var allShifts = await GetShiftList();
 
-			var allUsers = await GetUserList();
+            var allUsers = await GetUserList();
 
             var allUserRoleByIds = await GetUserRole();
 
-			var schedules = await _scheduleRepository.GetAllAsync();
+            var schedules = await _scheduleRepository.GetAllAsync();
             var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule)
             {
                 ShiftOptions = allShifts,
                 EmployeeOptions = allUsers,
                 EmployeeRoleOptions = allUserRoleByIds
             });
-  
+
             return View("ScheduleView", scheduleList);
         }
 
@@ -82,43 +82,45 @@ namespace WebApp.Controllers
             var schedule = new ScheduleViewModel()
             {
                 ShiftOptions = await GetShiftList(),
-                EmployeeOptions = await GetUserList()
+                EmployeeOptions = await GetUserList(),
+                ScheDate = DateOnly.FromDateTime(DateTime.Now)
             };
             return PartialView("_CreateScheduleModal", schedule);
         }
 
-		[HttpPost("Create")]
-		public async Task<IActionResult> Create(ScheduleViewModel scheduleViewModel)
-		{
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create(ScheduleViewModel scheduleViewModel)
+        {
             Boolean today = false;
-            async Task<IActionResult> InvalidView(string? error = null) 
+            async Task<IActionResult> InvalidView(string? error = null)
             {
-                if (error != null) 
+                if (error != null)
                 {
                     TempData["Error"] = error;
                 }
                 scheduleViewModel.ShiftOptions = await GetShiftList();
                 scheduleViewModel.EmployeeOptions = await GetUserList();
                 return PartialView("_CreateScheduleModal", scheduleViewModel);
-            } 
+            }
 
             if (!ModelState.IsValid)
             {
                 return await InvalidView();
             }
-            
-			try
-			{
+
+            try
+            {
                 if (scheduleViewModel.ScheDate < DateOnly.FromDateTime(DateTime.Now))
                 {
                     return await InvalidView("Cannot create a schedule with the date in the past!");
-                } else if (scheduleViewModel.ScheDate == DateOnly.FromDateTime(DateTime.Now)) 
+                }
+                else if (scheduleViewModel.ScheDate == DateOnly.FromDateTime(DateTime.Now))
                 {
                     today = true;
                 }
 
                 var shift = await _shiftRepository.GetByIDAsync(scheduleViewModel.ShiftId);
-                if (shift == null) 
+                if (shift == null)
                 {
                     return await InvalidView("Shift does not exist!");
                 }
@@ -130,41 +132,41 @@ namespace WebApp.Controllers
 
                 var schedules = await _scheduleRepository.GetAllAsync();
                 var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule));
-                foreach (var schelist in scheduleList.Where(d => d.ScheDate == scheduleViewModel.ScheDate && d.EmpId == scheduleViewModel.EmpId)) 
+                foreach (var schelist in scheduleList.Where(d => d.ScheDate == scheduleViewModel.ScheDate && d.EmpId == scheduleViewModel.EmpId))
                 {
-                    if (schelist.ShiftId == scheduleViewModel.ShiftId) 
+                    if (schelist.ShiftId == scheduleViewModel.ShiftId)
                     {
                         return await InvalidView("Shift already exists for this day!");
                     }
                 }
 
-				var schedule = new Schedule
-				{
-					ScheDate = scheduleViewModel.ScheDate,
-					EmpId = scheduleViewModel.EmpId,
-					ShiftId = scheduleViewModel.ShiftId,
-				};
-            
+                var schedule = new Schedule
+                {
+                    ScheDate = scheduleViewModel.ScheDate,
+                    EmpId = scheduleViewModel.EmpId,
+                    ShiftId = scheduleViewModel.ShiftId,
+                };
+
                 await _scheduleRepository.InsertAsync(schedule);
-			}
-			catch (Exception)
-			{
+            }
+            catch (Exception)
+            {
                 return await InvalidView("An error occurred while creating schedule. Please try again later.");
-			}
+            }
 
-			return Json(new { success = true });
-		}
+            return Json(new { success = true });
+        }
 
-		[HttpGet("Details/{id}")]
-		public async Task<IActionResult> Details(int id)
-		{
-			var schedule = await _scheduleRepository.GetByIDAsync(id);
-			if (schedule == null)
-			{
-				return NotFound();
-			}
+        [HttpGet("Details/{id}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var schedule = await _scheduleRepository.GetByIDAsync(id);
+            if (schedule == null)
+            {
+                return NotFound();
+            }
 
-            var scheduleViewModel = new ScheduleViewModel(schedule) 
+            var scheduleViewModel = new ScheduleViewModel(schedule)
             {
                 ShiftOptions = await GetShiftList(),
                 EmployeeOptions = await GetUserList()
@@ -172,14 +174,14 @@ namespace WebApp.Controllers
             return PartialView("_DetailsScheduleModal", scheduleViewModel);
         }
 
-		[Route("Edit/{id}")]
-		public async Task<IActionResult> Edit(int id)
-		{
-			var schedule = await _scheduleRepository.GetByIDAsync(id);
-			if (schedule == null)
-			{
-				return NotFound();
-			}
+        [Route("Edit/{id}")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var schedule = await _scheduleRepository.GetByIDAsync(id);
+            if (schedule == null)
+            {
+                return NotFound();
+            }
 
             var scheduleViewModel = new ScheduleViewModel(schedule);
             scheduleViewModel.ShiftOptions = await GetShiftList();
@@ -194,7 +196,7 @@ namespace WebApp.Controllers
             async Task<IActionResult> InvalidView(string? error = null)
             {
                 if (error != null)
-                {   
+                {
                     TempData["Error"] = error;
                 }
                 schedule.ShiftOptions = await GetShiftList();
@@ -207,13 +209,13 @@ namespace WebApp.Controllers
                 return await InvalidView();
             }
 
-			try
-			{
-				var scheduleEntity = await _scheduleRepository.GetByIDAsync(ScheId);
-				if (scheduleEntity == null)
-				{
-					return NotFound();
-				}
+            try
+            {
+                var scheduleEntity = await _scheduleRepository.GetByIDAsync(ScheId);
+                if (scheduleEntity == null)
+                {
+                    return NotFound();
+                }
 
                 if (schedule.ScheDate < DateOnly.FromDateTime(DateTime.Now))
                 {
@@ -225,7 +227,8 @@ namespace WebApp.Controllers
 
                 foreach (var schelist in scheduleList)
                 {
-                    if (scheduleEntity.ShiftId == schedule.ShiftId && schedule.ScheDate == scheduleEntity.ScheDate) {
+                    if (scheduleEntity.ShiftId == schedule.ShiftId && schedule.ScheDate == scheduleEntity.ScheDate)
+                    {
                         return Json(new { success = true });
                     }
                     if (schelist.ShiftId == schedule.ShiftId)
@@ -235,58 +238,68 @@ namespace WebApp.Controllers
                 }
 
                 scheduleEntity.ScheDate = schedule.ScheDate;
-				scheduleEntity.EmpId = schedule.EmpId;
-				scheduleEntity.ShiftId = schedule.ShiftId;
+                scheduleEntity.EmpId = schedule.EmpId;
+                scheduleEntity.ShiftId = schedule.ShiftId;
 
-				await _scheduleRepository.UpdateAsync(scheduleEntity);
-			}
-			catch (InvalidOperationException)
-			{
-				return NotFound();
-			}
-			catch (Exception)
-			{
+                await _scheduleRepository.UpdateAsync(scheduleEntity);
+            }
+            catch (InvalidOperationException)
+            {
+                return NotFound();
+            }
+            catch (Exception)
+            {
                 schedule.ShiftOptions = await GetShiftList();
                 schedule.EmployeeOptions = await GetUserList();
                 TempData["Error"] = "An error occurred while updating schedule. Please try again later.";
-				return PartialView("_EditScheduleModal", schedule);
-			}
+                return PartialView("_EditScheduleModal", schedule);
+            }
 
-			return Json(new { success = true });
+            return Json(new { success = true });
         }
 
-		[Route("Delete/{id}")]
-		public async Task<IActionResult> Delete(int id)
-		{
-			var schedule = await _scheduleRepository.GetByIDAsync(id);
-			if (schedule == null)
-			{
-				return NotFound();
-			}
-
-            var scheduleViewModel = new ScheduleViewModel(schedule)
+        [Route("Delete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var schedule = await _scheduleRepository.GetByIDAsync(id);
+            if (schedule == null)
             {
-                ShiftOptions = await GetShiftList(),
-                EmployeeOptions = await GetUserList()
-            };
+                return NotFound();
+            }
+
+            var scheduleViewModel = new ScheduleViewModel(schedule);
             return PartialView("_DeleteScheduleModal", scheduleViewModel);
         }
 
-		[HttpPost]
-		[Route("Delete/{ScheId}")]
-		public async Task<IActionResult> DeleteConfirmed(int ScheId)
-		{
-			try
-			{
-				await _scheduleRepository.DeleteAsync(ScheId);
-			}
-			catch (Exception)
-			{
-				TempData["Error"] = "An error occurred while deleting schedule. Please try again later.";
-				return RedirectToAction("Delete", new { id = ScheId });
-			}
+        [HttpPost]
+        [Route("Delete/{ScheId}")]
+        public async Task<IActionResult> DeleteConfirmed(int ScheId)
+        {
+            try
+            {
+                var scheduleEntity = await _scheduleRepository.GetByIDAsync(ScheId);
+                if (scheduleEntity == null)
+                {
+                    return NotFound();
+                }
 
-			return Json(new { success = true });
+                if (scheduleEntity.Attendance?.Status == null)
+                {
+                    await _scheduleRepository.DeleteAsync(ScheId);
+                }
+                else
+                {
+                    TempData["Error"] = "Cannot delete the Schedule which has been ClockIn!";
+                    return RedirectToAction("Delete", new { id = ScheId });
+                }
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "An error occurred while deleting schedule. Please try again later.";
+                return RedirectToAction("Delete", new { id = ScheId });
+            }
+
+            return Json(new { success = true });
         }
-	}
+    }
 }

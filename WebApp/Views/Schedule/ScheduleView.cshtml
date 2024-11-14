@@ -149,16 +149,18 @@ else
                                     <td>
                                         @foreach (var sche in scheInDate)
                                         {
-                                            <div onclick="details(@sche.ScheId)">
-                                                <div class="shiftName">
-                                                    @sche.ShiftName <br />
-                                                </div>
-                                                <div class="shiftTime">
-                                                    @sche.StartTime
-                                                    @sche.EndTime
-                                                </div>
-                                                <div class="attendanceStatus">
-                                                    @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
+                                            <div>
+                                                <div onclick="details(@sche.ScheId)">
+                                                    <div class="shiftName">
+                                                        @sche.ShiftName <br />
+                                                    </div>
+                                                    <div class="shiftTime">
+                                                        @sche.StartTime
+                                                        @sche.EndTime
+                                                    </div>
+                                                    <div class="attendanceStatus text-@StatusClass(sche.Attendance?.Status)">
+                                                        @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
+                                                    </div>
                                                 </div>
                                                 <div>
                                                     @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
@@ -172,6 +174,7 @@ else
                                                 </div>
                                             </div>
                                             <button onclick="edit(@sche.ScheId)">Edit</button>
+                                            <button onclick="deleteAction(@sche.ScheId)">Delete</button>
                                         }
                                     </td>
                                 }
@@ -208,16 +211,18 @@ else
                                     <td>
                                         @foreach (var sche in scheInDate)
                                         {
-                                            <div onclick="details(@sche.ScheId)" >
-                                                <div class="shiftName">
-                                                    @sche.ShiftName <br />
-                                                </div>
-                                                <div class="shiftTime">
-                                                    @sche.StartTime
-                                                    @sche.EndTime
-                                                </div>
-                                                <div class="attendanceStatus">
-                                                    @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
+                                            <div>
+                                                <div onclick="details(@sche.ScheId)">
+                                                    <div class="shiftName">
+                                                        @sche.ShiftName <br />
+                                                    </div>
+                                                    <div class="shiftTime">
+                                                        @sche.StartTime
+                                                        @sche.EndTime
+                                                    </div>
+                                                    <div class="attendanceStatus text-@StatusClass(sche.Attendance?.Status)">
+                                                        @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
+                                                    </div>
                                                 </div>
                                                 <div>
                                                     @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
@@ -230,6 +235,8 @@ else
                                                     }
                                                 </div>
                                             </div>
+                                            <button onclick="edit(@sche.ScheId)">Edit</button>
+                                            <button onclick="deleteAction(@sche.ScheId)">Delete</button>
                                         }
                                     </td>
                                 }
@@ -257,7 +264,8 @@ else
         border-collapse: collapse;
         width: 100%;
         text-align: center;
-    }       
+    }
+
         .table div:hover {
             cursor: pointer;
             background-color: lightgrey;
@@ -318,24 +326,15 @@ else
     </div>
 </div>
 
-<script>
-
-    const textElements = document.querySelectorAll(".attendanceStatus");
-
-    textElements.forEach((textElement) => {
-        const text = textElement.innerText;
-
-        if (text === "ClockIn") {
-            textElement.style.color = "blue";
-        } else if (text === "ClockOut") {
-            textElement.style.color = "green";
-        } else if (text === "Absent") {
-            textElement.style.color = "red";
-        } else {
-            textElement.style.color = "black";
-        }
-    });
-</script>
+@functions {
+    string StatusClass(Models.Entities.AttendanceStatus? status) => status switch
+    {
+        Models.Entities.AttendanceStatus.ClockIn => "primary",
+        Models.Entities.AttendanceStatus.ClockOut => "success",
+        Models.Entities.AttendanceStatus.Absent => "danger",
+        _ => "dark"
+    };
+}
 
 @section Scripts {
     <script>
