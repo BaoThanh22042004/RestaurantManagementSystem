@@ -3,114 +3,110 @@
 
 <form method="post" asp-action="Edit" id="form">
 
-    <partial name="Partials/_ModalHeader" model='"Edit Order"' />
-    <div class="modal-body" id="modalBody">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Order Information</h4>
-                <dl class="row">
-                    <dt class="col-sm-3">Order ID</dt>
-                    <dd class="col-sm-9">
-                        <input type="hidden" asp-for="OrderId" />
-                        <span>@Model.OrderId</span>
-                    </dd>
+	<partial name="Partials/_ModalHeader" model='"Edit Order Information"' />
+	<div class="modal-body" id="modalBody">
+		<dl class="row">
+			<dt class="col-sm-4">Order ID</dt>
+			<dd class="col-sm-8">
+				<input type="hidden" asp-for="OrderId" />
+				<span>@Model.OrderId</span>
+			</dd>
 
-                    <dt class="col-sm-3">Table ID</dt>
-                    <dd class="col-sm-9">
-                        @* <select asp-for="TableId" asp-items="Model.TableOptions" class="form-select" id="tableId">
-                        <span asp-validation-for="TableId" class="text-danger"></span> *@
-                    </dd>
+			<dt class="col-sm-4">Table Name</dt>
+			<dd class="col-sm-8">
+				<input type="hidden" asp-for="TableId" />
+				<span>@(Model.Table?.TableName ?? "N/A")</span>
+			</dd>
 
-                    <dt class="col-sm-3">Reservation ID</dt>
-                    <dd class="col-sm-9">
-                        <input type="hidden" asp-for="ResId" />
-                        <span>@Model.ResId</span>
-                    </dd>
+			<dt class="col-sm-4">Reservation ID</dt>
+			<dd class="col-sm-8">
+				<input type="hidden" asp-for="ResId" />
+				<span>@(Model.ResId?.ToString() ?? "N/A")</span>
+			</dd>
 
-                    <dt class="col-sm-3">Created At</dt>
-                    <dd class="col-sm-9">
-                        <span>@(Model.CreatedAt != DateTime.MinValue ? Model.CreatedAt.ToString("g") : "Not Set")</span>
-                    </dd>
+			<dt class="col-sm-4">Created At</dt>
+			<dd class="col-sm-8">
+				<span>@Model.CreatedAt.ToString("g")</span>
+			</dd>
 
-                    <dt class="col-sm-3">Order Status</dt>
-                    <dd class="col-sm-9">
-                        <select asp-for="Status" asp-items="Html.GetEnumSelectList<OrderStatus>()" class="form-select" id="orderStatus">
-                        </select>
-                        <span asp-validation-for="Status" class="text-danger"></span>
-                    </dd>
-                </dl>
-            </div>
-        </div>
+			<dt class="col-sm-4">Order Status</dt>
+			<dd class="col-sm-8">
+				<select asp-for="Status" asp-items="Html.GetEnumSelectList<OrderStatus>()" class="form-select" id="orderStatus">
+				</select>
+				<span asp-validation-for="Status" class="text-danger"></span>
+			</dd>
+		</dl>
 
-        <h4>Order Items</h4>
+		@* <h4>Order Items</h4>
 
-        @if (Model.OrderItems != null && Model.OrderItems.Any())
-        {
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Dish Name</th>
-                        <th>Quantity</th>
-                        <th>Create By</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                        <th>Notes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int i = 0; i < Model.OrderItems.Count; i++)
-                    {
-                        <input type="hidden" asp-for="OrderItems[i].OrItemId" />
-                        <input type="hidden" asp-for="OrderItems[i].DishId" />
-                        <tr>
-                            <td>
-                                <input type="hidden" asp-for="OrderItems[i].OrItemId" />
-                                <span>@Model.OrderItems[i].Dish.DishName</span>
-                            </td>
-                            <td>
-                                <input type="hidden" asp-for="OrderItems[i].Quantity" />
-                                <span>@Model.OrderItems[i].Quantity</span>
-                            </td>
-                            <td>
-                                <input type="hidden" asp-for="OrderItems[i].CreatedBy" />
-                                <span>@Model.OrderItems[i].CreatedBy</span>
-                            </td>
-                            <td>
-                                <input type="hidden" asp-for="OrderItems[i].Price" />
-                                <span>@Model.OrderItems[i].Price?.ToString("C")</span>
-                            </td>
-                            <td>
-                                <select asp-for="OrderItems[i].Status" asp-items="Model.OrderItems[i].StatusOptions" class="form-select" id="Status_@i">
-                                </select>
-                                <span asp-validation-for="OrderItems[i].Status" class="text-danger"></span>
-                            </td>
-                            <td>
-                                <input type="text" asp-for="OrderItems[i].Notes" class="form-control" id="Notes_@i" value="@(Model.OrderItems[i].Notes ?? "None")" />
-                                <span asp-validation-for="OrderItems[i].Notes" class="text-danger"></span>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
-        else
-        {
-            <p>No order items found for this order.</p>
-        }
-    </div>
-    @{
-        string Button = $"<button type='submit' class='btn btn-primary' onclick='editOrder({Model.OrderId})'>Save</button> <button type='button' class='btn btn-primary' onclick='detailsOrder({Model.OrderId})'>Back</button>";
-    }
+		@if (Model.OrderItems != null && Model.OrderItems.Any())
+		{
+		<table class="table table-bordered">
+		<thead>
+		<tr>
+		<th>Dish Name</th>
+		<th>Quantity</th>
+		<th>Create By</th>
+		<th>Price</th>
+		<th>Status</th>
+		<th>Notes</th>
+		</tr>
+		</thead>
+		<tbody>
+		@for (int i = 0; i < Model.OrderItems.Count; i++)
+		{
+		<input type="hidden" asp-for="OrderItems[i].OrItemId" />
+		<input type="hidden" asp-for="OrderItems[i].DishId" />
+		<tr>
+		<td>
+		<input type="hidden" asp-for="OrderItems[i].OrItemId" />
+		<span>@Model.OrderItems[i].Dish.DishName</span>
+		</td>
+		<td>
+		<input type="hidden" asp-for="OrderItems[i].Quantity" />
+		<span>@Model.OrderItems[i].Quantity</span>
+		</td>
+		<td>
+		<input type="hidden" asp-for="OrderItems[i].CreatedBy" />
+		<span>@Model.OrderItems[i].CreatedBy</span>
+		</td>
+		<td>
+		<input type="hidden" asp-for="OrderItems[i].Price" />
+		<span>@Model.OrderItems[i].Price?.ToString("C")</span>
+		</td>
+		<td>
+		<select asp-for="OrderItems[i].Status" asp-items="Model.OrderItems[i].StatusOptions" class="form-select" id="Status_@i">
+		</select>
+		<span asp-validation-for="OrderItems[i].Status" class="text-danger"></span>
+		</td>
+		<td>
+		<input type="text" asp-for="OrderItems[i].Notes" class="form-control" id="Notes_@i" value="@(Model.OrderItems[i].Notes ?? "None")" />
+		<span asp-validation-for="OrderItems[i].Notes" class="text-danger"></span>
+		</td>
+		</tr>
+		}
+		</tbody>
+		</table>
+		}
+		else
+		{
+		<p>No order items found for this order.</p>
+		} *@
+	</div>
 
-    <partial name="Partials/_ModalFooter" model='Button' />
+	@{
+		string Button = $"<button type='submit' class='btn btn-primary' onclick='editOrder({Model.OrderId})'>Save</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model='Button' />
 </form>
 
 <script>
-    function detailsOrder(id) {
-        var url = '@Url.Action("Details", "Order", new { orderId = "__id__" })'.replace("__id__", id);
-        $.get(url, function (response) {
-            $('#modalContent').html(response);
-            $('#Modal').modal('show');
-        });
-    }
+	function detailsOrder(id) {
+		var url = '@Url.Action("Details", "Order", new { orderId = "__id__" })'.replace("__id__", id);
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#Modal').modal('show');
+		});
+	}
 </script>
