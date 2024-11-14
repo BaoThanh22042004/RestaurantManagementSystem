@@ -35,3 +35,7 @@
 .clickable {
     cursor: pointer;
 }
+
+form {
+    display: contents;
+}
