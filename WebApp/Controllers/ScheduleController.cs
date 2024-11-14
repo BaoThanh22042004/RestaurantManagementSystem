@@ -90,6 +90,7 @@ namespace WebApp.Controllers
 		[HttpPost("Create")]
 		public async Task<IActionResult> Create(ScheduleViewModel scheduleViewModel)
 		{
+            Boolean today = false;
             async Task<IActionResult> InvalidView(string? error = null) 
             {
                 if (error != null) 
@@ -108,9 +109,12 @@ namespace WebApp.Controllers
             
 			try
 			{
-                if (scheduleViewModel.ScheDate < DateOnly.FromDateTime(DateTime.Now)) 
+                if (scheduleViewModel.ScheDate < DateOnly.FromDateTime(DateTime.Now))
                 {
                     return await InvalidView("Cannot create a schedule with the date in the past!");
+                } else if (scheduleViewModel.ScheDate == DateOnly.FromDateTime(DateTime.Now)) 
+                {
+                    today = true;
                 }
 
                 var shift = await _shiftRepository.GetByIDAsync(scheduleViewModel.ShiftId);
@@ -119,7 +123,7 @@ namespace WebApp.Controllers
                     return await InvalidView("Shift does not exist!");
                 }
 
-                if (shift.EndTime <= TimeOnly.FromDateTime(DateTime.Now).AddMinutes(-30))
+                if (shift.EndTime <= TimeOnly.FromDateTime(DateTime.Now).AddMinutes(-30) && today)
                 {
                     return await InvalidView("Cannot create a schedule with end time less than thirty minutes of current time!");
                 }
@@ -130,7 +134,7 @@ namespace WebApp.Controllers
                 {
                     if (schelist.ShiftId == scheduleViewModel.ShiftId) 
                     {
-                        return await InvalidView("Cannot create a Schedule with the same Shift on the same Date!");
+                        return await InvalidView("Shift already exists for this day!");
                     }
                 }
 
@@ -190,7 +194,7 @@ namespace WebApp.Controllers
             async Task<IActionResult> InvalidView(string? error = null)
             {
                 if (error != null)
-                {
+                {   
                     TempData["Error"] = error;
                 }
                 schedule.ShiftOptions = await GetShiftList();
@@ -211,13 +215,22 @@ namespace WebApp.Controllers
 					return NotFound();
 				}
 
-                var schedules = await _scheduleRepository.GetAllAsync();
-                var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule));
-                foreach (var schelist in scheduleList.Where(d => d.ScheDate == schedule.ScheDate && d.EmpId == schedule.EmpId))
+                if (schedule.ScheDate < DateOnly.FromDateTime(DateTime.Now))
                 {
+                    return await InvalidView("Cannot create a schedule with the date in the past!");
+                }
+
+                var schedules = await _scheduleRepository.GetAllAsync();
+                var scheduleList = schedules.Where(d => d.ScheDate == schedule.ScheDate && d.EmpId == schedule.EmpId).Select(schedule => new ScheduleViewModel(schedule));
+
+                foreach (var schelist in scheduleList)
+                {
+                    if (scheduleEntity.ShiftId == schedule.ShiftId && schedule.ScheDate == scheduleEntity.ScheDate) {
+                        return Json(new { success = true });
+                    }
                     if (schelist.ShiftId == schedule.ShiftId)
                     {
-                        return await InvalidView("Cannot create a Schedule with the same Shift on the same Date!");
+                        return await InvalidView("Shift already exists for this day!");
                     }
                 }
 

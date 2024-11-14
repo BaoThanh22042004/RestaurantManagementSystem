@@ -20,9 +20,9 @@
         </div>
 
         <div class="form-floating mb-3">
-            <select asp-for="EmpId" asp-items="Model.EmployeeOptions" class="form-select" id="EmpId">
-                <option selected id="DefaultSelectEmpId">Please select Employee</option>
-            </select>
+            <input asp-for="EmpId" type="hidden"/>
+            <input asp-for="EmployeeName" type="hidden"/>
+            <input value="@Model.EmployeeName" class="form-control" disabled/>
             <label asp-for="EmpId"></label>
             <span asp-validation-for="EmpId" class="text-danger"></span>
         </div>
@@ -37,7 +37,7 @@
     </div>
 
     @{
-        string createButton = "<button type='submit' class='btn btn-primary'>Create</button>";
+        string createButton = "<button type='submit' class='btn btn-primary'>Save</button>";
     }
     <partial name="Partials/_ModalFooter" model='@createButton' />
 </form>
