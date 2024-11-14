@@ -21,16 +21,27 @@
 			<span asp-validation-for="Capacity" class="text-danger"></span>
 		</div>
 
-		<div class="form-floating mb-3">
-			<select asp-for="Status" class="form-select" id="Status">
-				<option selected disabled>Please select status</option>
-				<option value="@Models.Entities.TableStatus.Available">@Models.Entities.TableStatus.Available</option>
-				<option value="@Models.Entities.TableStatus.Cleaning">@Models.Entities.TableStatus.Cleaning</option>
-				<option value="@Models.Entities.TableStatus.Unavailable">@Models.Entities.TableStatus.Unavailable</option>
-			</select>
-			<label asp-for="Status"></label>
-			<span asp-validation-for="Status" class="text-danger"></span>
-		</div>
+		@if (Model.Status != Models.Entities.TableStatus.Occupied && Model.Status != Models.Entities.TableStatus.Reserved)
+		{
+			<div class="form-floating mb-3">
+				<select asp-for="Status" class="form-select" id="Status">
+					<option selected disabled>Please select status</option>
+					<option value="@Models.Entities.TableStatus.Available">@Models.Entities.TableStatus.Available</option>
+					<option value="@Models.Entities.TableStatus.Cleaning">@Models.Entities.TableStatus.Cleaning</option>
+					<option value="@Models.Entities.TableStatus.Unavailable">@Models.Entities.TableStatus.Unavailable</option>
+				</select>
+				<label asp-for="Status"></label>
+				<span asp-validation-for="Status" class="text-danger"></span>
+			</div>
+		}
+		else
+		{
+			<div class="form-floating mb-3">
+				<input asp-for="Status" type="hidden" />
+				<input asp-for="Status" class="form-control" disabled>
+				<label asp-for="Status"></label>
+			</div>
+		}
 
 		<div class="form-floating mb-3">
 			<textarea asp-for="Notes" class="form-control" id="Notes" style="height: 100px;"></textarea>

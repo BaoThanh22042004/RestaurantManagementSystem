@@ -60,7 +60,7 @@ namespace WebApp.Controllers
 			return Json(new { success = true });
 		}
 
-        [Route("Details/{id}")]
+        [HttpGet("Details/{id}")]
         public async Task<IActionResult> Details(int id)
         {
             var table = await _tableRepository.GetByIDAsync(id);
@@ -73,7 +73,7 @@ namespace WebApp.Controllers
             return PartialView("_DetailsTableModal", tableViewModel);
 		}
 
-        [Route("Edit/{id}")]
+        [HttpGet("Edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
             var table = await _tableRepository.GetByIDAsync(id);
@@ -86,8 +86,7 @@ namespace WebApp.Controllers
            return PartialView("_EditTableModal", tableViewModel);
         }
 
-        [Route("Edit/{id}")]
-        [HttpPost]
+        [HttpPost("Edit/{id}")]
         public async Task<IActionResult> Edit(TableViewModel tableViewModel)
         {
             if (!ModelState.IsValid)
@@ -125,7 +124,7 @@ namespace WebApp.Controllers
 
         }
 
-        [Route("Delete/{id}")]
+        [HttpGet("Delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var table = await _tableRepository.GetByIDAsync(id);
@@ -138,8 +137,7 @@ namespace WebApp.Controllers
             return PartialView("_DeleteTableModal", tableViewModel);
         }
 
-        [HttpPost]
-        [Route("Delete/{TableId}")]
+        [HttpPost("Delete/{TableId}")]
         public async Task<IActionResult> DeleteConfirmed(int TableId)
         {
             try

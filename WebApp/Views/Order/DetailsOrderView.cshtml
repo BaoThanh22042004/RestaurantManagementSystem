@@ -1,7 +1,18 @@
-﻿@model OrderViewModel
+﻿@using Models.Entities
+@model OrderViewModel
 @{
 	ViewData["Title"] = "Details Order";
 	Layout = "_DashboardLayout";
+}
+
+@functions {
+	string GetStatusColor(OrderStatus status) => status switch
+	{
+		OrderStatus.Serving => "warning",
+		OrderStatus.Reservation => "primary",
+		OrderStatus.Paid => "success",
+		OrderStatus.Cancelled => "secondary",
+	};
 }
 
 <h1 class="mb-4 text-center">Order Information</h1>
@@ -9,29 +20,48 @@
 <div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
 	<div class="d-inline-block">
 		<button class='btn btn-primary' onclick='editOrder(@Model.OrderId)'>Edit Order</button>
+		<button class='btn btn-success' onclick='payment(@Model.OrderId)'>Payment</button>
 	</div>
 
 	<div class="d-inline-block">
-		<button class='btn btn-success' onclick='payment(@Model.OrderId)'>Payment</button>
+		<a class='btn btn-secondary' asp-action="Index" asp-controller="Order">Back</a>
 	</div>
 </div>
 
 <div class="rounded border shadow-sm p-3">
 	<dl class="row">
-		<dt class="col-sm-3">Order ID</dt>
-		<dd class="col-sm-9">@Model.OrderId</dd>
+		<dt class="col-sm-4">Order ID</dt>
+		<dd class="col-sm-8">@Model.OrderId</dd>
 
-		<dt class="col-sm-3">Table Number</dt>
-		<dd class="col-sm-9">@(Model.Table?.TableName ?? "N/A")</dd>
+		<dt class="col-sm-4">Table Number</dt>
+		<dd class="col-sm-8">
+			@if (Model.TableId.HasValue)
+			{
+				<button class="btn btn-sm btn-info" onclick="detailsTable('@Model.TableId')">@Model.Table?.TableName</button>
+			}
+			else
+			{
+				@("N/A")
+			}
+		</dd>
 
-		<dt class="col-sm-3">Reservation ID</dt>
-		<dd class="col-sm-9">@(Model.ResId?.ToString() ?? "N/A")</dd>
+		<dt class="col-sm-4">Reservation ID</dt>
+		<dd class="col-sm-8">
+			@if (Model.ResId.HasValue)
+			{
+				<button class="btn btn-sm btn-info" onclick="detailsReservation('@Model.ResId')">@Model.ResId.ToString()</button>
+			}
+			else
+			{
+				@("N/A")
+			}
+		</dd>
 
-		<dt class="col-sm-3">Created At</dt>
-		<dd class="col-sm-9">@Model.CreatedAt.ToString("g")</dd>
+		<dt class="col-sm-4">Created At</dt>
+		<dd class="col-sm-8">@Model.CreatedAt.ToString("g")</dd>
 
-		<dt class="col-sm-3">Order Status</dt>
-		<dd class="col-sm-9">@Model.Status</dd>
+		<dt class="col-sm-4">Order Status</dt>
+		<dd class="col-sm-8"><span class="badge text-bg-@GetStatusColor(Model.Status)">@Model.Status</span></dd>
 	</dl>
 </div>
 
@@ -89,11 +119,13 @@
 }
 else
 {
-	<p class="text-muted">No items in this order.</p>
+	<div class="rounded border shadow-sm p-3">
+		<span class="text-muted">No items in this order.</span>
+	</div>
 }
 
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered modal-lg">
+	<div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
 		<div class="modal-content" id="modalContent">
 		</div>
 	</div>
@@ -143,4 +175,19 @@ else
 		}
 	}
 
+	function detailsReservation(id) {
+		var url = '@Url.Action("Details", "Reservation", new { id = "__id__" })'.replace("__id__", id);
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#modal').modal('show');
+		});
+	}
+
+	function detailsTable(id) {
+		var url = '@Url.Action("Details", "Table", new { id = "__id__" })'.replace("__id__", id);
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#modal').modal('show');
+		});
+	}
 </script>

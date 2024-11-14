@@ -1,8 +1,19 @@
-﻿@model IEnumerable<WebApp.Models.OrderViewModel>
+﻿@using Models.Entities
+@model IEnumerable<WebApp.Models.OrderViewModel>
 
 @{
 	ViewData["Title"] = "Order List";
 	Layout = "_DashboardLayout";
+}
+
+@functions {
+	string GetStatusColor(OrderStatus status) => status switch
+	{
+		OrderStatus.Serving => "warning",
+		OrderStatus.Reservation => "primary",
+		OrderStatus.Paid => "success",
+		OrderStatus.Cancelled => "secondary",
+	};
 }
 
 <h1 class="mb-4 text-center">Order List</h1>
@@ -27,12 +38,10 @@
 							<td>@order.OrderId</td>
 							<td>@order.TableId</td>
 							<td>@order.CreatedAt.ToString("g")</td>
-							<td>@order.Status.ToString()</td>
+							<td><span class="badge text-bg-@GetStatusColor(order.Status)">@order.Status</span></td>
 							<td class="text-center">
 								<div class="btn-group" role="group">
 									<a asp-action="Details" asp-controller="Order" asp-route-orderId="@order.OrderId" class="btn btn-info">Details</a>
-									 @* <button onclick="" class="btn btn-primary">Edit</button>
-									 <button onclick="payment(@order.OrderId)" class="btn btn-success">Payment</button> *@
 									<button onclick="deleteOrder(@order.OrderId)" class="btn btn-danger">Delete</button>
 								</div>
 							</td>
@@ -45,7 +54,7 @@
 </div>
 
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered modal-lg">
+	<div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
 		<div class="modal-content" id="modalContent">
 		</div>
 	</div>
@@ -53,14 +62,6 @@
 
 @section Scripts {
 	<script>
-		// function payment(orderId) {
-		// 	var url = '@Url.Action("Create", "Payment")' + "?orderId=" + orderId;
-		// 	$.get(url, function (response) {
-		// 		$('#modalContent').html(response);
-		// 		$('#modal').modal('show');
-		// 	});
-		// }
-
 		function detailsOrder(id) {
 			var url = '@Url.Action("Details", "Order", new { orderId = "__id__" })'.replace("__id__", id);
 			$.get(url, function (response) {
