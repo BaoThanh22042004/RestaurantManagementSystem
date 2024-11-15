@@ -29,6 +29,10 @@
     if (Model.Order != null)
     {
         button = $"<a href='{Url.Action("Details", "Order", new { orderId = Model.Order.OrderId})}' class='btn btn-primary'>Go to Order</a>";
+        if (Model.Status == Models.Entities.TableStatus.Reserved)
+        {
+            button += $" <a href='{Url.Action("CustomerArrived", "Order", new { orderId = Model.Order.OrderId, tableId = Model.TableId })}' class='btn btn-info'>Customer Arrived</a>";
+        }
     }
     else
     {

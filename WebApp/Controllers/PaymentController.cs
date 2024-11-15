@@ -11,117 +11,129 @@ using WebApp.Models;
 
 namespace WebApp.Controllers
 {
-	[Route("DashBoard/Payment")]
-	[Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Accountant)}")]
-	public class PaymentController : Controller
-	{
-		private readonly IBillRepository _billRepository;
-		private readonly IOrderRepository _orderRepository;
-		private readonly IOrderItemRepository _orderItemRepository;
+    [Route("DashBoard/Payment")]
+    [Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Accountant)}")]
+    public class PaymentController : Controller
+    {
+        private readonly IBillRepository _billRepository;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IOrderItemRepository _orderItemRepository;
+        private readonly ITableRepository _tableRepository;
 
-		public PaymentController(IBillRepository billRepository, IOrderRepository orderRepository,
-								 IOrderItemRepository orderItemRepository)
-		{
-			_billRepository = billRepository;
-			_orderRepository = orderRepository;
-			_orderItemRepository = orderItemRepository;
-		}
+        public PaymentController(IBillRepository billRepository, IOrderRepository orderRepository,
+                                 IOrderItemRepository orderItemRepository, ITableRepository tableRepository)
+        {
+            _billRepository = billRepository;
+            _orderRepository = orderRepository;
+            _orderItemRepository = orderItemRepository;
+            _tableRepository = tableRepository;
+        }
 
-		public async Task<IActionResult> Index()
-		{
-			var bills = await _billRepository.GetAllAsync();
-			var billList = bills.Select(bill => new PaymentViewModel(bill));
-			return View("PaymentView", billList);
-		}
+        public async Task<IActionResult> Index()
+        {
+            var bills = await _billRepository.GetAllAsync();
+            var billList = bills.Select(bill => new PaymentViewModel(bill));
+            return View("PaymentView", billList);
+        }
 
-		[HttpGet("Create")]
-		public async Task<IActionResult> Create(int orderId)
-		{
-			var orderItems = (await _orderItemRepository.GetAllByOrderIdAsync(orderId))?
-				.Select(item => new OrderItemViewModel(item)).ToList();
-			var payment = new PaymentViewModel
-			{
-				OrderItems = orderItems ?? new(),
-				OrderId = orderId,
-				TotalAmount = await CalculateTotalAmount(orderId)
-			};
+        [HttpGet("Create")]
+        public async Task<IActionResult> Create(int orderId)
+        {
+            var orderItems = (await _orderItemRepository.GetAllByOrderIdAsync(orderId))?
+                .Select(item => new OrderItemViewModel(item)).ToList();
+            var payment = new PaymentViewModel
+            {
+                OrderItems = orderItems ?? new(),
+                OrderId = orderId,
+                TotalAmount = await CalculateTotalAmount(orderId)
+            };
 
-			return PartialView("_CreatePaymentModal", payment);
-		}
+            return PartialView("_CreatePaymentModal", payment);
+        }
 
-		[HttpPost("Create")]
-		public async Task<IActionResult> Create(PaymentViewModel paymentViewModel)
-		{
-			if (!ModelState.IsValid)
-			{
-				paymentViewModel.TotalAmount = await CalculateTotalAmount(paymentViewModel.OrderId);
-				return PartialView("_CreatePaymentModal", paymentViewModel);
-			}
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create(PaymentViewModel paymentViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                paymentViewModel.TotalAmount = await CalculateTotalAmount(paymentViewModel.OrderId);
+                return PartialView("_CreatePaymentModal", paymentViewModel);
+            }
 
-			try
-			{
-				var bill = new Bill
-				{
-					OrderId = paymentViewModel.OrderId,
-					CreatedBy = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)),
-					CreatedAt = DateTime.Now,
-					TotalAmount = await CalculateTotalAmount(paymentViewModel.OrderId),
-					PaymentMethod = paymentViewModel.PaymentMethod
-				};
-				await _billRepository.InsertAsync(bill);
+            try
+            {
+                var bill = new Bill
+                {
+                    OrderId = paymentViewModel.OrderId,
+                    CreatedBy = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)),
+                    CreatedAt = DateTime.Now,
+                    TotalAmount = await CalculateTotalAmount(paymentViewModel.OrderId),
+                    PaymentMethod = paymentViewModel.PaymentMethod
+                };
+                await _billRepository.InsertAsync(bill);
 
-				var order = await _orderRepository.GetByIDAsync(paymentViewModel.OrderId);
-				order.Status = OrderStatus.Paid;
-				await _orderRepository.UpdateAsync(order);
-			}
+                var order = await _orderRepository.GetByIDAsync(paymentViewModel.OrderId);
+                order.Status = OrderStatus.Paid;
+                await _orderRepository.UpdateAsync(order);
 
-			catch (Exception e)
-			{
-				TempData["Error"] = "Failed to create payment.";
-				paymentViewModel.TotalAmount = await CalculateTotalAmount(paymentViewModel.OrderId);
-				return PartialView("_CreatePaymentModal", paymentViewModel);
-			}
-			return Json(new { success = true });
-		}
+                if (order.TableId.HasValue)
+                {
+                    var table = await _tableRepository.GetByIDAsync(order.TableId.Value);
+                    if (table != null)
+                    {
+                        table.Status = TableStatus.Cleaning;
+                        await _tableRepository.UpdateAsync(table);
+                    }
+                }
+            }
 
-		private async Task<IEnumerable<Order>> GetOrderList()
-		{
-			return await _orderRepository.GetAllAsync();
-		}
+            catch (Exception e)
+            {
+                TempData["Error"] = "Failed to create payment.";
+                paymentViewModel.TotalAmount = await CalculateTotalAmount(paymentViewModel.OrderId);
+                return PartialView("_CreatePaymentModal", paymentViewModel);
+            }
+            return Json(new { success = true });
+        }
 
-		private async Task<decimal> CalculateTotalAmount(long orderId)
-		{
-			var order = await _orderRepository.GetByIDAsync(orderId);
-			if (order == null)
-			{
-				throw new KeyNotFoundException("Order not found.");
-			}
-			return order.OrderItems.Sum(item => item.Price * item.Quantity);
-		}
+        private async Task<IEnumerable<Order>> GetOrderList()
+        {
+            return await _orderRepository.GetAllAsync();
+        }
 
-		[HttpGet("Details/{id}")]
-		public async Task<IActionResult> Details(long id)
-		{
-			var bill = await _billRepository.GetByIDAsync(id);
-			if (bill == null) return NotFound();
+        private async Task<decimal> CalculateTotalAmount(long orderId)
+        {
+            var order = await _orderRepository.GetByIDAsync(orderId);
+            if (order == null)
+            {
+                throw new KeyNotFoundException("Order not found.");
+            }
+            return order.OrderItems.Sum(item => item.Price * item.Quantity);
+        }
 
-			var payment = new PaymentViewModel(bill);
-			var order = await _orderRepository.GetByIDAsync(bill.OrderId);
+        [HttpGet("Details/{id}")]
+        public async Task<IActionResult> Details(long id)
+        {
+            var bill = await _billRepository.GetByIDAsync(id);
+            if (bill == null) return NotFound();
 
-			payment.OrderItems = (await _orderItemRepository.GetAllAsync())
-									.Where(item => item.OrderId == bill.OrderId)
-									.Select(item =>
-									{
-										var viewModel = new OrderItemViewModel(item)
-										{
-											Dish = order?.OrderItems
-														.FirstOrDefault(i => i.DishId == item.DishId)?
-														.Dish
-										};
-										return viewModel;
-									}).ToList();
+            var payment = new PaymentViewModel(bill);
+            var order = await _orderRepository.GetByIDAsync(bill.OrderId);
 
-			return PartialView("_DetailsPaymentModal", payment);
-		}
-	}
+            payment.OrderItems = (await _orderItemRepository.GetAllAsync())
+                                    .Where(item => item.OrderId == bill.OrderId)
+                                    .Select(item =>
+                                    {
+                                        var viewModel = new OrderItemViewModel(item)
+                                        {
+                                            Dish = order?.OrderItems
+                                                        .FirstOrDefault(i => i.DishId == item.DishId)?
+                                                        .Dish
+                                        };
+                                        return viewModel;
+                                    }).ToList();
+
+            return PartialView("_DetailsPaymentModal", payment);
+        }
+    }
 }
