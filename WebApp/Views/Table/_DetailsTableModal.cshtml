@@ -25,7 +25,7 @@
 </div>
 
 @{
-    string button;
+    string button = string.Empty;
     if (Model.Order != null)
     {
         button = $"<a href='{Url.Action("Details", "Order", new { orderId = Model.Order.OrderId})}' class='btn btn-primary'>Go to Order</a>";
@@ -34,7 +34,7 @@
             button += $" <a href='{Url.Action("CustomerArrived", "Order", new { orderId = Model.Order.OrderId, tableId = Model.TableId })}' class='btn btn-info'>Customer Arrived</a>";
         }
     }
-    else
+    else if (Model.Status != Models.Entities.TableStatus.Cleaning && Model.Status != Models.Entities.TableStatus.Unavailable)
     {
         button = $"<button onclick='createOrder({Model.TableId})' class='btn btn-primary'>Create Order</button>";
     }
