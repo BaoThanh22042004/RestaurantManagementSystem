@@ -9,9 +9,18 @@
 	string GetStatusColor(OrderStatus status) => status switch
 	{
 		OrderStatus.Serving => "warning",
-		OrderStatus.Reservation => "primary",
+		OrderStatus.Reservation => "info",
 		OrderStatus.Paid => "success",
 		OrderStatus.Cancelled => "secondary",
+	};
+
+	string GetStatusColor(OrderItemStatus status) => status switch
+	{
+		OrderItemStatus.Reservation => "info",
+		OrderItemStatus.Pending => "warning",
+		OrderItemStatus.Preparing => "primary",
+		OrderItemStatus.Ready => "success",
+		OrderItemStatus.Served => "dark",
 	};
 }
 
@@ -19,8 +28,18 @@
 
 <div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
 	<div class="d-inline-block">
-		<button class='btn btn-primary' onclick='assignTable(@Model.OrderId)'>Assign Table</button>
-		<button class='btn btn-success' onclick='payment(@Model.OrderId)'>Payment</button>
+		@if (Model.TableId == null)
+		{
+			<button class='btn btn-primary' onclick='assignTable(@Model.OrderId)'>Assign Table</button>
+		}
+		@if (Model.Status != OrderStatus.Paid)
+		{
+			<button class='btn btn-success' onclick='payment(@Model.OrderId)'>Payment</button>
+		}
+		else
+		{
+			<button class='btn btn-success' onclick='detailsPayment(@Model.OrderId)'>Payment</button>
+		}
 	</div>
 
 	<div class="d-inline-block">
@@ -61,7 +80,7 @@
 		<dd class="col-sm-8">@Model.CreatedAt.ToString("g")</dd>
 
 		<dt class="col-sm-4">Order Status</dt>
-		<dd class="col-sm-8"><span class="badge text-bg-@GetStatusColor(Model.Status)">@Model.Status</span></dd>
+		<dd class="col-sm-8 fw-bold text-@GetStatusColor(Model.Status)">@Model.Status</dd>
 	</dl>
 </div>
 
@@ -101,7 +120,7 @@
 							<td>@item.Quantity</td>
 							<td>@item.Creator.FullName</td>
 							<td>@item.Price?.ToString("C")</td>
-							<td>@item.Status.ToString()</td>
+							<td class="fw-bold text-@GetStatusColor(@item.Status)">@item.Status.ToString()</td>
 							<td>@(string.IsNullOrEmpty(item.Notes) ? "None" : item.Notes)</td>
 							<td class="text-center">
 								<div class="btn-group" role="group">
@@ -193,6 +212,14 @@ else
 
 	function assignTable(orderId) {
 		var url = '@Url.Action("AssignTable", "Order", new { orderId = "__orderId__" })'.replace("__orderId__", orderId);
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#modal').modal('show');
+		});
+	}
+
+	function detailsPayment(id) {
+		var url = '@Url.Action("DetailsByOrderId", "Payment", new { orderId = "__id__" })'.replace("__id__", id);
 		$.get(url, function (response) {
 			$('#modalContent').html(response);
 			$('#modal').modal('show');

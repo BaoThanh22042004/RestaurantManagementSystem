@@ -15,7 +15,7 @@ using System.Globalization;
 namespace WebApp.Controllers
 {
     [Route("Dashboard/Payroll")]
-    [Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Waitstaff)}")]
+    [Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Accountant)}")]
     public class PayrollController : Controller
     {
         private readonly IPayrollRepository _payrollRepository;

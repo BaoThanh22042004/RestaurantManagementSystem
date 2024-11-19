@@ -1,0 +1,62 @@
+﻿@using Models.Entities
+@model OrderItemViewModel
+@functions {
+	string GetStatusColor(OrderItemStatus status) => status switch
+	{
+		OrderItemStatus.Reservation => "info",
+		OrderItemStatus.Pending => "warning",
+		OrderItemStatus.Preparing => "primary",
+		OrderItemStatus.Ready => "success",
+		OrderItemStatus.Served => "dark",
+	};
+}
+
+
+<form method="post" asp-action="ChangeStatus" id="form">
+
+	<partial name="Partials/_ModalHeader" model='"Change Status Order Item"' />
+
+	<div class="modal-body" id="modalBody">
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
+
+		<input type="hidden" name="orderItemId" value="@Model.OrItemId" />
+
+		<dl class="row">
+			<dt class="col-sm-4">Dish Name</dt>
+			<dd class="col-sm-8">@Model.Dish?.DishName</dd>
+
+			<dt class="col-sm-4">Quantity</dt>
+			<dd class="col-sm-8">@Model.Quantity</dd>
+
+			<dt class="col-sm-4">Order Item Status</dt>
+			<dd class="col-sm-8">
+				<span class="fw-bold text-@GetStatusColor(Model.Status)">@Model.Status</span>
+				<i class="bi bi-arrow-right"></i>
+				<span>
+					@switch (Model.Status)
+					{
+						case OrderItemStatus.Pending:
+							<span class="fw-bold text-primary">@OrderItemStatus.Preparing</span>
+							<input type="hidden" name="newStatus" value="@OrderItemStatus.Preparing" />
+							break;
+						case OrderItemStatus.Preparing:
+							<span class="fw-bold text-success">@OrderItemStatus.Ready</span>
+							<input type="hidden" name="newStatus" value="@OrderItemStatus.Ready" />
+							break;
+					}
+				</span>
+			</dd>
+
+			<dt class="col-sm-4">Notes</dt>
+			<dd class="col-sm-8">@(Model.Notes ?? "None")</dd>
+
+		</dl>
+		
+	</div>
+
+	@{
+		string button = "<button type='submit' class='btn btn-primary'>Change</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model='@button' />
+</form>

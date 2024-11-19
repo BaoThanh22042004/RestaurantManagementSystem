@@ -10,7 +10,7 @@ using WebApp.Models;
 namespace WebApp.Controllers
 {
     [Route("Dashboard/Attendance")]
-    [Authorize(Roles = $"{nameof(Role.Manager)},{nameof(Role.Waitstaff)}")]
+    [Authorize(Policy = "Staff")]
     public class AttendanceController : Controller
     {
         private readonly IAttendanceRepository _attendanceRepository;

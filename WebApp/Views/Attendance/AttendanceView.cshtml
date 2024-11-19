@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<AttendanceViewModel>
 @{
-	ViewData["Title"] = "Attendance";
+	ViewData["Title"] = "Attendances";
 	Layout = "_DashboardLayout";
 	int counter = 0;
 }
@@ -14,7 +14,7 @@
 	};
 }
 
-<h1 class="mb-4 text-center">Attendance</h1>
+<h1 class="mb-4 text-center">Attendances</h1>
 
 @if (!Model.Any())
 {

@@ -2,7 +2,7 @@
 @model IEnumerable<WebApp.Models.OrderViewModel>
 
 @{
-	ViewData["Title"] = "Order List";
+	ViewData["Title"] = "Orders";
 	Layout = "_DashboardLayout";
 }
 
@@ -10,13 +10,13 @@
 	string GetStatusColor(OrderStatus status) => status switch
 	{
 		OrderStatus.Serving => "warning",
-		OrderStatus.Reservation => "primary",
+		OrderStatus.Reservation => "info",
 		OrderStatus.Paid => "success",
 		OrderStatus.Cancelled => "secondary",
 	};
 }
 
-<h1 class="mb-4 text-center">Order List</h1>
+<h1 class="mb-4 text-center">Orders</h1>
 
 <div class="container">
 	<div class="rounded border shadow-sm p-3">
