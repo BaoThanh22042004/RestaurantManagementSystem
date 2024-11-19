@@ -1,4 +1,5 @@
-﻿@model ReservationViewModel
+﻿@using Models.Entities
+@model ReservationViewModel
 
 <form method="post" asp-action="Edit" id="form">
 
@@ -51,15 +52,24 @@
 		</div>
 
 		<div class="form-floating mb-3">
-
-			<select asp-for="Status" class="form-control">
-				<option selected disabled>Please select status</option>
-				<option value="@Models.Entities.ReservationStatus.Pending">@Models.Entities.ReservationStatus.Pending</option>
-				<option value="@Models.Entities.ReservationStatus.Confirmed">@Models.Entities.ReservationStatus.Confirmed</option>
-				<option value="@Models.Entities.ReservationStatus.Cancelled">@Models.Entities.ReservationStatus.Cancelled</option>
-			</select>
-			<label asp-for="Status"></label>
-			<span asp-validation-for="Status" class="text-danger"></span>
+			@if (Model.Status == ReservationStatus.Completed || Model.Status == ReservationStatus.Cancelled)
+			{
+				<input asp-for="Status" type="hidden" />
+				<input asp-for="Status" class="form-control" disabled />
+				<label asp-for="Status"></label>
+			}
+			else
+			{
+				<select asp-for="Status" class="form-control">
+					<option selected disabled>Please select status</option>
+					<option value="@ReservationStatus.Pending">@ReservationStatus.Pending</option>
+					<option value="@ReservationStatus.Confirmed">@ReservationStatus.Confirmed</option>
+					<option value="@ReservationStatus.Cancelled">@ReservationStatus.Cancelled</option>
+				</select>
+				<label asp-for="Status"></label>
+				<span asp-validation-for="Status" class="text-danger"></span>
+			}
+			
 		</div>
 
 		<div class="form-floating mb-3">

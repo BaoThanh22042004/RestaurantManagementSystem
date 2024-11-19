@@ -1,17 +1,7 @@
 ﻿@model FeedBackViewModel
 
-@if (TempData["Success"] != null)
-{
-	<div class="alert alert-success">
-		@TempData["Success"]
-	</div>
-}
-@if (TempData["Error"] != null)
-{
-	<div class="alert alert-danger">
-		@TempData["Error"]
-	</div>
-}
+<partial name="Partials/_AlertSuccess" model="@TempData["Success"]" />
+<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 
 <form id="form" asp-action="Create" asp-controller="Feedback">
 	<div class="mb-3">

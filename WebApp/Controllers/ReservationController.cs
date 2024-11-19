@@ -214,6 +214,15 @@ namespace WebApp.Controllers
 				reservationEntity.ResDate = reservationViewModel.ResDate;
 				reservationEntity.ResTime = reservationViewModel.ResTime;
 				reservationEntity.Status = reservationViewModel.Status;
+				if (reservationViewModel.Status == ReservationStatus.Cancelled)
+				{
+					var order = await _orderRepository.GetByIDAsync(reservationEntity.Order?.OrderId ?? -1);
+					if (order != null)
+					{
+						order.Status = OrderStatus.Cancelled;
+						await _orderRepository.UpdateAsync(order);
+					}
+				}
 				reservationEntity.DepositAmount = reservationViewModel.DepositAmount;
 				reservationEntity.Notes = reservationViewModel.Notes;
 

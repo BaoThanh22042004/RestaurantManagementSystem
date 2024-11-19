@@ -4,9 +4,9 @@
 		switch (action)
 		{
 			case Models.Entities.Action.Import:
-				return "table-success";
+				return "text-success-emphasis bg-success-subtle border border-success-subtle";
 			case Models.Entities.Action.Export:
-				return "table-danger";
+				return "text-danger-emphasis bg-danger-subtle border border-danger-subtle";
 			default:
 				return "";
 		}
@@ -66,23 +66,23 @@ else
 					<tbody>
 						@foreach (var item in Model.OrderByDescending(item => item.CreatedAt))
 						{
-							<tr onclick="details(@item.LogId)" class="@GetBgClass(item.Action) clickable">
-								<td>
+							<tr onclick="details(@item.LogId)" class="clickable">
+								<td class="@GetBgClass(item.Action)">
 									@Html.DisplayFor(modelItem => item.ItemId)
 								</td>
-								<td>
+								<td class="@GetBgClass(item.Action)">
 									@Html.DisplayFor(modelItem => item.ItemName)
 								</td>
-								<td>
+								<td class="@GetBgClass(item.Action)">
 									@Html.DisplayFor(modelItem => item.Action)
 								</td>
-								<td>
+								<td class="@GetBgClass(item.Action)">
 									@item.CreatedAt.ToString("HH:mm MM/dd/yy")
 								</td>
-								<td>
+								<td class="@GetBgClass(item.Action)">
 									@Html.DisplayFor(modelItem => item.RemainQuantity)
 								</td>
-								<td>
+								<td class="@GetBgClass(item.Action)">
 									@Html.DisplayFor(modelItem => item.ChangeQuantity)
 								</td>
 							</tr>

@@ -1,4 +1,5 @@
-﻿@functions {
+﻿@using Models.Entities
+@functions {
 	public string IsActive(string controller)
 	{
 		var routeData = Context.Request.RouteValues;
@@ -36,91 +37,23 @@
 					</a>
 					<hr>
 					<ul class="nav nav-pills flex-column">
+						
 						<li class="nav-item">
 							<a asp-controller="Dashboard" asp-action="Index" class="nav-link @IsActive("Dashboard")">
 								Dashboard
 							</a>
 						</li>
-						@if (User.IsInRole(nameof(Models.Entities.Role.Manager)))
+
+						@if (User.IsInRole(nameof(Role.Waitstaff)) || User.IsInRole(nameof(Role.Manager)))
 						{
-							<li class="nav-item">
-								<a asp-controller="Table" asp-action="Index" class="nav-link @IsActive("Table")">
-									Tables
-								</a>
-							</li>
-							<li class="nav-item">
-								<a asp-controller="DishCategory" asp-action="Index" class="nav-link @IsActive("DishCategory")">
-									Dish Categories
-								</a>
-							</li>
-							<li class="nav-item">
-								<a asp-controller="Dish" asp-action="Index" class="nav-link @IsActive("Dish")">
-									Dishes
-								</a>
-							</li>
-							<li class="nav-item">
-								<a asp-controller="Storage" asp-action="Index" class="nav-link @IsActive("Storage")">
-									Storage
-								</a>
-							</li>
-							<li class="nav-item">
-								<a asp-controller="Shift" asp-action="Index" class="nav-link @IsActive("Shift")">
-									Shifts
-								</a>
-							</li>
-							<li class="nav-item">
-								<a asp-controller="User" asp-action="Index" class="nav-link @IsActive("User")">
-									Users
-								</a>
-							</li>
-							<li class="nav-item">
-								<a asp-controller="Information" asp-action="Index" class="nav-link @IsActive("Information")">
-									Information
-								</a>
-							</li>
 							<li class="nav-item">
 								<a asp-controller="Reservation" asp-action="List" class="nav-link @IsActive("Reservation")">
 									Reservations
 								</a>
 							</li>
-							<li class="nav-item">
-								<a asp-controller="Order" asp-action="Index" class="nav-link @IsActive("Order")">
-									Order
-								</a>
-							</li>
-							<li class="nav-item">
-								<a asp-controller="FeedBack" asp-action="Index" class="nav-link @IsActive("FeedBack")">
-									FeedBack
-								</a>
-							</li>
-							<li class="nav-item">
-								<a asp-controller="Payroll" asp-action="Index" class="nav-link @IsActive("Payroll")">
-									Payroll
-								</a>
-							</li>
-							<li class="nav-item">
-								<a asp-controller="Payment" asp-action="Index" class="nav-link @IsActive("Payment")">
-									Payment
-								</a>
-							</li>
 						}
-						@if (User.IsInRole(nameof(Models.Entities.Role.Accountant)))
-						{
-							<li class="nav-item">
-								<a asp-controller="Storage" asp-action="Index" class="nav-link @IsActive("Storage")">
-									Storage
-								</a>
-							</li>
-						}
-						@if (User.IsInRole(nameof(Models.Entities.Role.Chef)))
-						{
-							<li class="nav-item">
-								<a asp-controller="Storage" asp-action="Index" class="nav-link @IsActive("Storage")">
-									Storage
-								</a>
-							</li>
-						}
-						@if (User.IsInRole(nameof(Models.Entities.Role.Waitstaff)))
+
+						@if (User.IsInRole(nameof(Role.Waitstaff)) || User.IsInRole(nameof(Role.Manager)))
 						{
 							<li class="nav-item">
 								<a asp-controller="Table" asp-action="Index" class="nav-link @IsActive("Table")">
@@ -128,24 +61,118 @@
 								</a>
 							</li>
 						}
+
+						@if (User.IsInRole(nameof(Role.Waitstaff)))
+						{
+							<li class="nav-item">
+								<a asp-controller="Order" asp-action="Index" class="nav-link @IsActive("Order")">
+									Orders
+								</a>
+							</li>
+						}
+
+						@if (User.IsInRole(nameof(Role.Chef)))
+						{
+							<li class="nav-item">
+								<a asp-controller="Order" asp-action="OrderItem" class="nav-link @IsActive("Order")">
+									Orders
+								</a>
+							</li>
+						}
+
+						@if (User.IsInRole(nameof(Role.Manager)) || User.IsInRole(nameof(Role.Accountant)))
+						{
+							<li class="nav-item">
+								<a asp-controller="Payment" asp-action="Index" class="nav-link @IsActive("Payment")">
+									Payments
+								</a>
+							</li>
+						}
+
+						@if (User.IsInRole(nameof(Role.Chef)) || User.IsInRole(nameof(Role.Accountant)) || User.IsInRole(nameof(Role.Manager)))
+						{
+							<li class="nav-item">
+								<a asp-controller="Storage" asp-action="Index" class="nav-link @IsActive("Storage")">
+									Storage
+								</a>
+							</li>
+						}
+
 						<li class="nav-item">
 							<a asp-controller="Schedule" asp-action="Index" class="nav-link @IsActive("Schedule")">
 								Schedules
 							</a>
 						</li>
+
 						<li class="nav-item">
 							<a asp-controller="Attendance" asp-action="Index" class="nav-link @IsActive("Attendance")">
 								Attendances
 							</a>
 						</li>
+
+						@if (User.IsInRole(nameof(Role.Manager)))
+						{
+							<li class="nav-item">
+								<a asp-controller="Shift" asp-action="Index" class="nav-link @IsActive("Shift")">
+									Shifts
+								</a>
+							</li>
+						}
+
+						@if (User.IsInRole(nameof(Role.Accountant)) || User.IsInRole(nameof(Role.Manager)))
+						{
+							<li class="nav-item">
+								<a asp-controller="Payroll" asp-action="Index" class="nav-link @IsActive("Payroll")">
+									Payrolls
+								</a>
+							</li>
+						}
+
+						@if (User.IsInRole(nameof(Models.Entities.Role.Manager)))
+						{
+
+							<li class="nav-item">
+								<a asp-controller="Dish" asp-action="Index" class="nav-link @IsActive("Dish")">
+									Dishes
+								</a>
+							</li>
+
+							<li class="nav-item">
+								<a asp-controller="DishCategory" asp-action="Index" class="nav-link @IsActive("DishCategory")">
+									Dish Categories
+								</a>
+							</li>
+							
+							
+
+							<li class="nav-item">
+								<a asp-controller="FeedBack" asp-action="Index" class="nav-link @IsActive("FeedBack")">
+									Feedbacks
+								</a>
+							</li>
+
+							<li class="nav-item">
+								<a asp-controller="User" asp-action="Index" class="nav-link @IsActive("User")">
+									Users
+								</a>
+							</li>
+
+							<li class="nav-item">
+								<a asp-controller="Information" asp-action="Index" class="nav-link @IsActive("Information")">
+									Information
+								</a>
+							</li>
+							
+						}
+						
 					</ul>
 					<hr>
 					<div class="dropup mb-3">
 						<a class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
-							<strong>@User.Identity.Name</strong>
+							<strong>@User.Identity?.Name</strong>
 						</a>
 						<ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser">
-							<li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">Profile</a></li>
+							<li><a class="dropdown-item @IsActive("Account")" asp-controller="Account" asp-action="Profile">Profile</a></li>
 							<li><hr class="dropdown-divider"></li>
 							<li><a class="dropdown-item" asp-controller="Account" asp-action="Logout">Logout</a></li>
 						</ul>

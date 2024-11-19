@@ -12,7 +12,7 @@ using WebApp.Models;
 namespace WebApp.Controllers
 {
     [Route("DashBoard/Payment")]
-    [Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Accountant)}")]
+    [Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Accountant)}, {nameof(Role.Waitstaff)}")]
     public class PaymentController : Controller
     {
         private readonly IBillRepository _billRepository;
@@ -73,6 +73,10 @@ namespace WebApp.Controllers
                 await _billRepository.InsertAsync(bill);
 
                 var order = await _orderRepository.GetByIDAsync(paymentViewModel.OrderId);
+                if (order == null)
+                {
+                    throw new KeyNotFoundException("Order not found.");
+                }
                 order.Status = OrderStatus.Paid;
                 await _orderRepository.UpdateAsync(order);
 
@@ -87,18 +91,13 @@ namespace WebApp.Controllers
                 }
             }
 
-            catch (Exception e)
+            catch (Exception)
             {
                 TempData["Error"] = "Failed to create payment.";
                 paymentViewModel.TotalAmount = await CalculateTotalAmount(paymentViewModel.OrderId);
                 return PartialView("_CreatePaymentModal", paymentViewModel);
             }
             return Json(new { success = true });
-        }
-
-        private async Task<IEnumerable<Order>> GetOrderList()
-        {
-            return await _orderRepository.GetAllAsync();
         }
 
         private async Task<decimal> CalculateTotalAmount(long orderId)
@@ -122,18 +121,28 @@ namespace WebApp.Controllers
 
             payment.OrderItems = (await _orderItemRepository.GetAllAsync())
                                     .Where(item => item.OrderId == bill.OrderId)
-                                    .Select(item =>
-                                    {
-                                        var viewModel = new OrderItemViewModel(item)
-                                        {
-                                            Dish = order?.OrderItems
-                                                        .FirstOrDefault(i => i.DishId == item.DishId)?
-                                                        .Dish
-                                        };
-                                        return viewModel;
-                                    }).ToList();
+                                    .Select(item => new OrderItemViewModel(item)).ToList();
 
             return PartialView("_DetailsPaymentModal", payment);
         }
-    }
+
+		[HttpGet("DetailsByOrderId/{orderId}")]
+		public async Task<IActionResult> DetailsByOrderId(long orderId)
+		{
+			var order = await _orderRepository.GetByIDAsync(orderId);
+			if (order == null) return NotFound();
+
+            var bill = (await _billRepository.GetAllAsync()).FirstOrDefault(b => b.OrderId == orderId);
+            if (bill == null) return NotFound();
+
+			var payment = new PaymentViewModel(bill)
+			{
+				OrderItems = (await _orderItemRepository.GetAllAsync())
+									.Where(item => item.OrderId == bill.OrderId)
+									.Select(item => new OrderItemViewModel(item)).ToList()
+			};
+
+			return PartialView("_DetailsPaymentModal", payment);
+		}
+	}
 }

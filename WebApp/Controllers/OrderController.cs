@@ -11,7 +11,7 @@ using Table = Models.Entities.Table;
 namespace WebApp.Controllers
 {
     [Route("Dashboard/Order")]
-    [Authorize(Roles = $"{nameof(Role.Manager)}")]
+    [Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Waitstaff)}, {nameof(Role.Chef)}")]
     public class OrderController : Controller
     {
         private readonly IOrderRepository _orderRepository;
@@ -77,7 +77,63 @@ namespace WebApp.Controllers
             return View("OrderView", orderList);
         }
 
-        [HttpGet("Create")]
+		[HttpGet("OrderItem")]
+		public async Task<IActionResult> OrderItem()
+		{
+            var orders = await _orderRepository.GetAllIn24Hours();
+			var orderList = orders
+                            .Where(o => o.Status != OrderStatus.Paid)
+                            .Where(o => o.OrderItems.Any(oi => oi.Status != OrderItemStatus.Served))
+                            .Select(order => new OrderViewModel(order)).ToList();
+            orderList.RemoveAll(o => o.Status == OrderStatus.Cancelled);
+			orderList.ForEach(o => o.OrderItems.RemoveAll(oi => oi.Status == OrderItemStatus.Served));
+			orderList = orderList.OrderByDescending(o => o.Status).ToList();
+			return View("OrderItemView", orderList);
+		}
+
+        [HttpGet("OrderItem/ChangeStatus/{orderItemId}")]
+		public async Task<IActionResult> ChangeStatus(long orderItemId)
+        {
+            var orderItem = await _orderItemRepository.GetByIDAsync(orderItemId);
+			if (orderItem == null)
+			{
+				return NotFound();
+			}
+
+			var orderItemViewModel = new OrderItemViewModel(orderItem);
+			return PartialView("_ChangeOrderItemStatusModal", orderItemViewModel);
+		}
+
+		[HttpPost("OrderItem/ChangeStatus/{orderItemId}")]
+		public async Task<IActionResult> ChangeStatus(long orderItemId, OrderItemStatus newStatus)
+		{
+			try
+			{
+				var orderItem = await _orderItemRepository.GetByIDAsync(orderItemId);
+                if (orderItem == null)
+				{
+					return NotFound();
+				}
+				if (!ModelState.IsValid)
+				{
+                    var orderItemViewModel = new OrderItemViewModel(orderItem);
+					return PartialView("_ChangeOrderItemStatusModal", orderItemViewModel);
+				}
+
+				orderItem.Status = newStatus;
+				await _orderItemRepository.UpdateAsync(orderItem);
+			}
+			catch (Exception)
+			{
+				TempData["Error"] = "An error occurred while updating the order item. Please try again later.";
+				return PartialView("_ChangeOrderItemStatusModal");
+			}
+
+			return Json(new { success = true });
+		}
+
+
+		[HttpGet("Create")]
         public async Task<IActionResult> Create(int? tableId, long? reservationId)
         {
             if (tableId == null && reservationId == null)

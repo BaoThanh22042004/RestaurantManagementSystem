@@ -21,7 +21,7 @@
 	</div>
 
 	@{
-		string Button = $"<button class='btn btn-info' onclick='menuOrder({Model.OrderId})'>Back</button> <button type='submit' class='btn btn-primary'>Save</button> ";
+		string Button = $"<button class='btn btn-info' type='button' onclick='menuOrder({Model.OrderId})'>Back</button> <button type='submit' class='btn btn-primary'>Save</button> ";
 	}
 
 	<partial name="Partials/_ModalFooter" model='@Button' />

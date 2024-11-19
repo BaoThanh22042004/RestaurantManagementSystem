@@ -12,10 +12,7 @@
                 <tr>
                     <th>Dish Name</th>
                     <th>Quantity</th>
-                    <th>Created By</th>
                     <th>Price</th>
-                    <th>Status</th>
-                    <th>Note</th>
                 </tr>
             </thead>
             <tbody>
@@ -24,10 +21,7 @@
                     <tr>
                         <td>@item.Dish.DishName</td>
                         <td>@item.Quantity</td>
-                        <td>@item.Creator.FullName</td>
                         <td>@item.Price?.ToString("C")</td>
-                        <td>@item.Status</td>
-                        <td>@(string.IsNullOrEmpty(item.Notes) ? "none" : item.Notes)</td>
                     </tr>
                 }
             </tbody>
