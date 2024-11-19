@@ -51,6 +51,14 @@ namespace WebApp.Controllers
 
 			try
 			{
+
+				if (new DateTime(makeReservation.ResDate,makeReservation.ResTime) <= DateTime.Now.AddMinutes(30)) 
+				{
+                    TempData["Error"] = "Reservations must be made at least 30 minutes in advance!";
+                    makeReservation.Cart = _cartManager.GetCartFromCookie(Request);
+                    return View("MakeReservationView", makeReservation);
+                }
+
 				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? throw new Exception();
 				var customerId = int.Parse(userId);
 				var reservation = new Reservation
