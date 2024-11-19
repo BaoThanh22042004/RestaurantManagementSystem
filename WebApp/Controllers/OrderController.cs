@@ -513,21 +513,36 @@ namespace WebApp.Controllers
             return Json(new { success = true });
         }
 
-        [HttpPost("Details/{orderId}/DeleteOrderItem/{orderItemId}")]
-        public async Task<IActionResult> DeleteOrderItemConfirmed(long orderId, long orderItemId)
+        [HttpGet("DeleteOrderItem/{orderItemId}")]
+        public async Task<IActionResult> DeleteOrderItem(long orderItemId)
+        {
+            var orderItem = await _orderItemRepository.GetByIDAsync(orderItemId);
+            if (orderItem == null)
+            {
+                return NotFound();
+            }
+
+            var orderItemViewModel = new OrderItemViewModel(orderItem);
+
+            return PartialView("_DeleteOrderItemModal", orderItemViewModel);
+        }
+
+        [HttpPost("DeleteOrderItem/{orderItemId}")]
+        public async Task<IActionResult> DeleteOrderItemConfirmed(long orderItemId)
         {
             try
             {
                 var orderItem = await _orderItemRepository.GetByIDAsync(orderItemId);
                 if (orderItem == null)
                 {
-                    return Json(new { success = false, error = "Order item not found." });
+                    return NotFound();
                 }
 
-                if (orderItem.Status != OrderItemStatus.Pending)
+                if (orderItem.Status != OrderItemStatus.Reservation && orderItem.Status != OrderItemStatus.Pending)
                 {
-                    return Json(new { success = false, error = "Cannot delete this order item because its status is not Pending." });
-                }
+                    TempData["Error"] = "Cannot delete the order item because it is preparing, ready or served.";
+					return RedirectToAction("DeleteOrderItem", new { orderItemId });
+				}
 
                 await _orderItemRepository.DeleteAsync(orderItemId);
 
@@ -536,8 +551,8 @@ namespace WebApp.Controllers
             catch (Exception)
             {
                 TempData["Error"] = "An error occurred while deleting the order item. Please try again later.";
-                return Json(new { success = false, error = TempData["Error"] });
-            }
+				return RedirectToAction("DeleteOrderItem", new { orderItemId });
+			}
         }
     }
 }

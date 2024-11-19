@@ -69,10 +69,10 @@ else
 				</div>
 				@foreach (var item in category)
 				{
-					<div class="col-md-4 mb-4">
+					<div class="col-lg-4 col-md-6 col-sm-6 mb-4">
 						<div class="card h-100 shadow-sm">
 							<div onclick="detailsDish(@item.DishId)" class="text-decoration-none text-dark clickable">
-								<img src="@item.ImagePath" onerror="this.src='https://placehold.co/360x360'" class="card-img-top rounded-top" alt="Dish Image" style="width: 100%; height: 360px; object-fit: cover;">
+								<img src="@item.ImagePath" onerror="this.src='https://placehold.co/360x360'" class="card-img-top rounded-top" alt="Dish Image" style="width: 100%; aspect-ratio: 1/1; object-fit: cover;">
 								<div class="card-body">
 									<h5 class="card-title">@item.DishName</h5>
 									<p class="card-text">Price: @item.Price</p>

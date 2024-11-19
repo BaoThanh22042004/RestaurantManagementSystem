@@ -1,96 +1,93 @@
 ﻿@model OrderViewModel
 
 <form method="post" asp-action="Delete" id="form">
-<partial name="Partials/_ModalHeader" model='"Delete Dish"' />
-    <div class="modal-body" id="modalBody">
-<div class="card">
-    @if (@TempData["Error"] != null)
-    {
-        <div class="alert alert-danger" role="alert">
-            @TempData["Error"]
-        </div>
-    }
-    <div class="card-body">
-        <h4 class="card-title">Order Information</h4>
-        <dl class="row">
-            <dt class="col-sm-3">Order ID</dt>
-            <dd class="col-sm-9">
-                <span>@Model.OrderId</span>
-            </dd>
+	<partial name="Partials/_ModalHeader" model='"Delete Order"' />
+	<div class="modal-body" id="modalBody">
 
-            <dt class="col-sm-3">Table ID</dt>
-            <dd class="col-sm-9">
-                <span>@Model.TableId</span>
-            </dd>
+		<partial name="Partials/_AlertDanger" model="@TempData["Error"]" />
 
-            <dt class="col-sm-3">Reservation ID</dt>
-            <dd class="col-sm-9">
-                <span>@Model.ResId</span>
-            </dd>
+		<h4 class="mb-3 text-center">Order Information</h4>
 
-            <dt class="col-sm-3">Created At</dt>
-            <dd class="col-sm-9">
-                <span>@(Model.CreatedAt != DateTime.MinValue ? Model.CreatedAt.ToString("g") : "Not Set")</span>
-            </dd>
+		<div class="card">
+			<div class="card-body">
+				<dl class="row">
+					<dt class="col-sm-4">Order ID</dt>
+					<dd class="col-sm-8">
+						<span>@Model.OrderId</span>
+					</dd>
 
-            <dt class="col-sm-3">Order Status</dt>
-            <dd class="col-sm-9">
-                <span>@Model.Status</span>
-            </dd>
-        </dl>
-    </div>
-</div>
+					<dt class="col-sm-4">Table Number</dt>
+					<dd class="col-sm-8">
+						<span>@Model.Table?.TableName</span>
+					</dd>
 
-<h4>Order Items</h4>
+					<dt class="col-sm-4">Reservation ID</dt>
+					<dd class="col-sm-8">
+						<span>@(Model.ResId?.ToString() ?? "N/A")</span>
+					</dd>
 
-@if (Model.OrderItems != null && Model.OrderItems.Any())
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Order Item Id</th>
-                <th>Dish ID</th>
-                <th>Quantity</th>
-                <th>Create By</th>
-                <th>Price</th>
-                <th>Status</th>
-                <th>Notes</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.OrderItems.Count; i++)
-            {
-                <tr>
-                    <td>
-                        <span>@Model.OrderItems[i].OrItemId</span>
-                    </td>
-                    <td>
-                        <span>@Model.OrderItems[i].DishId</span>
-                    </td>
-                    <td>
-                        <span>@Model.OrderItems[i].Quantity</span>
-                    </td>
-                    <td>
-                        <span>@Model.OrderItems[i].CreatedBy</span>
-                    </td>
-                    <td>
-                        <span>@Model.OrderItems[i].Price?.ToString("C")</span>
-                    </td>
-                    <td>                     
-                        <span>@Model.OrderItems[i].Status</span>
-                    </td>
-                    <td>
-                        <span>@(string.IsNullOrEmpty(Model.OrderItems[i].Notes) ? "None" : Model.OrderItems[i].Notes)</span>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-</div>
-@{
-    string deleteButton = "<button type='submit' class='btn btn-danger'>Delete</button>";
-}
+					<dt class="col-sm-4">Created At</dt>
+					<dd class="col-sm-8">
+						<span>@(Model.CreatedAt != DateTime.MinValue ? Model.CreatedAt.ToString("g") : "Not Set")</span>
+					</dd>
 
-<partial name="Partials/_ModalFooter" model='@deleteButton' />
+					<dt class="col-sm-4">Order Status</dt>
+					<dd class="col-sm-8">
+						<span>@Model.Status</span>
+					</dd>
+				</dl>
+			</div>
+		</div>
+
+		<h4 class="my-3 text-center">Order Items</h4>
+
+		@if (Model.OrderItems != null && Model.OrderItems.Any())
+		{
+			<div class="table-responsive">
+				<table class="table table-bordered">
+					<thead class="table-dark">
+						<tr>
+							<th>Dish Name</th>
+							<th>Quantity</th>
+							<th>Create By</th>
+							<th>Price</th>
+							<th>Status</th>
+							<th>Notes</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in Model.OrderItems)
+						{
+							<tr>
+								
+								<td>
+									<span>@item.Dish?.DishName</span>
+								</td>
+								<td>
+									<span>@item.Quantity</span>
+								</td>
+								<td>
+									<span>@item.CreatedBy</span>
+								</td>
+								<td>
+									<span>@item.Dish?.Price.ToString("C")</span>
+								</td>
+								<td>
+									<span>@item.Status</span>
+								</td>
+								<td>
+									<span>@(@item.Notes ?? "None")</span>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+	@{
+		string deleteButton = "<button type='submit' class='btn btn-danger'>Delete</button>";
+	}
+
+	<partial name="Partials/_ModalFooter" model='@deleteButton' />
 </form>

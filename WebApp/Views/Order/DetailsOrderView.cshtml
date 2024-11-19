@@ -32,11 +32,11 @@
 		{
 			<button class='btn btn-primary' onclick='assignTable(@Model.OrderId)'>Assign Table</button>
 		}
-		@if (Model.Status != OrderStatus.Paid)
+		@if (Model.Status == OrderStatus.Serving)
 		{
 			<button class='btn btn-success' onclick='payment(@Model.OrderId)'>Payment</button>
 		}
-		else
+		else if (Model.Status == OrderStatus.Paid)
 		{
 			<button class='btn btn-success' onclick='detailsPayment(@Model.OrderId)'>Payment</button>
 		}
@@ -86,15 +86,21 @@
 
 <h1 class="my-4 text-center">Order Items</h1>
 
-<div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
-	<div class="d-inline-block">
-		<button class='btn btn-primary' onclick='editOrderItem(@Model.OrderId)'>Edit Order Item</button>
-	</div>
+@if (Model.Status != OrderStatus.Cancelled)
+{
+	<div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
+		<div class="d-inline-block">
+			<button class='btn btn-primary' onclick='editOrderItem(@Model.OrderId)'>Edit Order Item</button>
+		</div>
 
-	<div class="d-inline-block">
-		<button class='btn btn-primary' onclick='menuOrder(@Model.OrderId)'>Menu</button>
+		<div class="d-inline-block">
+			@if (Model.Status != OrderStatus.Paid)
+			{
+				<button class='btn btn-primary' onclick='menuOrder(@Model.OrderId)'>Menu</button>
+			}
+		</div>
 	</div>
-</div>
+}
 
 @if (Model.OrderItems != null && Model.OrderItems.Any())
 {
@@ -109,24 +115,31 @@
 						<th>Price</th>
 						<th>Status</th>
 						<th>Notes</th>
-						<th class="text-center">Action</th>
+						@if (Model.Status == OrderStatus.Reservation || Model.Status == OrderStatus.Serving)
+						{
+							<th class="text-center">Action</th>
+						}
 					</tr>
 				</thead>
 				<tbody>
 					@foreach (var item in Model.OrderItems)
 					{
 						<tr>
-							<td>@item.Dish.DishName</td>
+							<td>@item.Dish?.DishName</td>
 							<td>@item.Quantity</td>
-							<td>@item.Creator.FullName</td>
+							<td>@item.Creator?.FullName</td>
 							<td>@item.Price?.ToString("C")</td>
 							<td class="fw-bold text-@GetStatusColor(@item.Status)">@item.Status.ToString()</td>
 							<td>@(string.IsNullOrEmpty(item.Notes) ? "None" : item.Notes)</td>
-							<td class="text-center">
-								<div class="btn-group" role="group">
-									<button class="btn btn-danger" onclick="deleteOrderItem(@Model.OrderId, @item.OrItemId)">Delete</button>
-								</div>
-							</td>
+							@if (Model.Status == OrderStatus.Reservation || Model.Status == OrderStatus.Serving)
+							{
+								<td class="text-center">
+									<div class="btn-group" role="group">
+										<button class="btn btn-danger" onclick="deleteOrderItem(@Model.OrderId, @item.OrItemId)">Delete</button>
+									</div>
+								</td>
+							}
+							
 						</tr>
 					}
 				</tbody>
@@ -176,22 +189,13 @@ else
 	}
 
 	function deleteOrderItem(orderId, orderItemId) {
-		if (confirm('Are you sure you want to delete this order item?')) {
-			var url = '@Url.Action("DeleteOrderItemConfirmed", "Order", new { orderId = "__orderId__", orderItemId = "__orderItemId__" })'
-				.replace("__orderId__", orderId)
-				.replace("__orderItemId__", orderItemId);
-
-			$.post(url, function (response) {
-				if (response.success) {
-					alert('Order item deleted successfully.');
-					location.reload();
-				} else {
-					alert('Error deleting order item: ' + response.error);
-				}
-			}).fail(function () {
-				alert('An error occurred while deleting the order item. Please try again later.');
-			});
-		}
+		var url = '@Url.Action("DeleteOrderItem", "Order", new { orderId = "__orderId__", orderItemId = "__orderItemId__" })'
+		.replace("__orderId__", orderId)
+		.replace("__orderItemId__", orderItemId);
+		$.get(url, function (response) {
+			$('#modalContent').html(response);
+			$('#modal').modal('show');
+		});
 	}
 
 	function detailsReservation(id) {

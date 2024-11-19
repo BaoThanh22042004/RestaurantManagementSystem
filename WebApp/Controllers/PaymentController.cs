@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.IdentityModel.Tokens;
 using Models.Entities;
 using Repositories.Interface;
 using System.Collections.Generic;
@@ -86,6 +87,8 @@ namespace WebApp.Controllers
                     if (table != null)
                     {
                         table.Status = TableStatus.Cleaning;
+                        table.Notes = null;
+                        table.ResTime = null;
                         await _tableRepository.UpdateAsync(table);
                     }
                 }
