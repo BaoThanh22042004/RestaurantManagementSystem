@@ -68,7 +68,7 @@ namespace WebApp.Controllers
 
 			TempData["Success"] = "Feedback sent successfully.";
 			ModelState.Clear();
-			return PartialView("_FeedbackForm");
+			return PartialView("_FeedbackForm", GetUserFeedBackViewModel());
 		}
 
 		[Route("Details/{id}")]

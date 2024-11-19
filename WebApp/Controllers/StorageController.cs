@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.IdentityModel.Tokens;
 using Models.Entities;
 using Repositories.Interface;
 using WebApp.Models;
@@ -32,6 +33,10 @@ namespace WebApp.Controllers
 		[HttpGet("Search")]
 		public async Task<IActionResult> Search(string keyword)
 		{
+			if (keyword == null || string.IsNullOrWhiteSpace(keyword)) 
+			{
+				return RedirectToAction("Index", "Storage");
+			}
 			var storages = await _storageRepository.GetAllAsync();
 
 			var storageList = string.IsNullOrWhiteSpace(keyword)

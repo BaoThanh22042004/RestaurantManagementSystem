@@ -120,6 +120,7 @@ namespace WebApp.Controllers
                 }
 
                 var shift = await _shiftRepository.GetByIDAsync(scheduleViewModel.ShiftId);
+
                 if (shift == null)
                 {
                     return await InvalidView("Shift does not exist!");
@@ -193,6 +194,7 @@ namespace WebApp.Controllers
         [Route("Edit/{ScheId}")]
         public async Task<IActionResult> Edit(ScheduleViewModel schedule, int ScheId)
         {
+            Boolean today = false;
             async Task<IActionResult> InvalidView(string? error = null)
             {
                 if (error != null)
@@ -216,10 +218,26 @@ namespace WebApp.Controllers
                 {
                     return NotFound();
                 }
+              
+                if (scheduleEntity.Attendance?.Status != null) 
+                {
+                    return await InvalidView("Cannot edit a schedule has already clock in or clock out!");
+                }
 
                 if (schedule.ScheDate < DateOnly.FromDateTime(DateTime.Now))
                 {
-                    return await InvalidView("Cannot create a schedule with the date in the past!");
+                    return await InvalidView("Cannot edit a schedule with the date in the past!");
+                }
+                else if (schedule.ScheDate == DateOnly.FromDateTime(DateTime.Now))
+                {
+                    today = true;
+                }
+
+                var shift = await _shiftRepository.GetByIDAsync(schedule.ShiftId);
+
+                if (shift.EndTime <= TimeOnly.FromDateTime(DateTime.Now).AddMinutes(-30) && today) 
+                {
+                    return await InvalidView("Cannot edit a schedule with end time less than thirty minutes of current time!");
                 }
 
                 var schedules = await _scheduleRepository.GetAllAsync();
