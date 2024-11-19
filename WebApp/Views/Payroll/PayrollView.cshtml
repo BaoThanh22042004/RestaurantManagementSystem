@@ -87,7 +87,7 @@ else
                             <td class="text-center">
                                 <div class="btn-group" role="group">
                                     <button class="btn btn-info" onclick="details(@item.PayrollId)">Details</button>
-                                    <button class="btn btn-primary" onclick="editPayroll(@item.PayrollId)">Edit</button>
+                                    <button class="btn btn-success @(item.Status == Models.Entities.PayrollStatus.Paid ? "disabled" : "")" onclick="editPayroll(@item.PayrollId)">Paid</button>
                                     <button class="btn btn-danger" onclick="deleteAction(@item.PayrollId)">Delete</button>
                                 </div>
                             </td>
@@ -117,7 +117,7 @@ else
         }
 
         function editPayroll(id) {
-            var url = '@Url.Action("Edit", "Payroll", new { id = "__id__" })'.replace("__id__", id);
+            var url = '@Url.Action("Paid", "Payroll", new { id = "__id__" })'.replace("__id__", id);
             $.get(url, function (response) {
                 $('#modalContent').html(response);
                 $('#modal').modal('show');

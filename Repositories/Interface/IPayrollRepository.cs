@@ -6,6 +6,7 @@ namespace Repositories.Interface
 	{
 		Task<IEnumerable<Payroll>> GetAllAsync();
 		Task<Payroll?> GetByIDAsync(long id);
+		Task<Payroll?> GetByEmployeeIDAndYearMonthAsync(int empId, byte month, short year);
 		Task<Payroll> InsertAsync(Payroll payroll);
 		Task DeleteAsync(long id);
 		Task DeleteAsync(Payroll payroll);

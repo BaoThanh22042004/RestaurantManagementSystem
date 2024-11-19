@@ -57,8 +57,13 @@ namespace WebApp.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create(PayrollViewModel payrollViewModel)
         {
-			async Task<IActionResult> Invalid()
+			async Task<IActionResult> Invalid(string? errorMessage = null)
             {
+                if (errorMessage != null)
+                {
+                    TempData["Error"] = errorMessage;
+
+				}
 				payrollViewModel.EmployeeList = await GetEmployeeList();
 				return PartialView("_CreatePayrollModal", payrollViewModel);
 			}
@@ -80,13 +85,17 @@ namespace WebApp.Controllers
 
 			try
             {
-                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var isExist = (await _payrollRepository.GetByEmployeeIDAndYearMonthAsync(payrollViewModel.EmpId, (byte)payrollViewModel.MonthAndYear.Month, (short)payrollViewModel.MonthAndYear.Year)) != null;
+				if (isExist)
+				{
+					return await Invalid("Payroll for this employee and month/year already exists.");
+				}
+
+				var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 if (!int.TryParse(userIdString, out int userId))
                 {
-					payrollViewModel.EmployeeList = await GetEmployeeList();
-					TempData["Error"] = "Failed to get user information. Please log out and log in again.";
-					return PartialView("_CreatePayrollModal", payrollViewModel);
+					return await Invalid("Failed to get user information. Please log out and log in again.");
                 }
 
                 var creator = await _userRepository.GetByIDAsync(userId);
@@ -133,8 +142,8 @@ namespace WebApp.Controllers
             return PartialView("_DetailsPayrollModal", payrollViewModel);
         }
 
-        [HttpGet("Edit/{id}")]
-        public async Task<IActionResult> Edit(long id)
+        [HttpGet("Paid/{id}")]
+        public async Task<IActionResult> Paid(long id)
         {
             var payroll = await _payrollRepository.GetByIDAsync(id);
             if (payroll == null)
@@ -143,11 +152,11 @@ namespace WebApp.Controllers
             }
 
             var payrollViewModel = new PayrollViewModel(payroll);
-            return PartialView("_EditPayrollModal", payrollViewModel);
+            return PartialView("_PaidPayrollModal", payrollViewModel);
         }
 
-        [HttpPost("Edit/{id}")]
-        public async Task<IActionResult> Edit(PayrollViewModel payrollViewModel)
+        [HttpPost("Paid/{id}")]
+        public async Task<IActionResult> Paid(PayrollViewModel payrollViewModel)
         {
 			var payrollEntity = await _payrollRepository.GetByIDAsync(payrollViewModel.PayrollId.Value);
 			if (payrollEntity == null)
@@ -159,13 +168,13 @@ namespace WebApp.Controllers
 
 			if (!ModelState.IsValid)
             {
-                return PartialView("_EditPayrollModal", payrollVM);
+                return PartialView("_PaidPayrollModal", payrollVM);
             }
 
             if (payrollViewModel.Status == PayrollStatus.Paid && payrollViewModel.PaymentDate == null)
             {
                 ModelState.AddModelError("PaymentDate", "Payment date is required.");
-				return PartialView("_EditPayrollModal", payrollVM);
+				return PartialView("_PaidPayrollModal", payrollVM);
 			}
 
             try
@@ -178,7 +187,7 @@ namespace WebApp.Controllers
             catch (Exception)
             {
                 TempData["Error"] = "An error occurred while updating the payroll. Please try again later.";
-                return PartialView("_EditPayrollModal", payrollVM);
+                return PartialView("_PaidPayrollModal", payrollVM);
             }
 
             return Json(new { success = true });

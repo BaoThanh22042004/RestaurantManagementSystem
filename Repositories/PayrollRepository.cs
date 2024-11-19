@@ -114,5 +114,11 @@ namespace Repositories
 			_context.Dispose();
 			GC.SuppressFinalize(this);
 		}
+
+		public Task<Payroll?> GetByEmployeeIDAndYearMonthAsync(int empId, byte month, short year)
+		{
+			var sqlGetPayrollByEmpIdAndYearMonth = "SELECT * FROM Payrolls WHERE EmpId = {0} AND Month = {1} AND Year = {2}";
+			return _context.Payrolls.FromSqlRaw(sqlGetPayrollByEmpIdAndYearMonth, empId, month, year).FirstOrDefaultAsync();
+		}
 	}
 }
