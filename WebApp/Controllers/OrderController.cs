@@ -336,7 +336,7 @@ namespace WebApp.Controllers
             {
                 orderItem.DishId = dishId;
                 orderItem.StatusOptions = GetOrderItemStatusList();
-                return PartialView("_AddOrderItemView", orderItem);
+                return PartialView("_AddOrderItemModal", orderItem);
             }
 
             var dish = await _dishRepository.GetByIDAsync(orderItem.DishId);

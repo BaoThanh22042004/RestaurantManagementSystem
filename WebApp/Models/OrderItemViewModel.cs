@@ -21,6 +21,7 @@ namespace WebApp.Models
 
         [Required(ErrorMessage = "Quantity is required.")]
         [Range(1, short.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
+        
         [Display(Name = "Quantity")]
         public short Quantity { get; set; }
 

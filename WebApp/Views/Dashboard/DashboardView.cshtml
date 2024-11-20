@@ -1,7 +1,113 @@
-﻿@{
+﻿@model IEnumerable<Models.Entities.FinancialReport>?
+@{
 	ViewData["Title"] = "Dashboard";
 	Layout = "_DashboardLayout";
 }
 
-<h1>Dashboard</h1>
-<h2>Welcome, @User?.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value</h2>
+@functions {
+	string GetWelcomeMessage()
+	{
+		var now = DateTime.Now;
+		switch (now.Hour)
+		{
+			case int n when (n >= 0 && n < 12):
+				return "Good Morning";
+			case int n when (n >= 12 && n < 18):
+				return "Good Afternoon";
+			case int n when (n >= 18 && n < 24):
+				return "Good Evening";
+			default:
+				return "Welcome";
+		}
+	}
+}
+
+<h1 class="text-center mb-4">Dashboard</h1>
+<h2>@GetWelcomeMessage(), @User?.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value</h2>
+
+@if (Model != null)
+{
+	<hr class="my-5" />
+
+	<h1 class="text-center mb-4">Financial Report</h1>
+	<div>
+		<canvas id="financialReportChart"></canvas>
+	</div>
+}
+
+
+@section Scripts {
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+	<script>
+		// Pass the data from Razor to JavaScript
+		const financialReports = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+		// const financialReports = [{ "Year": 2024, "Month": 11, "Revenue": 100.00, "Cost": 200, "Profit": -100 }, 
+		// { "Year": 2024, "Month": 9, "Revenue": 400.00, "Cost": 150, "Profit": 250 }, 
+		// { "Year": 2024, "Month": 8, "Revenue": 500.00, "Cost": 350, "Profit": 150 }];
+
+		// Extract data for the chart
+		const labels = financialReports.map(report => `${report.Year}-${String(report.Month).padStart(2, '0')}`);
+		const revenueData = financialReports.map(report => report.Revenue);
+		const costData = financialReports.map(report => report.Cost);
+		const profitData = financialReports.map(report => report.Profit);
+
+		// Create the Chart.js chart
+		const ctx = document.getElementById('financialReportChart').getContext('2d');
+		new Chart(ctx, {
+			type: 'bar', // Line chart
+			data: {
+				labels: labels, // X-axis labels
+				datasets: [
+					{
+						label: 'Revenue',
+						data: revenueData,
+						borderColor: 'rgba(75, 192, 192, 1)',
+						backgroundColor: 'rgba(75, 192, 192, 0.2)',
+						borderWidth: 2,
+						fill: true
+					},
+					{
+						label: 'Cost',
+						data: costData,
+						borderColor: 'rgba(255, 99, 132, 1)',
+						backgroundColor: 'rgba(255, 99, 132, 0.2)',
+						borderWidth: 2,
+						fill: true
+					},
+					{
+						label: 'Profit',
+						data: profitData,
+						borderColor: 'rgba(54, 162, 235, 1)',
+						backgroundColor: 'rgba(54, 162, 235, 0.2)',
+						borderWidth: 2,
+						fill: true
+					}
+				]
+			},
+			options: {
+				responsive: true,
+				plugins: {
+					legend: {
+						position: 'top',
+					},
+				},
+				scales: {
+					x: {
+						title: {
+							display: true,
+							text: 'Month'
+						}
+					},
+					y: {
+						title: {
+							display: true,
+							text: 'Amount ($)'
+						},
+						beginAtZero: true
+					}
+				}
+			}
+		});
+	</script>
+}

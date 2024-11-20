@@ -10,10 +10,8 @@ namespace TestDBContext
 		{
 			var context = new DBContext();
 
-			context.Database.EnsureDeleted();
-			Console.WriteLine("Database deleted.");
-			context.Database.EnsureCreated();
-			Console.WriteLine("Database created.");
+			context.ResetDatabase();
+			Console.WriteLine("Database reset.");
 
 			Console.WriteLine("Adding user data...");
 			AddUserData(context).Wait();

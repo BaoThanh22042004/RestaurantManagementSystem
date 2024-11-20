@@ -35,7 +35,9 @@ namespace Models
 		public DbSet<Payroll> Payrolls { get; set; }
 
 		public DbSet<FeedBack> Feedbacks { get; set; }
-		
+
+		public DbSet<FinancialReport> FinancialReports { get; set; }
+
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			var connectionString = new ConfigurationBuilder()
@@ -195,7 +197,52 @@ namespace Models
 			#region Feedback
 			#endregion
 
+			#region FinancialReport
+			modelBuilder.Entity<FinancialReport>()
+						.ToView("FinancialReports")
+						.HasNoKey();
+			#endregion
+
 			base.OnModelCreating(modelBuilder);
+		}
+
+		public void ResetDatabase()
+		{
+			Database.EnsureDeleted();
+			Database.EnsureCreated();
+			CreateFinancialReportView();
+		}
+
+		private void CreateFinancialReportView()
+		{
+			string sql = @"CREATE VIEW FinancialReports AS
+							SELECT 
+								ISNULL(r.[Year], c.[Year]) AS [Year],
+								ISNULL(r.[Month], c.[Month]) AS [Month],
+								ISNULL(r.Revenue, 0) AS Revenue,
+								ISNULL(c.Cost, 0) AS Cost,
+								ISNULL(r.Revenue, 0) - ISNULL(c.Cost, 0) AS Profit
+							FROM 
+								(SELECT 
+										YEAR(b.CreatedAt) AS [Year], 
+										MONTH(b.CreatedAt) AS [Month], 
+										SUM(b.TotalAmount) AS Revenue
+									FROM 
+										Bills b
+									GROUP BY 
+										YEAR(b.CreatedAt), MONTH(b.CreatedAt)) r
+							FULL OUTER JOIN 
+								(SELECT 
+										YEAR(sl.CreatedAt) AS [Year], 
+										MONTH(sl.CreatedAt) AS [Month], 
+										SUM(sl.Cost * sl.ChangeQuantity) AS Cost
+									FROM 
+										StorageLogs sl
+									GROUP BY 
+										YEAR(sl.CreatedAt), MONTH(sl.CreatedAt)) c
+							ON 
+								r.[Year] = c.[Year] AND r.[Month] = c.[Month]";
+			Database.ExecuteSqlRaw(sql);
 		}
 	}
 }

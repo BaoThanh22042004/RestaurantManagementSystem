@@ -36,6 +36,7 @@ namespace WebApp
             builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
             builder.Services.AddScoped<IPayrollRepository, PayrollRepository>();
             builder.Services.AddScoped<IBillRepository, BillRepository>();
+            builder.Services.AddScoped<IFinancialReportRepository, FinancialReportRepository>();
 
 
             // Register Singleton services
