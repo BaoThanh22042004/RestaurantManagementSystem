@@ -54,6 +54,7 @@ namespace WebApp.Controllers
 
 			try
 			{
+				var shiftEntitys = await _shiftRepository.GetAllAsync();
 				var startTime = shiftViewModel.StartTime;
 				var endTime = shiftViewModel.EndTime;
                 TimeSpan duration;
@@ -70,6 +71,13 @@ namespace WebApp.Controllers
                     return await InvalidView("Cannot create a Shift with the start time greater than end time!");
                 }
 
+				foreach (Shift item in shiftEntitys) 
+				{
+                    if (item.StartTime == shiftViewModel.StartTime && item.EndTime == shiftViewModel.EndTime)
+                    {
+                        return await InvalidView("This Shift has already exists!");
+                    }
+                }				
 				var shift = new Shift
 				{
 					ShiftName = shiftViewModel.ShiftName,
@@ -148,6 +156,7 @@ namespace WebApp.Controllers
 					return NotFound();
 				}
 
+                var shiftEntitys = await _shiftRepository.GetAllAsync();
                 var startTime = shift.StartTime;
                 var endTime = shift.EndTime;
                 TimeSpan duration;
@@ -162,6 +171,14 @@ namespace WebApp.Controllers
                 if (shift.EndTime < shift.StartTime)
                 {
                     return await InvalidView("Cannot create a Shift with the start time greater than end time!");
+                }
+
+                foreach (Shift item in shiftEntitys)
+                {
+                    if (item.StartTime == shift.StartTime && item.EndTime == shift.EndTime && item.ShiftId != ShiftId)
+                    {
+                        return await InvalidView("This Shift has already exists!");
+                    }
                 }
 
                 shiftEntity.ShiftName = shift.ShiftName;
