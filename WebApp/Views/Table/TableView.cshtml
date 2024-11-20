@@ -37,10 +37,13 @@
 						</div>
 						<div class="card-footer d-flex justify-content-between">
 							<button onclick='edit(@table.TableId)' class='btn btn-primary border'>Edit</button>
-							<button onclick='deleteAction(@table.TableId)' class='btn btn-danger border'>Delete</button>
+							@if (User.IsInRole("Manager"))
+							{
+								<button onclick='deleteAction(@table.TableId)' class='btn btn-danger border'>Delete</button>
+							}
 						</div>
 					</div>
-					
+
 				</div>
 			</div>
 		}

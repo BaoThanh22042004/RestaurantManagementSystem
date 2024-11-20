@@ -70,9 +70,12 @@ else
 									<button type="button" onclick="edit(@reservation.ResId)" class="btn btn-primary">
 										Edit
 									</button>
-									<button type="button" onclick="deleteAction(@reservation.ResId)" class="btn btn-danger">
-										Delete
-									</button>
+									@if (User.IsInRole("Manager"))
+									{
+										<button type="button" onclick="deleteAction(@reservation.ResId)" class="btn btn-danger">
+											Delete
+										</button>
+									}
 								</div>
 							</td>
 						</tr>
