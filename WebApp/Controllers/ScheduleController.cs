@@ -59,19 +59,8 @@ namespace WebApp.Controllers
 
         public async Task<IActionResult> Index(string week)
         {
-            var allShifts = await GetShiftList();
-
-            var allUsers = await GetUserList();
-
-            var allUserRoleByIds = await GetUserRole();
-
             var schedules = await _scheduleRepository.GetAllAsync();
-            var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule)
-            {
-                ShiftOptions = allShifts,
-                EmployeeOptions = allUsers,
-                EmployeeRoleOptions = allUserRoleByIds
-            });
+            var scheduleList = schedules.Select(schedule => new ScheduleViewModel(schedule));
 
             return View("ScheduleView", scheduleList);
         }

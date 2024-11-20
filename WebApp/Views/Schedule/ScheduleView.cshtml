@@ -1,392 +1,334 @@
 ﻿@using System.Globalization
+@using Models.Entities
 @model IEnumerable<ScheduleViewModel>
 @{
-    ViewData["Title"] = "Schedules";
-    Layout = "_DashboardLayout";
+	ViewData["Title"] = "Schedules";
+	Layout = "_DashboardLayout";
 }
 
 @{
-    static List<DateOnly> listDate(string week)
-    {
-        List<DateOnly> list = new List<DateOnly>();
+	var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+	var requestWeek = string.IsNullOrWhiteSpace(Context.Request.Query["week"]) ? GetCurrentWeek() : Context.Request.Query["week"].ToString();
 
-        string[] listS = week.Split('-');
+	static string GetCurrentWeek()
+	{
+		DateTime today = DateTime.Now;
+		CultureInfo culture = CultureInfo.InvariantCulture;
+		Calendar calendar = culture.Calendar;
 
-        int year = int.Parse(listS[0]);
+		int weekNumber = culture.Calendar.GetWeekOfYear(
+			today,
+			CalendarWeekRule.FirstFourDayWeek,
+			DayOfWeek.Monday
+		);
 
-        int weekNumber = int.Parse(listS[1].Substring(1));
+		return $"{today.Year}-W{weekNumber:D2}";
+	}
 
-        DateOnly currentDate = DateOnly.FromDateTime(GetStartOfWeek(year, weekNumber));
-        for (int i = 0; i < 7; i++)
-        {
-            list.Add(currentDate);
-            currentDate = currentDate.AddDays(1);
-        }
-        return list;
-    }
+	static DateTime GetStartOfWeek(int year, int weekNumber)
+	{
+		// Start with January 4th of the given year (always in the first ISO week)
+		DateTime jan4 = new DateTime(year, 1, 4);
 
-    static string GetCurrentWeek()
-    {
-        DateTime today = DateTime.Now;
+		// Find the Monday of that week
+		DateTime startOfFirstWeek = jan4.AddDays(-(int)(jan4.DayOfWeek == DayOfWeek.Sunday ? 7 : jan4.DayOfWeek - DayOfWeek.Monday));
 
-        CultureInfo cul = CultureInfo.InvariantCulture;
-        Calendar calendar = cul.Calendar;
+		// Add the number of weeks minus one to get the desired week's Monday
+		return startOfFirstWeek.AddDays((weekNumber - 1) * 7);
+	}
 
-        int weekNumber = cul.Calendar.GetWeekOfYear(
-            today,
-            CalendarWeekRule.FirstFourDayWeek,
-            DayOfWeek.Monday
-        );
+	static List<DateOnly> GetWeekDates(string? week)
+	{
+		if (string.IsNullOrWhiteSpace(week)) return new();
 
-        int year = today.Year;
+		try
+		{
+			var weekDates = new List<DateOnly>();
+			var weekParts = week.Split('-');
 
-        return $"{year}-W{weekNumber:D2}";
-    }
+			if (!int.TryParse(weekParts[0], out var year) || !int.TryParse(weekParts[1].Replace("W", ""), out var weekNumber))
+			{
+				return new();
+			}
 
-    static DateTime GetStartOfWeek(int year, int weekNumber)
-    {
-        DateTime jan4 = new DateTime(year, 1, 4);
+			var startOfWeek = GetStartOfWeek(year, weekNumber);
+			DateOnly weekStartDate = DateOnly.FromDateTime(startOfWeek);
+			for (int i = 0; i < 7; i++)
+			{
+				weekDates.Add(weekStartDate);
+				weekStartDate = weekStartDate.AddDays(1);
+			}
+			return weekDates;
+		}
+		catch (Exception)
+		{
+			return new();
+		}
+	}
 
-        int daysToMonday = (int)jan4.DayOfWeek - (int)DayOfWeek.Monday;
-        if (daysToMonday < 0)
-        {
-            daysToMonday += 7;
-        }
+	var currentDate = DateOnly.FromDateTime(DateTime.Now);
+	var weekDates = GetWeekDates(requestWeek);
+	var weekSchedules = weekDates.Any() ? Model.Where(s => s.ScheDate >= weekDates[0] && s.ScheDate <= weekDates[6])
+								.GroupBy(s => s.EmployeeName) : null;
 
-        DateTime startOfWeek1 = jan4.AddDays(-daysToMonday);
+	var roleScheduleGroups = Model.Where(s => s.ScheDate >= weekDates[0] && s.ScheDate <= weekDates[6]).GroupBy(s => s.Role == Role.Manager);
 
-        DateTime resultDate = startOfWeek1.AddDays((weekNumber - 1) * 7);
+	void RenderScheduleCells(IEnumerable<ScheduleViewModel> roleGroup)
+	{
+		foreach (var employeeSchedules in roleGroup.GroupBy(s => s.EmpId))
+		{
+			<tr>
+				<td class="fw-bold text-center align-middle fs-4">
+					@employeeSchedules.First().EmployeeName <br />
+					(@employeeSchedules.First().Role)
+				</td>
+				@for (var i = 0; i < 7; i++)
+				{
+					var schedulesForDate = employeeSchedules.Where(s => s.ScheDate == weekDates[i]).OrderBy(t => t.StartTime);
+					if (schedulesForDate.Any())
+					{
+						<td>
+							@foreach (var schedule in schedulesForDate)
+							{
+								<div class="clickable p-2 rounded border my-2">
+									<div onclick="details(@schedule.ScheId)">
+										<div>
+											@schedule.ShiftName
+										</div>
+										<div class="fw-medium">
+											@schedule.StartTime - @schedule.EndTime
+										</div>
+										<div class="fw-bold text-end text-@StatusClass(schedule.Attendance?.Status)">
+											@(schedule.Attendance == null ? "Not Yet" : schedule.Attendance.Status)
+										</div>
+									</div>
+									<div class="btn-group mt-2">
+										@{
+											var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+											if (schedule.EmpId.ToString() == userIdString)
+											{
+												var clockInStart = schedule.StartTime?.AddMinutes(-30) ?? new TimeOnly(0, 0);
+												var clockInEnd = schedule.StartTime?.AddMinutes(30) ?? new TimeOnly(0, 0);
 
-        return resultDate;
-    }
+												var clockOutStart = schedule.StartTime ?? new TimeOnly(0, 0);
+												var clockOutEnd = schedule.EndTime?.AddMinutes(30) ?? new TimeOnly(0, 0);
 
-    DateOnly curDate = DateOnly.FromDateTime(DateTime.Now);
-    List<DateOnly> dateList = listDate(Context.Request.Query["week"].ToString() == "" ? GetCurrentWeek() : Context.Request.Query["week"]);
+												if (schedule.Attendance == null && currentTime.IsBetween(clockInStart, clockInEnd))
+												{
+													<button class="btn btn-primary btn-sm" onclick="confirmClockIn(@schedule.ScheId)">Clock In</button>
+												}
+												else if (schedule.Attendance?.Status == AttendanceStatus.ClockIn && currentTime.IsBetween(clockOutStart, clockOutEnd))
+												{
+													<button class="btn btn-primary btn-sm" onclick="confirmClockOut(@schedule.ScheId)">Clock Out</button>
+												}
+											}
+										}
+										@if (User.IsInRole("Manager") && schedule.Attendance == null)
+										{
+											<button class="btn btn-info btn-sm" onclick="edit(@schedule.ScheId)">Edit</button>
+											<button class="btn btn-danger btn-sm" onclick="deleteAction(@schedule.ScheId)">Delete</button>
+										}
+										
+									</div>
+								</div>
 
+							}
+						</td>
+					}
+					else
+					{
+						<td></td>
+					}
+				}
+			</tr>
+		}
+	}
 }
 
 <h1 class="mb-4 text-center">Schedules</h1>
 
-<div class="mb-3">
-    <button onclick="create()" class="btn btn-primary">Add New Schedule</button>
+<div class="d-grid row-gap-2 d-sm-flex justify-content-between rounded border shadow-sm p-3 mb-2">
+	<div class="d-inline-block">
+		@if (User.IsInRole("Manager"))
+		{
+			<button onclick="create()" class="btn btn-primary">Add New Schedule</button>
+		}
+	</div>
+
+	<div class="d-inline-block">
+		@if (weekSchedules != null)
+		{
+			foreach (var employeeSchedules in weekSchedules)
+			{
+				var todaysSchedules = employeeSchedules
+				.Where(s => s.ScheDate == currentDate && s.Attendance?.Status != AttendanceStatus.ClockOut)
+				.OrderBy(s => s.StartTime);
+
+				if (!todaysSchedules.Any())
+				{
+					continue;
+				}
+
+				foreach (var schedule in todaysSchedules)
+				{
+					var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+					if (schedule.EmpId.ToString() == userIdString)
+					{
+						var clockInStart = schedule.StartTime?.AddMinutes(-30) ?? new TimeOnly(0, 0);
+						var clockInEnd = schedule.StartTime?.AddMinutes(30) ?? new TimeOnly(0, 0);
+
+						var clockOutStart = schedule.StartTime ?? new TimeOnly(0, 0);
+						var clockOutEnd = schedule.EndTime?.AddMinutes(30) ?? new TimeOnly(0, 0);
+
+						if (schedule.Attendance == null && currentTime.IsBetween(clockInStart, clockInEnd))
+						{
+							<button class="btn btn-primary" onclick="confirmClockIn(@schedule.ScheId)">Clock In</button>
+						}
+						else if (schedule.Attendance?.Status == AttendanceStatus.ClockIn && currentTime.IsBetween(clockOutStart, clockOutEnd))
+						{
+							<button class="btn btn-primary" onclick="confirmClockOut(@schedule.ScheId)">Clock Out</button>
+						}
+					}
+				}
+			}
+		}
+	</div>
 </div>
 
-<form method="get" id="weekForm">
-    <input id="week" type="week" class="mb-3" name="week" value="@(Context.Request.Query["week"].ToString() == "" ? GetCurrentWeek() : Context.Request.Query["week"])" />
-</form>
+
 
 @if (!Model.Any())
 {
-    <div class="no-shifts-message text-center mt-5">
-        <h2>No schedules available.</h2>
-        <p>Please add some schedule.</p>
-    </div>
+	<div class="text-center mt-5">
+		<h2>No schedules available.</h2>
+		<p>Please add some schedule.</p>
+	</div>
 }
 else
 {
-    @foreach (var nameList in Model.Where(s => s.ScheDate >= dateList[0] && s.ScheDate <= dateList[6]).GroupBy(s => s.EmployeeName))
-    {
-        var scheInDate = nameList.Where(sche => sche.ScheDate == DateOnly.FromDateTime(DateTime.Now)).OrderBy(t => t.StartTime);
-        if (scheInDate.Any())
-        {
-            @foreach (var sche in scheInDate)
-            {
-                @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
-                {
-                    <div class="mb-3">
-                        <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)">Clock In</button>
-                    </div>
-                    break;
-                }
-                else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
-                {
-                    <div class="mb-3">
-                        <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)">Clock Out</button>
-                    </div>
-                    break;
-                }
-            }
-        }
-    }
-    <table class="table table-bordered border border-3 border-primary">
-        <thead>
-            <tr class="fs-5">
-                <th class="Name fs-6" colspan="2" rowspan="2">Staff's Name</th>
-                <th>Mon</th>
-                <th>Tues</th>
-                <th>Wed</th>
-                <th>Thurs</th>
-                <th>Fri</th>
-                <th>Sat</th>
-                <th>Sun</th>
-            </tr>
-            <tr id='dateRow' class="fs-5">
-                @foreach (var day in dateList)
-                {
-                    <th>@day.ToString("MMM dd")</th>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="border border-3 border-primary non-selectable">
-                <td class="rowName fw-bold" colspan="9">Managers</td>
-            </tr>
-            @foreach (var roleList in Model.Where(s => s.ScheDate >= dateList[0] && s.ScheDate <= dateList[6]).GroupBy(s => s.Role))
-            {
-                if (roleList.First().Role == Models.Entities.Role.Manager)
-                {
-                    foreach (var name in roleList.GroupBy(s => s.EmployeeName))
-                    {
-                        <tr>
-                            <td class="Name fw-bold" colspan="2">
-                                @roleList.First().EmployeeName
-                            </td>
-                            @for (var i = 0; i < 7; i++)
-                            {
-                                var scheInDate = name.Where(sche => sche.ScheDate == dateList[i]).OrderBy(t => t.StartTime);
-                                if (scheInDate.Any())
-                                {
-                                    <td>
-                                        @foreach (var sche in scheInDate)
-                                        {
-                                            <div>
-                                                <div onclick="details(@sche.ScheId)">
-                                                    <div class="shiftName">
-                                                        @sche.ShiftName <br />
-                                                    </div>
-                                                    <div class="shiftTime">
-                                                        @sche.StartTime
-                                                        @sche.EndTime
-                                                    </div>
-                                                    <div class="attendanceStatus text-@StatusClass(sche.Attendance?.Status)">
-                                                        @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
-                                                    {
-                                                        <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)">Clock In</button>
-                                                    }
-                                                    else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
-                                                    {
-                                                        <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)">Clock Out</button>
-                                                    }
-                                                </div>
-                                            </div>
-                                            <button class="btn btn-info" onclick="edit(@sche.ScheId)">Edit</button>
-                                            <button class="btn btn-danger" onclick="deleteAction(@sche.ScheId)">Delete</button>
-                                        }
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td></td>
-                                }
-                            }
-                        </tr>
-                    }
-                }
-            }
-            <tr class="border border-3 border-primary non-selectable">
-                <td class="rowName" colspan="9" style="font-weight: bold">Staffs</td>
-            </tr>
-            @foreach (var roleList in Model.Where(s => s.ScheDate >= dateList[0] && s.ScheDate <= dateList[6]).GroupBy(s => s.Role))
-            {
-                if (roleList.First().Role != Models.Entities.Role.Manager)
-                {
-                    foreach (var name in roleList.GroupBy(s => s.EmployeeName))
-                    {
-                        <tr>
-                            <td class="Name" colspan="2">
-                                <div style="font-weight: bold">
-                                    @roleList.First().EmployeeName
-                                    (@roleList.First().Role)
-                                </div>
-                            </td>
-                            @for (var i = 0; i < 7; i++)
-                            {
-                                var scheInDate = name.Where(sche => sche.ScheDate == dateList[i]).OrderBy(t => t.StartTime);
-                                if (scheInDate.Any())
-                                {
-                                    <td>
-                                        @foreach (var sche in scheInDate)
-                                        {
-                                            <div>
-                                                <div onclick="details(@sche.ScheId)">
-                                                    <div class="shiftName">
-                                                        @sche.ShiftName <br />
-                                                    </div>
-                                                    <div class="shiftTime">
-                                                        @sche.StartTime
-                                                        @sche.EndTime
-                                                    </div>
-                                                    <div class="attendanceStatus text-@StatusClass(sche.Attendance?.Status)">
-                                                        @(sche.Attendance == null ? "Not Yet" : sche.Attendance.Status)
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    @if (sche.Attendance == null && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
-                                                    {
-                                                        <button class="btn btn-primary" onclick="confirmClockIn(@sche.ScheId)">Clock In</button>
-                                                    }
-                                                    else if (sche.Attendance?.Status == Models.Entities.AttendanceStatus.ClockIn && sche.EmpId.ToString() == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value && sche.ScheDate == curDate)
-                                                    {
-                                                        <button class="btn btn-primary" onclick="confirmClockOut(@sche.ScheId)">Clock Out</button>
-                                                    }
-                                                </div>
-                                            </div>
-                                            <button class="btn btn-info" onclick="edit(@sche.ScheId)">Edit</button>
-                                            <button class="btn btn-danger" onclick="deleteAction(@sche.ScheId)">Delete</button>
-                                        }
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td>
-                                    </td>
-                                }
-                            }
-                        </tr>
-                    }
-                }
-            }
+	<div class="table-responsive">
+		<table class="table table-bordered border-dark-subtle">
+			<thead class="table-dark">
+				<tr>
+					<th class="align-content-center text-center" rowspan="2" style="width: 0">
+						<form method="get" id="weekForm">
+							<input id="week" type="week" class="border p-2 rounded" name="week" value="@requestWeek" />
+						</form>
+					</th>
 
-        </tbody>
-    </table>
+					@foreach (DayOfWeek weekday in Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>().OrderBy(day => (int)(day + 6) % 7))
+					{
+						<th class="fs-8">@weekday.ToString().Substring(0, 3)</th>
+					}
+				</tr>
+				<tr id='dateRow' class="fs-6">
+					@foreach (var day in weekDates)
+					{
+						<th>@day.ToString("MMM dd")</th>
+					}
+				</tr>
+			</thead>
+			<tbody>
+
+				@foreach (var roleGroup in roleScheduleGroups)
+				{
+					if (roleGroup.Key)
+					{
+						<tr class="table-primary">
+							<td class="fw-bold text-center fs-4" colspan="9">Managers</td>
+						</tr>
+					}
+					else
+					{
+						<tr class="table-primary">
+							<td class="fw-bold text-center fs-4" colspan="9">Staffs</td>
+						</tr>
+					}
+					RenderScheduleCells(roleGroup);
+				}
+			</tbody>
+		</table>
+	</div>
 }
 
 <style>
-    th, td {
-        vertical-align: middle;
-    }
+	.clickable:hover {
+		background-color: #ccc;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		transform: scale(1.01);
+	}
 
-    .table {
-        border-collapse: collapse;
-        width: 100%;
-        text-align: center;
-    }
-
-        .table div:hover {
-            cursor: pointer;
-            background-color: lightgrey;
-        }
-
-    th, td {
-        vertical-align: middle;
-        width: 12%;
-    }
-
-    .Name {
-        width: 8%;
-    }
-
-    .rowName {
-        cursor: default !important;
-        background-color: transparent !important;
-    }
-
-    tbody td.selected {
-        background-color: #b3d4fc;
-    }
-
-    .shiftName {
-        text-align: left;
-        font-weight: bold;
-    }
-
-    .shiftTime {
-        text-align: left;
-    }
-
-    .attendanceStatus {
-        text-align: right;
-        font-weight: bold;
-    }
-
-    input[type="week"] {
-        width: 15%;
-        padding: 0.6%;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-    }
-
-        input[type="week"]:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-            outline: none;
-        }
 </style>
 
 <!-- Modal -->
 <div class="modal fade" id="modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content" id="modalContent">
-        </div>
-    </div>
+	<div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+		<div class="modal-content" id="modalContent">
+		</div>
+	</div>
 </div>
 
 @functions {
-    string StatusClass(Models.Entities.AttendanceStatus? status) => status switch
-    {
-        Models.Entities.AttendanceStatus.ClockIn => "primary",
-        Models.Entities.AttendanceStatus.ClockOut => "success",
-        Models.Entities.AttendanceStatus.Absent => "danger",
-        _ => "dark"
-    };
+	string StatusClass(Models.Entities.AttendanceStatus? status) => status switch
+	{
+		Models.Entities.AttendanceStatus.ClockIn => "primary",
+		Models.Entities.AttendanceStatus.ClockOut => "success",
+		Models.Entities.AttendanceStatus.Absent => "danger",
+		_ => "dark"
+	};
 }
 
 @section Scripts {
-    <script>
-        function create() {
-            var url = '@Url.Action("Create", "Schedule")';
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-        function details(id) {
-            var url = '@Url.Action("Details", "Schedule", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-        function edit(id) {
-            var url = '@Url.Action("Edit", "Schedule", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-        function deleteAction(id) {
-            var url = '@Url.Action("Delete", "Schedule", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-        function confirmClockIn(id) {
-            var url = '@Url.Action("ConfirmClockIn", "Attendance", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-        function confirmClockOut(id) {
-            var url = '@Url.Action("ConfirmClockOut", "Attendance", new { id = "__id__" })'.replace("__id__", id);
-            $.get(url, function (response) {
-                $('#modalContent').html(response);
-                $('#modal').modal('show');
-            });
-        }
-    </script>
+	<script>
+		function create() {
+			var url = '@Url.Action("Create", "Schedule")';
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function details(id) {
+			var url = '@Url.Action("Details", "Schedule", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function edit(id) {
+			var url = '@Url.Action("Edit", "Schedule", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function deleteAction(id) {
+			var url = '@Url.Action("Delete", "Schedule", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function confirmClockIn(id) {
+			var url = '@Url.Action("ConfirmClockIn", "Attendance", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+		function confirmClockOut(id) {
+			var url = '@Url.Action("ConfirmClockOut", "Attendance", new { id = "__id__" })'.replace("__id__", id);
+			$.get(url, function (response) {
+				$('#modalContent').html(response);
+				$('#modal').modal('show');
+			});
+		}
+	</script>
 
-    <script>
-        $("#week").on("change", function () {
-            $("#weekForm").submit();
-        });
-    </script>
+	<script>
+		$("#week").on("change", function () {
+			$("#weekForm").submit();
+		});
+	</script>
 }
 
 

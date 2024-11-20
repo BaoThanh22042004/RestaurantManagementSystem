@@ -51,7 +51,7 @@ namespace WebApp.Controllers
                 .Select(t => new SelectListItem
                 {
                     Value = t.TableId.ToString(),
-                    Text = $"{t.TableName} ({t.Capacity})"
+                    Text = $"{t.TableName} ({t.Capacity} Seats)"
                 });
 
             return new SelectList(tables, "Value", "Text");
