@@ -69,7 +69,8 @@ namespace WebApp.Controllers
                     CreatedBy = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)),
                     CreatedAt = DateTime.Now,
                     TotalAmount = await CalculateTotalAmount(paymentViewModel.OrderId),
-                    PaymentMethod = paymentViewModel.PaymentMethod
+                    PaymentMethod = paymentViewModel.PaymentMethod,
+                    PaymentTime = DateTime.Now
                 };
                 await _billRepository.InsertAsync(bill);
 

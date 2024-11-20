@@ -27,8 +27,16 @@
             </tbody>
         </table>
         <h4>
-            <span class="form-control-plaintext">Total Amount: @Model.TotalAmount.ToString("C")</span>
+            <span>Total Amount: @Model.TotalAmount.ToString("C")</span>
         </h4>
+
+        <hr class="my-3" />
+        <h5>
+            <span>Payment Method: @(Model.PaymentMethod?.ToString() ?? "N/A")</span>
+        </h5>
+        <h5>
+            <span>Payment Date: @(Model.PaymentTime?.ToString() ?? "N/A")</span>
+        </h5>
     }
     else
     {

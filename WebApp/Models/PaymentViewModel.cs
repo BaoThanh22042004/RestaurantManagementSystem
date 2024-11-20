@@ -51,10 +51,10 @@ namespace WebApp.Models
             BillId = bill.BillId;
             OrderId = bill.OrderId;
             CreatedBy = bill.CreatedBy;
-            CreatedAt = bill.CreatedAt;//
-            TotalAmount = bill.TotalAmount;//
-            PaymentMethod = bill.PaymentMethod;//
-            PaymentTime = bill.PaymentTime;//
+            CreatedAt = bill.CreatedAt;
+            TotalAmount = bill.TotalAmount;
+            PaymentMethod = bill.PaymentMethod;
+            PaymentTime = bill.PaymentTime;
         }
     }
 }
