@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Models;
 using Models.Entities;
+using Quartz;
+using Quartz.AspNetCore;
 using Repositories;
 using Repositories.Interface;
 using System.Security.Claims;
@@ -44,6 +46,19 @@ namespace WebApp
             builder.Services.AddSingleton<InformationManager>();
             builder.Services.AddSingleton<FileUploadManager>();
 			builder.Services.AddSingleton<CartManager>();
+			builder.Services.AddSingleton<QuartzJobScheduler>();
+
+			// Register the Quartz services
+			builder.Services.AddQuartz(q =>
+			{
+				// base Quartz scheduler, job and trigger configuration
+			});
+			builder.Services.AddQuartzServer(options =>
+			{
+				// when shutting down we want jobs to complete gracefully
+				options.WaitForJobsToComplete = true;
+			});
+			builder.Services.AddHostedService<AttendanceJobInitializer>();
 
 			// Add authentication services
 			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

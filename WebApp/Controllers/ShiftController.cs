@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿	using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Entities;
+using Quartz;
 using Repositories;
 using Repositories.Interface;
 using WebApp.Models;
+using WebApp.Utilities;
 
 namespace WebApp.Controllers
 {
@@ -12,10 +14,12 @@ namespace WebApp.Controllers
 	public class ShiftController : Controller
 	{
 		private readonly IShiftRepository _shiftRepository;
+		private readonly ISchedulerFactory _schedulerFactory;
 
-		public ShiftController(IShiftRepository shiftRepository)
+		public ShiftController(IShiftRepository shiftRepository, ISchedulerFactory schedulerFactory)
 		{
 			_shiftRepository = shiftRepository;
+			_schedulerFactory = schedulerFactory;
 		}
 
 		public async Task<IActionResult> Index()
@@ -73,7 +77,11 @@ namespace WebApp.Controllers
 					EndTime = shiftViewModel.EndTime
 				};
 
-				await _shiftRepository.InsertAsync(shift);
+				var entity = await _shiftRepository.InsertAsync(shift);
+
+				// Schedule the job
+				var scheduler = new QuartzJobScheduler(_schedulerFactory);
+				await scheduler.ScheduleCheckAttendanceJob(entity.ShiftId, entity.StartTime, entity.EndTime);
 			}
 			catch (ArgumentException e)
 			{
@@ -162,6 +170,10 @@ namespace WebApp.Controllers
 				shiftEntity.EndTime = shift.EndTime;
 
 				await _shiftRepository.UpdateAsync(shiftEntity);
+
+				// Reschedule the job
+				var scheduler = new QuartzJobScheduler(_schedulerFactory);
+				await scheduler.ScheduleCheckAttendanceJob(shiftEntity.ShiftId, shiftEntity.StartTime, shiftEntity.EndTime);
 			}
 			catch (InvalidOperationException)
 			{
@@ -196,6 +208,10 @@ namespace WebApp.Controllers
 			try
 			{
 				await _shiftRepository.DeleteAsync(ShiftId);
+
+				// UnSchedule the job
+				var scheduler = new QuartzJobScheduler(_schedulerFactory);
+				await scheduler.UnScheduleJob(ShiftId);
 			}
 			catch (Exception)
 			{
