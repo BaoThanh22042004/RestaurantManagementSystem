@@ -16,8 +16,9 @@ namespace WebApp.Utilities
 
 		public async Task Execute(IJobExecutionContext context)
 		{
+			var today = DateOnly.FromDateTime(DateTime.Now);
 			var shiftId = context.JobDetail.JobDataMap.GetInt("ShiftId");
-			var schedules = (await _scheduleRepository.GetAllAsync()).Where(s => s.ShiftId == shiftId);
+			var schedules = (await _scheduleRepository.GetAllAsync()).Where(s => s.ShiftId == shiftId && s.ScheDate == today);
 			
 			foreach (var schedule in schedules)
 			{
@@ -26,7 +27,7 @@ namespace WebApp.Utilities
 
 				if (attendance != null)
 				{
-					if (currentTime > schedule.Shift.EndTime.AddMinutes(30) && attendance.Status != AttendanceStatus.ClockOut)
+					if (currentTime > schedule.Shift.EndTime.AddMinutes(31) && attendance.Status != AttendanceStatus.ClockOut)
 					{
 						attendance.Status = AttendanceStatus.Absent;
 						attendance.WorkingHours = 0;
@@ -34,7 +35,7 @@ namespace WebApp.Utilities
 					}
 					
 				}
-				else if (currentTime > schedule.Shift.StartTime.AddMinutes(30))
+				else if (currentTime > schedule.Shift.StartTime.AddMinutes(31))
 				{
 					attendance = new Attendance
 					{

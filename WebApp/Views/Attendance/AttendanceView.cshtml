@@ -47,7 +47,7 @@ else
 							<td>@(++counter)</td>
 							<td>@item.EmployeeName</td>
 							<td>@item.ScheDate</td>
-							<td>@item.CheckIn</td>
+							<td>@(item.CheckIn == DateTime.MinValue ? string.Empty : item.CheckIn.ToString())</td>
 							<td>@item.CheckOut</td>
 							<td>@item.WorkingHours</td>
 							<td><span class="badge text-bg-@StatusClass(item.Status)">@item.Status</span></td>

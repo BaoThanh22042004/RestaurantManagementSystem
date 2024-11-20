@@ -29,15 +29,15 @@ namespace WebApp.Utilities
 				.UsingJobData("ShiftId", shiftId)
 				.Build();
 
-			var startTimeCheckTime = startTime.AddMinutes(30);
+			var startTimeCheckTime = startTime.AddMinutes(31);
 			var triggerStartTime = TriggerBuilder.Create()
-				.WithIdentity($"ShiftTrigger_{shiftId}")
+				.WithIdentity($"ShiftStartTimeTrigger_{shiftId}")
 				.StartAt(DateBuilder.TodayAt(startTimeCheckTime.Hour, startTimeCheckTime.Minute, 0))
 				.Build();
 
-			var endTimeCheckTime = endTime.AddMinutes(30);
+			var endTimeCheckTime = endTime.AddMinutes(31);
 			var triggerEndTime = TriggerBuilder.Create()
-				.WithIdentity($"ShiftTrigger_{shiftId}")
+				.WithIdentity($"ShiftEndTimeTrigger_{shiftId}")
 				.StartAt(DateBuilder.TodayAt(endTimeCheckTime.Hour, endTimeCheckTime.Minute, 0))
 				.Build();
 

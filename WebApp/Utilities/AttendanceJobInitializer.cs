@@ -18,18 +18,16 @@ namespace WebApp.Utilities
 		{
 			using (var scope = _serviceProvider.CreateScope())
 			{
-				var scheduleRepository = scope.ServiceProvider.GetRequiredService<IScheduleRepository>();
+				var shiftRepository = scope.ServiceProvider.GetRequiredService<IShiftRepository>();
 
-				// Load today's shifts
-				var today = DateOnly.FromDateTime(DateTime.Today);
-				var schedules = (await scheduleRepository.GetAllAsync()).Where(s => s.ScheDate == today);
+				var shifts = await shiftRepository.GetAllAsync();
 
-				foreach (var schedule in schedules)
+				foreach (var shift in shifts)
 				{
 					await _scheduler.ScheduleCheckAttendanceJob(
-						schedule.ShiftId,
-						schedule.Shift.StartTime,
-						schedule.Shift.EndTime
+						shift.ShiftId,
+						shift.StartTime,
+						shift.EndTime
 					);
 				}
 			}
