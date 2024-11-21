@@ -9,7 +9,7 @@ using Action = Models.Entities.Action;
 namespace WebApp.Controllers
 {
 	[Route("Dashboard/StorageLog")]
-	[Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Chef)}")]
+	[Authorize(Roles = $"{nameof(Role.Manager)}, {nameof(Role.Chef)}, {nameof(Role.Accountant)}")]
 	public class StorageLogController : Controller
 	{
 		private readonly IStorageLogRepository _storageLogRepository;
