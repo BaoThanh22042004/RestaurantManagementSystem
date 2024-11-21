@@ -53,11 +53,11 @@ namespace TestDBContext
 		{
 			List<User> users = new List<User>
 			{
-				new User { Username = "user1", Password = "password1", FullName = "John Doe", Email = "JohnDoe@gmail.com", Phone = "0123456789", Role = Role.Manager, Salary = 2000},
-				new User { Username = "user2", Password = "password2", FullName = "Jane Doe", Email = "JaneDoe@gmail.com", Phone = "0123456789", Role = Role.Chef, Salary = 1500},
-				new User { Username = "user3", Password = "password3", FullName = "John Smith", Email = "JohnSmith@gmail.com", Phone = "0123456789", Role = Role.Waitstaff, Salary = 1200},
-				new User { Username = "user4", Password = "password4", FullName = "Jane Smith", Email = "JaneSmith@gmail.com", Phone = "0123456789", Role = Role.Accountant, Salary= 1800},
-				new User { Username = "user5", Password = "password5", FullName = "John Brown", Email = "JohnBrown@gmail.com", Phone = "0123456789", Role = Role.Customer},
+				new User { Username = "manager", Password = "manager", FullName = "John Doe", Email = "JohnDoe@gmail.com", Phone = "0123456789", Role = Role.Manager, Salary = 2000},
+				new User { Username = "chef", Password = "chef", FullName = "Jane Doe", Email = "JaneDoe@gmail.com", Phone = "0123456789", Role = Role.Chef, Salary = 1500},
+				new User { Username = "waitstaff", Password = "waitstaff", FullName = "John Smith", Email = "JohnSmith@gmail.com", Phone = "0123456789", Role = Role.Waitstaff, Salary = 1200},
+				new User { Username = "accountant", Password = "accountant", FullName = "Jane Smith", Email = "JaneSmith@gmail.com", Phone = "0123456789", Role = Role.Accountant, Salary= 1800},
+				new User { Username = "customer", Password = "customer", FullName = "John Brown", Email = "JohnBrown@gmail.com", Phone = "0123456789", Role = Role.Customer},
 			};
 
 			UserRepository userRepository = new UserRepository(context);
