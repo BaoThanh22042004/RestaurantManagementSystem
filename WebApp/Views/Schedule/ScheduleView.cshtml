@@ -105,7 +105,7 @@
 									<div class="btn-group mt-2">
 										@{
 											var currentTime = TimeOnly.FromDateTime(DateTime.Now);
-											if (schedule.EmpId.ToString() == userIdString)
+											if (schedule.EmpId.ToString() == userIdString && schedule.ScheDate == currentDate)
 											{
 												var clockInStart = schedule.StartTime?.AddMinutes(-30) ?? new TimeOnly(0, 0);
 												var clockInEnd = schedule.StartTime?.AddMinutes(30) ?? new TimeOnly(0, 0);
