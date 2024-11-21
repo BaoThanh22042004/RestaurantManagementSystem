@@ -480,6 +480,7 @@ namespace TestDBContext
                 new Attendance { ScheId = 1, Status = AttendanceStatus.ClockIn, CheckIn = DateTime.Today.AddHours(8) },
                 new Attendance { ScheId = 2, Status = AttendanceStatus.ClockOut, CheckIn = DateTime.Today.AddHours(13).AddMinutes(-10), CheckOut = DateTime.Today.AddHours(17).AddMinutes(5), WorkingHours = new decimal(4.9) },
                 new Attendance { ScheId = 3, Status = AttendanceStatus.ClockOut, CheckIn = DateTime.Today.AddHours(18).AddMinutes(5), CheckOut = DateTime.Today.AddHours(22).AddMinutes(10), WorkingHours = new decimal(4.1) },
+
             };
 
             AttendanceRepository attendanceRepository = new AttendanceRepository(context);
@@ -518,51 +519,52 @@ namespace TestDBContext
             new Payroll
             {
                 CreatedBy = 1,
-                CreatedAt = new DateTime(2022, 1, 1),
+                CreatedAt = new DateTime(2024, 11, 22),
                 EmpId = 1,
-                Month = 1,
-                Year = 2022,
+                Month = 11,
+                Year = 2024,
                 WorkingHours = 160,
                 Salary = 2000,
                 Status = PayrollStatus.Paid,
-                PaymentDate = new DateOnly(2022, 1, 31)
+                PaymentDate = new DateOnly(2024, 11, 23)
             },
             new Payroll
             {
                 CreatedBy = 1,
-                CreatedAt = new DateTime(2022, 1, 2),
+                CreatedAt = new DateTime(2024, 11, 22),
                 EmpId = 2,
-                Month = 1,
-                Year = 2022,
+                Month = 11,
+                Year = 2024,
                 WorkingHours = 160,
                 Salary = 1500,
-                Status = PayrollStatus.UnPaid,
-                PaymentDate = new DateOnly(2022, 2, 5)
+                Status = PayrollStatus.UnPaid
+
             },
             new Payroll
             {
                 CreatedBy = 1,
-                CreatedAt = new DateTime(2022, 1, 3),
+                CreatedAt = new DateTime(2024, 11, 22),
                 EmpId = 3,
-                Month = 1,
-                Year = 2022,
+                Month = 11,
+                Year = 2024,
                 WorkingHours = 160,
                 Salary = 1200,
-                Status = PayrollStatus.UnPaid,
-                PaymentDate = new DateOnly(2022, 2, 5)
+                Status = PayrollStatus.UnPaid
             },
             new Payroll
             {
                 CreatedBy = 1,
-                CreatedAt = new DateTime(2022, 1, 4),
+                CreatedAt = new DateTime(2024, 11, 22),
                 EmpId = 4,
-                Month = 1,
-                Year = 2022,
+                Month = 11,
+                Year = 2024,
                 WorkingHours = 160,
                 Salary = 1800,
-                Status = PayrollStatus.Paid,
-                PaymentDate = new DateOnly(2022, 2, 5)
+                Status = PayrollStatus.UnPaid,
+                
+
             }
+
         };
             PayrollRepository payrollRepository = new PayrollRepository(context);
             foreach (var payroll in payrolls)
