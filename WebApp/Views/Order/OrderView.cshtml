@@ -32,7 +32,7 @@
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (var order in Model)
+					@foreach (var order in Model.OrderByDescending(o => o.CreatedAt))
 					{
 						<tr>
 							<td>@order.OrderId</td>

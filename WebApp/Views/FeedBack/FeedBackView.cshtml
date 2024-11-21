@@ -41,7 +41,7 @@ else
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (var feedback in Model)
+					@foreach (var feedback in Model.OrderByDescending(f => f.CreateAt))
 					{
 						<tr>
 							<td>@feedback.FeedbackId</td>

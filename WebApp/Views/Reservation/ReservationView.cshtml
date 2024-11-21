@@ -50,7 +50,7 @@ else
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (var reservation in Model)
+					@foreach (var reservation in Model.OrderByDescending(r => new DateTime(r.ResDate, r.ResTime)))
 					{
 						<tr>
 							<td>@Html.DisplayFor(modelItem => reservation.ResId)</td>

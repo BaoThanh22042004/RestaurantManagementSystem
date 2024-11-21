@@ -17,7 +17,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var payment in Model)
+        @foreach (var payment in Model.OrderByDescending(p => p.CreatedAt))
         {
             <tr>
                 <td>@Html.DisplayFor(modelItem => payment.BillId)</td>

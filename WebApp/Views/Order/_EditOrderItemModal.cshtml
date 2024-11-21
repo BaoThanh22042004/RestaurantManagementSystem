@@ -37,7 +37,7 @@
 							</td>
 							<td>
 								<input type="hidden" asp-for="OrderItems[i].CreatedBy" />
-								<span>@Model.OrderItems[i].CreatedBy</span>
+								<span>@Model.OrderItems[i].Creator?.FullName</span>
 							</td>
 							<td>
 								<input type="hidden" asp-for="OrderItems[i].Price" />

@@ -41,7 +41,7 @@ else
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (var item in Model)
+					@foreach (var item in Model.OrderByDescending(a => a.ScheDate))
 					{
 						<tr>
 							<td>@(++counter)</td>
