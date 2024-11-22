@@ -461,8 +461,6 @@ namespace TestDBContext
 			List<Schedule> schedules = new List<Schedule>
 			{
 				new Schedule { ScheDate = DateOnly.FromDateTime(DateTime.Now), EmpId = empIds[0], ShiftId = shiftIds[0] },
-				new Schedule { ScheDate = DateOnly.FromDateTime(DateTime.Now).AddDays(-1), EmpId = empIds[1], ShiftId = shiftIds[1] },
-				new Schedule { ScheDate = DateOnly.FromDateTime(DateTime.Now).AddDays(-2), EmpId = empIds[2], ShiftId = shiftIds[2] },
 				new Schedule { ScheDate = DateOnly.FromDateTime(DateTime.Now), EmpId = empIds[0], ShiftId = shiftIds[1] },
 				new Schedule { ScheDate = DateOnly.FromDateTime(DateTime.Now), EmpId = empIds[1], ShiftId = shiftIds[2] },
 				new Schedule { ScheDate = DateOnly.FromDateTime(DateTime.Now), EmpId = empIds[2], ShiftId = shiftIds[0] }
@@ -481,8 +479,6 @@ namespace TestDBContext
 		{
 			List<Attendance> attendances = new List<Attendance>
 			{
-				new Attendance { ScheId = 121, Status = AttendanceStatus.ClockOut, CheckIn = DateTime.Today.AddHours(13).AddMinutes(-10), CheckOut = DateTime.Today.AddHours(17).AddMinutes(5), WorkingHours = new decimal(4.9) },
-				new Attendance { ScheId = 122, Status = AttendanceStatus.ClockOut, CheckIn = DateTime.Today.AddHours(18).AddMinutes(5), CheckOut = DateTime.Today.AddHours(22).AddMinutes(10), WorkingHours = new decimal(4.1) },
 			};
 
 			AttendanceRepository attendanceRepository = new AttendanceRepository(context);
